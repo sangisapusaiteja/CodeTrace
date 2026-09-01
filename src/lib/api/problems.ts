@@ -32,11 +32,11 @@ interface VersionRow {
 export async function loadProblems(): Promise<Problem[]> {
   if (!supabaseServerEnabled) return [];
 
-  const problems = await supabaseAdminRequest<ProblemRow[]>("viz_problems", {
+  const problems = await supabaseAdminRequest<ProblemRow[]>("ct_problems", {
     query: { select: "id,slug,title,category_id,difficulty,description,constraints", order: "sort_order.asc" },
   });
 
-  const versionRows = await supabaseAdminRequest<VersionRow[]>("viz_problem_versions", {
+  const versionRows = await supabaseAdminRequest<VersionRow[]>("ct_problem_versions", {
     query: { select: "problem_id,version_id,name,source", order: "sort_order.asc" },
   });
 

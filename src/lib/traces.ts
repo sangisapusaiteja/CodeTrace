@@ -11678,6 +11678,7266 @@ export function trapPrefixMaxTrace(nums: number[]): Trace {
   return steps;
 }
 
+// ── Running Sum of 1d Array ────────────────────────────────────────────
+// Two DISTINCT approaches. nums array.
+
+// Approach 1: Brute Force (Recompute Each Sum).
+// Source (lines):
+// 0: function runningSum(nums) {
+// 1:     var n = nums.length;
+// 2:     var result = new Array(n);
+// 3:
+// 4:     for (var i = 0; i < n; i++) {
+// 5:         var sum = 0;
+// 6:         // Sum all elements from index 0 to i
+// 7:         for (var j = 0; j <= i; j++) {
+// 8:             sum += nums[j];
+// 9:         }
+// 10:        result[i] = sum;
+// 11:    }
+// 12:
+// 13:    return result;
+// 14: }
+export function runningSumBruteTrace(nums: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const n = nums.length;
+  const result = new Array(n);
+
+  const pushStep = (
+    line: number,
+    i: number,
+    j: number,
+    sum: string,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(nums, (idx) => {
+        if (idx === i) return "i";
+        if (idx === j) return "j";
+        return "idle";
+      }),
+      vars: [
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "j", value: j >= 0 ? String(j) : "—", tone: "info" },
+        { name: "sum", value: sum, tone: "info" },
+        { name: "result", value: `[${result.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < n; i++) {
+    let sum = 0;
+    pushStep(5, i, -1, `sum = 0`, `[${result.join(", ")}]`, "info", `Recompute sum for index ${i}.`);
+    for (let j = 0; j <= i; j++) {
+      sum += nums[j];
+      pushStep(8, i, j, `sum → ${sum}`, `[${result.join(", ")}]`, "ok", `Add nums[${j}] = ${nums[j]} → sum = ${sum}.`);
+    }
+    result[i] = sum;
+    pushStep(10, i, -1, `result[${i}] = ${sum}`, `[${result.join(", ")}]`, "ok", `result[${i}] = ${sum}.`);
+  }
+
+  done = true;
+  steps.push({ line: 13, cells: nums.map(() => "idle"), vars: [{ name: "result", value: `[${result.join(", ")}]`, tone: "ok" }], result: `[${result.join(", ")}]`, resultTone: "ok", explanation: `Running sums = [${result.join(", ")}].`, done });
+  return steps;
+}
+
+// Approach 2: Prefix Sum (New Array).
+// Source (lines):
+// 0: function runningSum(nums) {
+// 1:     var n = nums.length;
+// 2:     var result = new Array(n);
+// 3:
+// 4:     result[0] = nums[0];
+// 5:     for (var i = 1; i < n; i++) {
+// 6:         // Each running sum builds on the previous one
+// 7:         result[i] = result[i - 1] + nums[i];
+// 8:     }
+// 9:
+// 10:    return result;
+// 11: }
+export function runningSumPrefixTrace(nums: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const n = nums.length;
+  const result = new Array(n);
+
+  const pushStep = (
+    line: number,
+    i: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(nums, (idx) => (idx === i ? "i" : "idle")),
+      vars: [
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "result", value: `[${result.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  result[0] = nums[0];
+  pushStep(4, 0, `result[0] = ${nums[0]}`, "ok", `result[0] = nums[0] = ${nums[0]}.`);
+
+  for (let i = 1; i < n; i++) {
+    result[i] = result[i - 1] + nums[i];
+    pushStep(7, i, `result[${i}] = ${result[i]}`, "ok", `result[${i}] = result[${i - 1}] + nums[${i}] = ${result[i - 1]} + ${nums[i]} = ${result[i]}.`);
+  }
+
+  done = true;
+  steps.push({ line: 10, cells: nums.map(() => "idle"), vars: [{ name: "result", value: `[${result.join(", ")}]`, tone: "ok" }], result: `[${result.join(", ")}]`, resultTone: "ok", explanation: `Running sums = [${result.join(", ")}].`, done });
+  return steps;
+}
+
+// ── Range Sum Query - Immutable ────────────────────────────────────────
+// Two DISTINCT approaches. nums is the array; left/right are query bounds.
+
+// Approach 1: Brute Force.
+// Source (lines):
+// 0: function NumArray(nums) {
+// 1:   this.nums = nums;
+// 2: }
+// 3: NumArray.prototype.sumRange = function (left, right) {
+// 4:   let sum = 0;
+// 5:   for (let i = left; i <= right; i++) {
+// 6:     sum += this.nums[i];
+// 7:   }
+// 8:   return sum;
+// 9: }
+export function rangeSumBruteTrace(nums: number[], left: number, right: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  let sum = 0;
+
+  const pushStep = (
+    line: number,
+    i: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(nums, (idx) => (idx === i ? "i" : "idle")),
+      vars: [
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "sum", value: String(sum), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = left; i <= right; i++) {
+    sum += nums[i];
+    pushStep(6, i, `sum → ${sum}`, "ok", `Add nums[${i}] = ${nums[i]} → sum = ${sum}.`);
+  }
+
+  done = true;
+  steps.push({ line: 8, cells: nums.map(() => "idle"), vars: [{ name: "sum", value: String(sum), tone: "ok" }], result: String(sum), resultTone: "ok", explanation: `sumRange(${left}, ${right}) = ${sum}.`, done });
+  return steps;
+}
+
+// Approach 2: Prefix Sum.
+// Source (lines):
+// 0: function NumArray(nums) {
+// 1:   // Build prefix sum array where prefix[i] = sum of nums[0..i-1]
+// 2:   this.prefix = new Array(nums.length + 1).fill(0);
+// 3:   for (let i = 0; i < nums.length; i++) {
+// 4:     this.prefix[i + 1] = this.prefix[i] + nums[i];
+// 5:   }
+// 6: }
+// 7: NumArray.prototype.sumRange = function (left, right) {
+// 8:   return this.prefix[right + 1] - this.prefix[left];
+// 9: }
+export function rangeSumPrefixTrace(nums: number[], left: number, right: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const prefix = new Array(nums.length + 1).fill(0);
+
+  const pushStep = (
+    line: number,
+    i: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(nums, (idx) => (idx === i ? "i" : "idle")),
+      vars: [
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "prefix", value: `[${prefix.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < nums.length; i++) {
+    prefix[i + 1] = prefix[i] + nums[i];
+    pushStep(4, i, `prefix[${i + 1}] = ${prefix[i + 1]}`, "ok", `prefix[${i + 1}] = prefix[${i}] + nums[${i}] = ${prefix[i]} + ${nums[i]} = ${prefix[i + 1]}.`);
+  }
+
+  const result = prefix[right + 1] - prefix[left];
+  done = true;
+  steps.push({ line: 8, cells: nums.map(() => "idle"), vars: [{ name: "prefix", value: `[${prefix.join(", ")}]`, tone: "ok" }], result: String(result), resultTone: "ok", explanation: `sumRange(${left}, ${right}) = prefix[${right + 1}] - prefix[${left}] = ${prefix[right + 1]} - ${prefix[left]} = ${result}.`, done });
+  return steps;
+}
+
+// ── Find Pivot Index ────────────────────────────────────────────────────
+// Two DISTINCT approaches.
+
+// Approach 1: Brute Force.
+// Source (lines):
+// 0: function pivotIndex(nums) {
+// 1:     var n = nums.length;
+// 2:
+// 3:     for (var i = 0; i < n; i++) {
+// 4:         var leftSum = 0;
+// 5:         var rightSum = 0;
+// 6:
+// 7:         // Compute left sum for index i
+// 8:         for (var j = 0; j < i; j++) {
+// 9:             leftSum += nums[j];
+// 10:        }
+// 11:
+// 12:        // Compute right sum for index i
+// 13:        for (var j = i + 1; j < n; j++) {
+// 14:            rightSum += nums[j];
+// 15:        }
+// 16:
+// 17:        if (leftSum === rightSum) {
+// 18:            return i;
+// 19:        }
+// 20:    }
+// 21:
+// 22:    return -1;
+// 23: }
+export function pivotIndexBruteTrace(nums: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const n = nums.length;
+
+  const pushStep = (
+    line: number,
+    i: number,
+    j: number,
+    leftSum: number,
+    rightSum: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(nums, (idx) => {
+        if (idx === i) return "i";
+        if (idx === j) return "j";
+        return "idle";
+      }),
+      vars: [
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "j", value: j >= 0 ? String(j) : "—", tone: "info" },
+        { name: "leftSum", value: String(leftSum), tone: "info" },
+        { name: "rightSum", value: String(rightSum), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < n; i++) {
+    let leftSum = 0;
+    for (let j = 0; j < i; j++) {
+      leftSum += nums[j];
+      pushStep(9, i, j, leftSum, 0, `leftSum → ${leftSum}`, "info", `Add nums[${j}] = ${nums[j]} → leftSum = ${leftSum}.`);
+    }
+    let rightSum = 0;
+    for (let j = i + 1; j < n; j++) {
+      rightSum += nums[j];
+      pushStep(14, i, j, leftSum, rightSum, `rightSum → ${rightSum}`, "info", `Add nums[${j}] = ${nums[j]} → rightSum = ${rightSum}.`);
+    }
+    if (leftSum === rightSum) {
+      pushStep(17, i, -1, leftSum, rightSum, "equal!", "ok", `leftSum = rightSum = ${leftSum} → return ${i}.`);
+      done = true;
+      steps.push({ line: 18, cells: nums.map(() => "idle"), vars: [{ name: "result", value: String(i), tone: "ok" }], result: String(i), resultTone: "ok", explanation: `Pivot index = ${i}.`, done });
+      return steps;
+    }
+    pushStep(17, i, -1, leftSum, rightSum, "not equal", "fail", `leftSum = ${leftSum} ≠ rightSum = ${rightSum}.`);
+  }
+
+  done = true;
+  steps.push({ line: 22, cells: nums.map(() => "idle"), vars: [{ name: "result", value: "-1", tone: "fail" }], result: "-1", resultTone: "fail", explanation: `No pivot index found → return -1.`, done });
+  return steps;
+}
+
+// Approach 2: Prefix Sum (Optimal).
+// Source (lines):
+// 0: function pivotIndex(nums) {
+// 1:     var totalSum = 0;
+// 2:     for (var i = 0; i < nums.length; i++) {
+// 3:         totalSum += nums[i];
+// 4:     }
+// 5:
+// 6:     var leftSum = 0;
+// 7:     for (var i = 0; i < nums.length; i++) {
+// 8:         // Right sum is everything except leftSum and nums[i]
+// 9:         var rightSum = totalSum - leftSum - nums[i];
+// 10:        if (leftSum === rightSum) {
+// 11:            return i;
+// 12:        }
+// 13:        leftSum += nums[i];
+// 14:    }
+// 15:
+// 16:    return -1;
+// 17: }
+export function pivotIndexPrefixTrace(nums: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  let totalSum = 0;
+  for (const v of nums) totalSum += v;
+
+  const pushStep = (
+    line: number,
+    i: number,
+    leftSum: number,
+    rightSum: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(nums, (idx) => (idx === i ? "i" : "idle")),
+      vars: [
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "leftSum", value: String(leftSum), tone: "info" },
+        { name: "rightSum", value: String(rightSum), tone: "info" },
+        { name: "totalSum", value: String(totalSum), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  let leftSum = 0;
+  for (let i = 0; i < nums.length; i++) {
+    const rightSum = totalSum - leftSum - nums[i];
+    pushStep(9, i, leftSum, rightSum, `rightSum = ${rightSum}`, "info", `rightSum = totalSum - leftSum - nums[${i}] = ${totalSum} - ${leftSum} - ${nums[i]} = ${rightSum}.`);
+    if (leftSum === rightSum) {
+      pushStep(10, i, leftSum, rightSum, "equal!", "ok", `leftSum = rightSum = ${leftSum} → return ${i}.`);
+      done = true;
+      steps.push({ line: 11, cells: nums.map(() => "idle"), vars: [{ name: "result", value: String(i), tone: "ok" }], result: String(i), resultTone: "ok", explanation: `Pivot index = ${i}.`, done });
+      return steps;
+    }
+    leftSum += nums[i];
+    pushStep(13, i, leftSum, rightSum, `leftSum → ${leftSum}`, "info", `leftSum += nums[${i}] → ${leftSum}.`);
+  }
+
+  done = true;
+  steps.push({ line: 16, cells: nums.map(() => "idle"), vars: [{ name: "result", value: "-1", tone: "fail" }], result: "-1", resultTone: "fail", explanation: `No pivot index found → return -1.`, done });
+  return steps;
+}
+
+// ── Maximum Population Year ────────────────────────────────────────────
+// Two DISTINCT approaches. nums is a flat array of [birth, death] pairs.
+
+// Approach 1: Brute Force (Check Every Year).
+// Source (lines):
+// 0: function maximumPopulation(logs) {
+// 1:     var maxPop = 0;
+// 2:     var resultYear = 0;
+// 3:
+// 4:     for (var year = 1950; year <= 2050; year++) {
+// 5:         var count = 0;
+// 6:         for (var i = 0; i < logs.length; i++) {
+// 7:             // Person is alive if birth <= year < death
+// 8:             if (logs[i][0] <= year && year < logs[i][1]) {
+// 9:                 count++;
+// 10:            }
+// 11:        }
+// 12:        if (count > maxPop) {
+// 13:            maxPop = count;
+// 14:            resultYear = year;
+// 15:        }
+// 16:    }
+// 17:
+// 18:    return resultYear;
+// 19: }
+export function maxPopBruteTrace(nums: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const logs: [number, number][] = [];
+  for (let k = 0; k + 1 < nums.length; k += 2) logs.push([nums[k], nums[k + 1]]);
+  let maxPop = 0;
+  let resultYear = 0;
+
+  const pushStep = (
+    line: number,
+    year: number,
+    i: number,
+    count: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: nums.map((_, idx) => (idx === i ? "i" : "idle")),
+      vars: [
+        { name: "year", value: String(year), tone: "info" },
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "count", value: String(count), tone: "info" },
+        { name: "maxPop", value: String(maxPop), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let year = 1950; year <= 2050; year++) {
+    let count = 0;
+    for (let i = 0; i < logs.length; i++) {
+      if (logs[i][0] <= year && year < logs[i][1]) {
+        count++;
+        pushStep(8, year, i, count, `alive → ${count}`, "ok", `Person ${i} (${logs[i][0]}-${logs[i][1]}) alive in ${year} → count = ${count}.`);
+      } else {
+        pushStep(8, year, i, count, "not alive", "fail", `Person ${i} (${logs[i][0]}-${logs[i][1]}) not alive in ${year}.`);
+      }
+    }
+    if (count > maxPop) {
+      maxPop = count;
+      resultYear = year;
+      pushStep(12, year, -1, count, `new max ${count}`, "ok", `count ${count} > maxPop → resultYear = ${year}.`);
+    }
+  }
+
+  done = true;
+  steps.push({ line: 18, cells: nums.map(() => "idle"), vars: [{ name: "result", value: String(resultYear), tone: "ok" }], result: String(resultYear), resultTone: "ok", explanation: `Maximum population year = ${resultYear} (pop ${maxPop}).`, done });
+  return steps;
+}
+
+// Approach 2: Line Sweep (Difference Array).
+// Source (lines):
+// 0: function maximumPopulation(logs) {
+// 1:     var delta = new Array(101).fill(0); // years 1950 to 2050
+// 2:
+// 3:     // Record birth and death events
+// 4:     for (var i = 0; i < logs.length; i++) {
+// 5:         delta[logs[i][0] - 1950]++;
+// 6:         delta[logs[i][1] - 1950]--;
+// 7:     }
+// 8:
+// 9:     // Sweep to find the year with maximum population
+// 10:    var maxPop = 0;
+// 11:    var runningSum = 0;
+// 12:    var resultYear = 1950;
+// 13:
+// 14:    for (var j = 0; j < 101; j++) {
+// 15:        runningSum += delta[j];
+// 16:        if (runningSum > maxPop) {
+// 17:            maxPop = runningSum;
+// 18:            resultYear = 1950 + j;
+// 19:        }
+// 20:    }
+// 21:
+// 22:    return resultYear;
+// 23: }
+export function maxPopSweepTrace(nums: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const logs: [number, number][] = [];
+  for (let k = 0; k + 1 < nums.length; k += 2) logs.push([nums[k], nums[k + 1]]);
+  const delta = new Array(101).fill(0);
+
+  const pushStep = (
+    line: number,
+    j: number,
+    runningSum: number,
+    maxPop: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: nums.map(() => "idle"),
+      vars: [
+        { name: "j", value: j >= 0 ? String(j) : "—", tone: "info" },
+        { name: "runningSum", value: String(runningSum), tone: "info" },
+        { name: "maxPop", value: String(maxPop), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < logs.length; i++) {
+    delta[logs[i][0] - 1950]++;
+    delta[logs[i][1] - 1950]--;
+    pushStep(5, -1, 0, 0, `delta[${logs[i][0] - 1950}]++`, "info", `Birth event: delta[${logs[i][0] - 1950}]++ (year ${logs[i][0]}).`);
+    pushStep(6, -1, 0, 0, `delta[${logs[i][1] - 1950}]--`, "info", `Death event: delta[${logs[i][1] - 1950}]-- (year ${logs[i][1]}).`);
+  }
+
+  let maxPop = 0;
+  let runningSum = 0;
+  let resultYear = 1950;
+  for (let j = 0; j < 101; j++) {
+    runningSum += delta[j];
+    pushStep(15, j, runningSum, maxPop, `runningSum → ${runningSum}`, "info", `Year ${1950 + j}: runningSum += delta[${j}] → ${runningSum}.`);
+    if (runningSum > maxPop) {
+      maxPop = runningSum;
+      resultYear = 1950 + j;
+      pushStep(16, j, runningSum, maxPop, `new max ${maxPop}`, "ok", `runningSum ${runningSum} > maxPop → resultYear = ${resultYear}.`);
+    }
+  }
+
+  done = true;
+  steps.push({ line: 22, cells: nums.map(() => "idle"), vars: [{ name: "result", value: String(resultYear), tone: "ok" }], result: String(resultYear), resultTone: "ok", explanation: `Maximum population year = ${resultYear} (pop ${maxPop}).`, done });
+  return steps;
+}
+
+// ── Subarray Sum Equals K ──────────────────────────────────────────────
+// Two DISTINCT approaches. nums is the array; k is the target sum.
+
+// Approach 1: Brute Force.
+// Source (lines):
+// 0: function subarraySum(nums, k) {
+// 1:   let count = 0
+// 2:   for (let i = 0; i < nums.length; i++) {
+// 3:     let sum = 0
+// 4:     for (let j = i; j < nums.length; j++) {
+// 5:       sum += nums[j]
+// 6:       if (sum === k) {
+// 7:         count++
+// 8:       }
+// 9:     }
+// 10:  }
+// 11:  return count
+// 12: }
+export function subarraySumBruteTrace(nums: number[], k: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  let count = 0;
+
+  const pushStep = (
+    line: number,
+    i: number,
+    j: number,
+    sum: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(nums, (idx) => {
+        if (idx === i) return "i";
+        if (idx === j) return "j";
+        return "idle";
+      }),
+      vars: [
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "j", value: j >= 0 ? String(j) : "—", tone: "info" },
+        { name: "sum", value: String(sum), tone: "info" },
+        { name: "count", value: String(count), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < nums.length; i++) {
+    let sum = 0;
+    for (let j = i; j < nums.length; j++) {
+      sum += nums[j];
+      if (sum === k) {
+        count++;
+        pushStep(6, i, j, sum, `sum = k → count ${count}`, "ok", `Subarray [${i}..${j}] sums to ${k} → count = ${count}.`);
+      } else {
+        pushStep(6, i, j, sum, `sum = ${sum}`, "fail", `Subarray [${i}..${j}] sums to ${sum} ≠ ${k}.`);
+      }
+    }
+  }
+
+  done = true;
+  steps.push({ line: 11, cells: nums.map(() => "idle"), vars: [{ name: "count", value: String(count), tone: "ok" }], result: String(count), resultTone: "ok", explanation: `Total subarrays summing to ${k} = ${count}.`, done });
+  return steps;
+}
+
+// Approach 2: Prefix Sum + Hash Map.
+// Source (lines):
+// 0: function subarraySum(nums, k) {
+// 1:   let count = 0
+// 2:   let prefixSum = 0
+// 3:   // Map from prefix sum value to how many times we've seen it
+// 4:   const prefixCount = new Map()
+// 5:   prefixCount.set(0, 1) // Empty prefix (sum = 0) seen once
+// 6:
+// 7:   for (const num of nums) {
+// 8:     prefixSum += num
+// 9:     // How many earlier prefix sums form a valid subarray ending here?
+// 10:    count += prefixCount.get(prefixSum - k) || 0
+// 11:    prefixCount.set(prefixSum, (prefixCount.get(prefixSum) || 0) + 1)
+// 12:  }
+// 13:  return count
+// 14: }
+export function subarraySumMapTrace(nums: number[], k: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  let count = 0;
+  let prefixSum = 0;
+  const prefixCount = new Map<number, number>();
+  prefixCount.set(0, 1);
+
+  const pushStep = (
+    line: number,
+    i: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(nums, (idx) => (idx === i ? "i" : "idle")),
+      vars: [
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "prefixSum", value: String(prefixSum), tone: "info" },
+        { name: "count", value: String(count), tone: "info" },
+        { name: "prefixCount", value: `{${Array.from(prefixCount.entries()).map(([v, c]) => `${v}:${c}`).join(", ")}}`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < nums.length; i++) {
+    prefixSum += nums[i];
+    pushStep(8, i, `prefixSum → ${prefixSum}`, "info", `prefixSum += nums[${i}] → ${prefixSum}.`);
+    const need = prefixSum - k;
+    const add = prefixCount.get(need) || 0;
+    count += add;
+    pushStep(10, i, `count += ${add} → ${count}`, add > 0 ? "ok" : "info", `prefixSum - k = ${need}; seen ${add} time(s) → count = ${count}.`);
+    prefixCount.set(prefixSum, (prefixCount.get(prefixSum) || 0) + 1);
+    pushStep(11, i, `prefixCount[${prefixSum}]++`, "info", `Record prefix sum ${prefixSum}.`);
+  }
+
+  done = true;
+  steps.push({ line: 13, cells: nums.map(() => "idle"), vars: [{ name: "count", value: String(count), tone: "ok" }], result: String(count), resultTone: "ok", explanation: `Total subarrays summing to ${k} = ${count}.`, done });
+  return steps;
+}
+
+// ── Subarray Sums Divisible by K ────────────────────────────────────────
+// Two DISTINCT approaches. nums is the array; k is the divisor.
+
+// Approach 1: Brute Force.
+// Source (lines):
+// 0: function subarraysDivByK(nums, k) {
+// 1:   let count = 0
+// 2:   for (let i = 0; i < nums.length; i++) {
+// 3:     let sum = 0
+// 4:     for (let j = i; j < nums.length; j++) {
+// 5:       sum += nums[j]
+// 6:       if (sum % k === 0) {
+// 7:         count++
+// 8:       }
+// 9:     }
+// 10:  }
+// 11:  return count
+// 12: }
+export function subarraysDivByKBruteTrace(nums: number[], k: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  let count = 0;
+
+  const pushStep = (
+    line: number,
+    i: number,
+    j: number,
+    sum: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(nums, (idx) => {
+        if (idx === i) return "i";
+        if (idx === j) return "j";
+        return "idle";
+      }),
+      vars: [
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "j", value: j >= 0 ? String(j) : "—", tone: "info" },
+        { name: "sum", value: String(sum), tone: "info" },
+        { name: "count", value: String(count), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < nums.length; i++) {
+    let sum = 0;
+    for (let j = i; j < nums.length; j++) {
+      sum += nums[j];
+      if (sum % k === 0) {
+        count++;
+        pushStep(6, i, j, sum, `divisible → count ${count}`, "ok", `Subarray [${i}..${j}] sum ${sum} divisible by ${k} → count = ${count}.`);
+      } else {
+        pushStep(6, i, j, sum, `sum % k = ${sum % k}`, "fail", `Subarray [${i}..${j}] sum ${sum} not divisible by ${k}.`);
+      }
+    }
+  }
+
+  done = true;
+  steps.push({ line: 11, cells: nums.map(() => "idle"), vars: [{ name: "count", value: String(count), tone: "ok" }], result: String(count), resultTone: "ok", explanation: `Total subarrays divisible by ${k} = ${count}.`, done });
+  return steps;
+}
+
+// Approach 2: Prefix Sum + Hash Map (Optimal).
+// Source (lines):
+// 0: function subarraysDivByK(nums, k) {
+// 1:   // Map to count occurrences of each remainder
+// 2:   const remainderCount = new Map([[0, 1]]) // empty prefix has remainder 0
+// 3:   let prefixSum = 0
+// 4:   let count = 0
+// 5:
+// 6:   for (const num of nums) {
+// 7:     prefixSum += num
+// 8:     // Normalize remainder to handle negative prefix sums
+// 9:     const remainder = ((prefixSum % k) + k) % k
+// 10:
+// 11:    // Each previous prefix sum with the same remainder forms a valid subarray
+// 12:    const prev = remainderCount.get(remainder) || 0
+// 13:    count += prev
+// 14:    remainderCount.set(remainder, prev + 1)
+// 15:  }
+// 16:
+// 17:  return count
+// 18: }
+export function subarraysDivByKMapTrace(nums: number[], k: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  let prefixSum = 0;
+  let count = 0;
+  const remainderCount = new Map<number, number>([[0, 1]]);
+
+  const pushStep = (
+    line: number,
+    i: number,
+    remainder: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(nums, (idx) => (idx === i ? "i" : "idle")),
+      vars: [
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "prefixSum", value: String(prefixSum), tone: "info" },
+        { name: "remainder", value: String(remainder), tone: "info" },
+        { name: "count", value: String(count), tone: "info" },
+        { name: "remainderCount", value: `{${Array.from(remainderCount.entries()).map(([v, c]) => `${v}:${c}`).join(", ")}}`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < nums.length; i++) {
+    prefixSum += nums[i];
+    const remainder = ((prefixSum % k) + k) % k;
+    pushStep(9, i, remainder, `remainder = ${remainder}`, "info", `prefixSum = ${prefixSum}; remainder = (${prefixSum} % ${k} + ${k}) % ${k} = ${remainder}.`);
+    const prev = remainderCount.get(remainder) || 0;
+    count += prev;
+    pushStep(12, i, remainder, `count += ${prev} → ${count}`, prev > 0 ? "ok" : "info", `Remainder ${remainder} seen ${prev} time(s) → count = ${count}.`);
+    remainderCount.set(remainder, prev + 1);
+    pushStep(14, i, remainder, `remainderCount[${remainder}]++`, "info", `Record remainder ${remainder}.`);
+  }
+
+  done = true;
+  steps.push({ line: 17, cells: nums.map(() => "idle"), vars: [{ name: "count", value: String(count), tone: "ok" }], result: String(count), resultTone: "ok", explanation: `Total subarrays divisible by ${k} = ${count}.`, done });
+  return steps;
+}
+
+// ── Continuous Subarray Sum ────────────────────────────────────────────
+// Two DISTINCT approaches. nums is the array; k is the divisor.
+
+// Approach 1: Brute Force.
+// Source (lines):
+// 0: function checkSubarraySum(nums, k) {
+// 1:     const n = nums.length;
+// 2:     for (let i = 0; i < n - 1; i++) {
+// 3:         let sum = nums[i];
+// 4:         for (let j = i + 1; j < n; j++) {
+// 5:             sum += nums[j];
+// 6:             // Check if subarray sum is a multiple of k
+// 7:             if (sum % k === 0) {
+// 8:                 return true;
+// 9:             }
+// 10:        }
+// 11:    }
+// 12:    return false;
+// 13: }
+export function checkSubarraySumBruteTrace(nums: number[], k: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const n = nums.length;
+
+  const pushStep = (
+    line: number,
+    i: number,
+    j: number,
+    sum: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(nums, (idx) => {
+        if (idx === i) return "i";
+        if (idx === j) return "j";
+        return "idle";
+      }),
+      vars: [
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "j", value: j >= 0 ? String(j) : "—", tone: "info" },
+        { name: "sum", value: String(sum), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < n - 1; i++) {
+    let sum = nums[i];
+    for (let j = i + 1; j < n; j++) {
+      sum += nums[j];
+      if (sum % k === 0) {
+        pushStep(7, i, j, sum, "multiple of k!", "ok", `Subarray [${i}..${j}] sum ${sum} is a multiple of ${k} → return true.`);
+        done = true;
+        steps.push({ line: 8, cells: nums.map(() => "idle"), vars: [{ name: "result", value: "true", tone: "ok" }], result: "return true", resultTone: "ok", explanation: `Found subarray of length ≥ 2 with sum divisible by ${k}.`, done });
+        return steps;
+      }
+      pushStep(7, i, j, sum, `sum % k = ${sum % k}`, "fail", `Subarray [${i}..${j}] sum ${sum} not divisible by ${k}.`);
+    }
+  }
+
+  done = true;
+  steps.push({ line: 12, cells: nums.map(() => "idle"), vars: [{ name: "result", value: "false", tone: "fail" }], result: "return false", resultTone: "fail", explanation: `No valid subarray → return false.`, done });
+  return steps;
+}
+
+// Approach 2: Prefix Sum + Hash Map (Optimal).
+// Source (lines):
+// 0: function checkSubarraySum(nums, k) {
+// 1:     // Map: remainder -> earliest index where this remainder was seen
+// 2:     const remainderIndex = new Map();
+// 3:     // Handle subarrays starting from index 0
+// 4:     remainderIndex.set(0, -1);
+// 5:     let prefixSum = 0;
+// 6:
+// 7:     for (let i = 0; i < nums.length; i++) {
+// 8:         prefixSum += nums[i];
+// 9:         const remainder = prefixSum % k;
+// 10:
+// 11:        if (remainderIndex.has(remainder)) {
+// 12:            // Same remainder seen before, check if subarray length >= 2
+// 13:            if (i - remainderIndex.get(remainder) >= 2) {
+// 14:                return true;
+// 15:            }
+// 16:        } else {
+// 17:            // Only store the first occurrence to maximize subarray length
+// 18:            remainderIndex.set(remainder, i);
+// 19:        }
+// 20:    }
+// 21:    return false;
+// 22: }
+export function checkSubarraySumMapTrace(nums: number[], k: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  let prefixSum = 0;
+  const remainderIndex = new Map<number, number>();
+  remainderIndex.set(0, -1);
+
+  const pushStep = (
+    line: number,
+    i: number,
+    remainder: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(nums, (idx) => (idx === i ? "i" : "idle")),
+      vars: [
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "prefixSum", value: String(prefixSum), tone: "info" },
+        { name: "remainder", value: String(remainder), tone: "info" },
+        { name: "remainderIndex", value: `{${Array.from(remainderIndex.entries()).map(([v, idx]) => `${v}:${idx}`).join(", ")}}`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < nums.length; i++) {
+    prefixSum += nums[i];
+    const remainder = prefixSum % k;
+    pushStep(9, i, remainder, `remainder = ${remainder}`, "info", `prefixSum = ${prefixSum}; remainder = ${prefixSum} % ${k} = ${remainder}.`);
+    if (remainderIndex.has(remainder)) {
+      const dist = i - remainderIndex.get(remainder)!;
+      pushStep(13, i, remainder, `dist = ${dist}`, "info", `Remainder ${remainder} first seen at index ${remainderIndex.get(remainder)}, distance = ${dist}.`);
+      if (dist >= 2) {
+        pushStep(13, i, remainder, "length ≥ 2!", "ok", `Distance ${dist} ≥ 2 → return true.`);
+        done = true;
+        steps.push({ line: 14, cells: nums.map(() => "idle"), vars: [{ name: "result", value: "true", tone: "ok" }], result: "return true", resultTone: "ok", explanation: `Found subarray of length ≥ 2 with sum divisible by ${k}.`, done });
+        return steps;
+      }
+    } else {
+      remainderIndex.set(remainder, i);
+      pushStep(18, i, remainder, `remainderIndex[${remainder}] = ${i}`, "info", `Store first occurrence of remainder ${remainder} at index ${i}.`);
+    }
+  }
+
+  done = true;
+  steps.push({ line: 21, cells: nums.map(() => "idle"), vars: [{ name: "result", value: "false", tone: "fail" }], result: "return false", resultTone: "fail", explanation: `No valid subarray → return false.`, done });
+  return steps;
+}
+
+// ── Contiguous Array ────────────────────────────────────────────────────
+// Two DISTINCT approaches. nums is a binary array.
+
+// Approach 1: Brute Force.
+// Source (lines):
+// 0: function findMaxLength(nums) {
+// 1:     let maxLen = 0;
+// 2:     for (let i = 0; i < nums.length; i++) {
+// 3:         let zeros = 0, ones = 0;
+// 4:         for (let j = i; j < nums.length; j++) {
+// 5:             if (nums[j] === 0) zeros++;
+// 6:             else ones++;
+// 7:             if (zeros === ones) {
+// 8:                 maxLen = Math.max(maxLen, j - i + 1);
+// 9:             }
+// 10:        }
+// 11:    }
+// 12:    return maxLen;
+// 13: }
+export function findMaxLengthBruteTrace(nums: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  let maxLen = 0;
+
+  const pushStep = (
+    line: number,
+    i: number,
+    j: number,
+    zeros: number,
+    ones: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(nums, (idx) => {
+        if (idx === i) return "i";
+        if (idx === j) return "j";
+        return "idle";
+      }),
+      vars: [
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "j", value: j >= 0 ? String(j) : "—", tone: "info" },
+        { name: "zeros", value: String(zeros), tone: "info" },
+        { name: "ones", value: String(ones), tone: "info" },
+        { name: "maxLen", value: String(maxLen), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < nums.length; i++) {
+    let zeros = 0, ones = 0;
+    for (let j = i; j < nums.length; j++) {
+      if (nums[j] === 0) zeros++;
+      else ones++;
+      if (zeros === ones) {
+        maxLen = Math.max(maxLen, j - i + 1);
+        pushStep(7, i, j, zeros, ones, `equal → maxLen ${maxLen}`, "ok", `Subarray [${i}..${j}] has equal 0s/1s → maxLen = ${maxLen}.`);
+      } else {
+        pushStep(7, i, j, zeros, ones, `zeros=${zeros} ones=${ones}`, "fail", `Subarray [${i}..${j}] has ${zeros} zeros, ${ones} ones.`);
+      }
+    }
+  }
+
+  done = true;
+  steps.push({ line: 12, cells: nums.map(() => "idle"), vars: [{ name: "maxLen", value: String(maxLen), tone: "ok" }], result: String(maxLen), resultTone: "ok", explanation: `Maximum length with equal 0s and 1s = ${maxLen}.`, done });
+  return steps;
+}
+
+// Approach 2: Prefix Sum + Hash Map.
+// Source (lines):
+// 0: function findMaxLength(nums) {
+// 1:     // Map stores first occurrence of each prefix sum
+// 2:     const map = new Map();
+// 3:     map.set(0, -1); // handle subarrays starting from index 0
+// 4:     let prefixSum = 0;
+// 5:     let maxLen = 0;
+// 6:
+// 7:     for (let i = 0; i < nums.length; i++) {
+// 8:         // Treat 0 as -1: equal 0s and 1s means sum = 0
+// 9:         prefixSum += nums[i] === 1 ? 1 : -1;
+// 10:
+// 11:        if (map.has(prefixSum)) {
+// 12:            maxLen = Math.max(maxLen, i - map.get(prefixSum));
+// 13:        } else {
+// 14:            map.set(prefixSum, i);
+// 15:        }
+// 16:    }
+// 17:    return maxLen;
+// 18: }
+export function findMaxLengthMapTrace(nums: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  let prefixSum = 0;
+  let maxLen = 0;
+  const map = new Map<number, number>();
+  map.set(0, -1);
+
+  const pushStep = (
+    line: number,
+    i: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(nums, (idx) => (idx === i ? "i" : "idle")),
+      vars: [
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "prefixSum", value: String(prefixSum), tone: "info" },
+        { name: "maxLen", value: String(maxLen), tone: "info" },
+        { name: "map", value: `{${Array.from(map.entries()).map(([v, idx]) => `${v}:${idx}`).join(", ")}}`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < nums.length; i++) {
+    prefixSum += nums[i] === 1 ? 1 : -1;
+    pushStep(9, i, `prefixSum → ${prefixSum}`, "info", `nums[${i}] = ${nums[i]} → prefixSum = ${prefixSum}.`);
+    if (map.has(prefixSum)) {
+      const len = i - map.get(prefixSum)!;
+      maxLen = Math.max(maxLen, len);
+      pushStep(12, i, `len = ${len} → maxLen ${maxLen}`, "ok", `prefixSum ${prefixSum} first seen at index ${map.get(prefixSum)} → length ${len}, maxLen = ${maxLen}.`);
+    } else {
+      map.set(prefixSum, i);
+      pushStep(14, i, `map[${prefixSum}] = ${i}`, "info", `Store first occurrence of prefixSum ${prefixSum} at index ${i}.`);
+    }
+  }
+
+  done = true;
+  steps.push({ line: 17, cells: nums.map(() => "idle"), vars: [{ name: "maxLen", value: String(maxLen), tone: "ok" }], result: String(maxLen), resultTone: "ok", explanation: `Maximum length with equal 0s and 1s = ${maxLen}.`, done });
+  return steps;
+}
+
+// ── Maximum Average Subarray I ─────────────────────────────────────────
+// Two DISTINCT approaches. nums is the array; k is the window size.
+
+// Approach 1: Brute Force.
+// Source (lines):
+// 0: function findMaxAverage(nums, k) {
+// 1:     let maxSum = -Infinity;
+// 2:
+// 3:     for (let i = 0; i <= nums.length - k; i++) {
+// 4:         let windowSum = 0;
+// 5:         for (let j = i; j < i + k; j++) {
+// 6:             windowSum += nums[j];
+// 7:         }
+// 8:         maxSum = Math.max(maxSum, windowSum);
+// 9:     }
+// 10:
+// 11:    return maxSum / k;
+// 12: }
+export function maxAvgBruteTrace(nums: number[], k: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  let maxSum = -Infinity;
+
+  const pushStep = (
+    line: number,
+    i: number,
+    j: number,
+    windowSum: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(nums, (idx) => {
+        if (idx === i) return "i";
+        if (idx === j) return "j";
+        return "idle";
+      }),
+      vars: [
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "j", value: j >= 0 ? String(j) : "—", tone: "info" },
+        { name: "windowSum", value: String(windowSum), tone: "info" },
+        { name: "maxSum", value: maxSum === -Infinity ? "-∞" : String(maxSum), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i <= nums.length - k; i++) {
+    let windowSum = 0;
+    for (let j = i; j < i + k; j++) {
+      windowSum += nums[j];
+      pushStep(6, i, j, windowSum, `windowSum → ${windowSum}`, "info", `Add nums[${j}] = ${nums[j]} → windowSum = ${windowSum}.`);
+    }
+    maxSum = Math.max(maxSum, windowSum);
+    pushStep(8, i, -1, windowSum, `maxSum = ${maxSum}`, "ok", `Window [${i}..${i + k - 1}] sum ${windowSum} → maxSum = ${maxSum}.`);
+  }
+
+  done = true;
+  steps.push({ line: 11, cells: nums.map(() => "idle"), vars: [{ name: "maxSum", value: String(maxSum), tone: "ok" }], result: String(maxSum / k), resultTone: "ok", explanation: `Max average = ${maxSum} / ${k} = ${maxSum / k}.`, done });
+  return steps;
+}
+
+// Approach 2: Sliding Window (Optimal).
+// Source (lines):
+// 0: function findMaxAverage(nums, k) {
+// 1:     // Compute sum of the first window
+// 2:     let windowSum = 0;
+// 3:     for (let i = 0; i < k; i++) {
+// 4:         windowSum += nums[i];
+// 5:     }
+// 6:
+// 7:     let maxSum = windowSum;
+// 8:
+// 9:     // Slide the window: add new element, remove old element
+// 10:    for (let i = k; i < nums.length; i++) {
+// 11:        windowSum += nums[i] - nums[i - k];
+// 12:        maxSum = Math.max(maxSum, windowSum);
+// 13:    }
+// 14:
+// 15:    return maxSum / k;
+// 16: }
+export function maxAvgSlidingTrace(nums: number[], k: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  let windowSum = 0;
+  for (let i = 0; i < k; i++) windowSum += nums[i];
+  let maxSum = windowSum;
+
+  const pushStep = (
+    line: number,
+    i: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(nums, (idx) => (idx === i ? "i" : "idle")),
+      vars: [
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "windowSum", value: String(windowSum), tone: "info" },
+        { name: "maxSum", value: String(maxSum), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  pushStep(4, k - 1, `windowSum = ${windowSum}`, "info", `First window [0..${k - 1}] sum = ${windowSum}.`);
+  pushStep(7, k - 1, `maxSum = ${maxSum}`, "info", `maxSum initialized to ${maxSum}.`);
+
+  for (let i = k; i < nums.length; i++) {
+    windowSum += nums[i] - nums[i - k];
+    pushStep(11, i, `windowSum → ${windowSum}`, "info", `Add nums[${i}] = ${nums[i]}, remove nums[${i - k}] = ${nums[i - k]} → windowSum = ${windowSum}.`);
+    maxSum = Math.max(maxSum, windowSum);
+    pushStep(12, i, `maxSum = ${maxSum}`, "ok", `maxSum = max(${maxSum}, ${windowSum}) = ${maxSum}.`);
+  }
+
+  done = true;
+  steps.push({ line: 15, cells: nums.map(() => "idle"), vars: [{ name: "maxSum", value: String(maxSum), tone: "ok" }], result: String(maxSum / k), resultTone: "ok", explanation: `Max average = ${maxSum} / ${k} = ${maxSum / k}.`, done });
+  return steps;
+}
+
+// ── Find All Anagrams in a String ─────────────────────────────────────
+// Two DISTINCT approaches. s and p as char-code arrays.
+
+// Approach 1: Brute Force (Sorting).
+// Source (lines):
+// 0: function findAnagrams(s, p) {
+// 1:     const result = [];
+// 2:     const pLen = p.length;
+// 3:     const sLen = s.length;
+// 4:     if (sLen < pLen) return result;
+// 5:
+// 6:     const sortedP = p.split('').sort().join('');
+// 7:
+// 8:     for (let i = 0; i <= sLen - pLen; i++) {
+// 9:         const window = s.substring(i, i + pLen).split('').sort().join('');
+// 10:        if (window === sortedP) {
+// 11:            result.push(i);
+// 12:        }
+// 13:    }
+// 14:    return result;
+// 15: }
+export function findAnagramsBruteTrace(sCodes: number[], pCodes: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const s = sCodes.map((c) => String.fromCharCode(c)).join("");
+  const p = pCodes.map((c) => String.fromCharCode(c)).join("");
+  const result: number[] = [];
+  const pLen = p.length;
+  const sLen = s.length;
+  const sortedP = p.split("").sort().join("");
+
+  const pushStep = (
+    line: number,
+    i: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(sCodes, (idx) => (idx === i ? "i" : "idle")),
+      values: [...sCodes],
+      vars: [
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "result", value: `[${result.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  if (sLen < pLen) {
+    done = true;
+    steps.push({ line: 4, cells: sCodes.map(() => "idle"), values: [...sCodes], vars: [{ name: "result", value: "[]", tone: "fail" }], result: "[]", resultTone: "fail", explanation: `s shorter than p → return [].`, done });
+    return steps;
+  }
+
+  for (let i = 0; i <= sLen - pLen; i++) {
+    const window = s.substring(i, i + pLen).split("").sort().join("");
+    if (window === sortedP) {
+      result.push(i);
+      pushStep(10, i, `anagram at ${i}`, "ok", `Window '${s.substring(i, i + pLen)}' sorted = '${window}' matches '${sortedP}' → push ${i}.`);
+    } else {
+      pushStep(10, i, "no match", "fail", `Window '${s.substring(i, i + pLen)}' sorted = '${window}' ≠ '${sortedP}'.`);
+    }
+  }
+
+  done = true;
+  steps.push({ line: 14, cells: sCodes.map(() => "idle"), values: [...sCodes], vars: [{ name: "result", value: `[${result.join(", ")}]`, tone: "ok" }], result: `[${result.join(", ")}]`, resultTone: "ok", explanation: `Anagram start indices = [${result.join(", ")}].`, done });
+  return steps;
+}
+
+// Approach 2: Frequency Map Comparison.
+// Source (lines):
+// 0: function findAnagrams(s, p) {
+// 1:     const result = [];
+// 2:     const sLen = s.length, pLen = p.length;
+// 3:     if (sLen < pLen) return result;
+// 4:
+// 5:     const pCount = new Array(26).fill(0);
+// 6:     const windowCount = new Array(26).fill(0);
+// 7:
+// 8:     // Build frequency maps for p and the first window
+// 9:     for (let i = 0; i < pLen; i++) {
+// 10:        pCount[p.charCodeAt(i) - 97]++;
+// 11:        windowCount[s.charCodeAt(i) - 97]++;
+// 12:    }
+// 13:
+// 14:    if (pCount.every((val, idx) => val === windowCount[idx])) result.push(0);
+// 15:
+// 16:    // Slide the window across s
+// 17:    for (let i = pLen; i < sLen; i++) {
+// 18:        windowCount[s.charCodeAt(i) - 97]++;             // add new char
+// 19:        windowCount[s.charCodeAt(i - pLen) - 97]--;       // remove old char
+// 20:        if (pCount.every((val, idx) => val === windowCount[idx])) {
+// 21:            result.push(i - pLen + 1);
+// 22:        }
+// 23:    }
+// 24:    return result;
+// 25: }
+export function findAnagramsFreqTrace(sCodes: number[], pCodes: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const s = sCodes.map((c) => String.fromCharCode(c)).join("");
+  const p = pCodes.map((c) => String.fromCharCode(c)).join("");
+  const result: number[] = [];
+  const sLen = s.length, pLen = p.length;
+  const pCount = new Array(26).fill(0);
+  const windowCount = new Array(26).fill(0);
+
+  const pushStep = (
+    line: number,
+    i: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(sCodes, (idx) => (idx === i ? "i" : "idle")),
+      values: [...sCodes],
+      vars: [
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "pCount", value: `[${pCount.join(",")}]`, tone: "info" },
+        { name: "windowCount", value: `[${windowCount.join(",")}]`, tone: "info" },
+        { name: "result", value: `[${result.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  if (sLen < pLen) {
+    done = true;
+    steps.push({ line: 3, cells: sCodes.map(() => "idle"), values: [...sCodes], vars: [{ name: "result", value: "[]", tone: "fail" }], result: "[]", resultTone: "fail", explanation: `s shorter than p → return [].`, done });
+    return steps;
+  }
+
+  for (let i = 0; i < pLen; i++) {
+    pCount[p.charCodeAt(i) - 97]++;
+    windowCount[s.charCodeAt(i) - 97]++;
+    pushStep(10, i, `build counts`, "info", `p[${i}]='${p[i]}' (+1), s[${i}]='${s[i]}' (+1).`);
+  }
+
+  const matches = () => pCount.every((val, idx) => val === windowCount[idx]);
+  if (matches()) {
+    result.push(0);
+    pushStep(14, pLen - 1, "match at 0", "ok", `First window matches p → push 0.`);
+  }
+
+  for (let i = pLen; i < sLen; i++) {
+    windowCount[s.charCodeAt(i) - 97]++;
+    windowCount[s.charCodeAt(i - pLen) - 97]--;
+    pushStep(18, i, `slide window`, "info", `Add s[${i}]='${s[i]}', remove s[${i - pLen}]='${s[i - pLen]}'.`);
+    if (matches()) {
+      result.push(i - pLen + 1);
+      pushStep(20, i, `match at ${i - pLen + 1}`, "ok", `Window matches p → push ${i - pLen + 1}.`);
+    }
+  }
+
+  done = true;
+  steps.push({ line: 24, cells: sCodes.map(() => "idle"), values: [...sCodes], vars: [{ name: "result", value: `[${result.join(", ")}]`, tone: "ok" }], result: `[${result.join(", ")}]`, resultTone: "ok", explanation: `Anagram start indices = [${result.join(", ")}].`, done });
+  return steps;
+}
+
+// ── Permutation in String ──────────────────────────────────────────────
+// Two DISTINCT approaches. s1 and s2 as char-code arrays.
+
+// Approach 1: Brute Force (Generate All Permutations).
+// Source (lines):
+// 0: function checkInclusion(s1, s2) {
+// 1:   const perms = [];
+// 2:   generatePermutations(s1.split(""), 0, perms);
+// 3:
+// 4:   // Check if any permutation is a substring of s2
+// 5:   for (let i = 0; i < perms.length; i++) {
+// 6:     if (s2.includes(perms[i])) {
+// 7:       return true;
+// 8:     }
+// 9:   }
+// 10:
+// 11:  return false;
+// 12: }
+// 13: function generatePermutations(arr, index, result) {
+// 14:  if (index === arr.length) {
+// 15:    result.push(arr.join(""));
+// 16:    return;
+// 17:  }
+// 18:  for (let i = index; i < arr.length; i++) {
+// 19:    const temp = arr[index];
+// 20:    arr[index] = arr[i];
+// 21:    arr[i] = temp;
+// 22:
+// 23:    generatePermutations(arr, index + 1, result);
+// 24:
+// 25:    arr[i] = arr[index];
+// 26:    arr[index] = temp;
+// 27:  }
+// 28: }
+export function checkInclusionBruteTrace(s1Codes: number[], s2Codes: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const s1 = s1Codes.map((c) => String.fromCharCode(c)).join("");
+  const s2 = s2Codes.map((c) => String.fromCharCode(c)).join("");
+  const perms: string[] = [];
+
+  const pushStep = (
+    line: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(s2Codes, () => "idle"),
+      values: [...s2Codes],
+      vars: [
+        { name: "perms", value: `[${perms.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  const generate = (arr: string[], index: number) => {
+    if (index === arr.length) {
+      perms.push(arr.join(""));
+      pushStep(15, `perm '${arr.join("")}'`, "info", `Generated permutation '${arr.join("")}'.`);
+      return;
+    }
+    for (let i = index; i < arr.length; i++) {
+      const temp = arr[index];
+      arr[index] = arr[i];
+      arr[i] = temp;
+      generate(arr, index + 1);
+      arr[i] = arr[index];
+      arr[index] = temp;
+    }
+  };
+
+  generate(s1.split(""), 0);
+
+  for (let i = 0; i < perms.length; i++) {
+    if (s2.includes(perms[i])) {
+      pushStep(6, `found '${perms[i]}'`, "ok", `s2 contains permutation '${perms[i]}' → return true.`);
+      done = true;
+      steps.push({ line: 7, cells: s2Codes.map(() => "idle"), values: [...s2Codes], vars: [{ name: "result", value: "true", tone: "ok" }], result: "return true", resultTone: "ok", explanation: `A permutation of s1 is a substring of s2 → return true.`, done });
+      return steps;
+    }
+  }
+
+  done = true;
+  steps.push({ line: 11, cells: s2Codes.map(() => "idle"), values: [...s2Codes], vars: [{ name: "result", value: "false", tone: "fail" }], result: "return false", resultTone: "fail", explanation: `No permutation of s1 is a substring of s2 → return false.`, done });
+  return steps;
+}
+
+// Approach 2: Sliding Window with Frequency Comparison.
+// Source (lines):
+// 0: function checkInclusion(s1, s2) {
+// 1:   const n = s1.length,
+// 2:     m = s2.length;
+// 3:   if (n > m) return false;
+// 4:
+// 5:   const s1Freq = new Array(26).fill(0);
+// 6:   const windowFreq = new Array(26).fill(0);
+// 7:
+// 8:   // Build frequency arrays for s1 and the first window
+// 9:   for (let i = 0; i < n; i++) {
+// 10:    s1Freq[s1.charCodeAt(i) - 97]++;
+// 11:    windowFreq[s2.charCodeAt(i) - 97]++;
+// 12:  }
+// 13:
+// 14:  if (matches(s1Freq, windowFreq)) return true;
+// 15:
+// 16:  // Slide the window across s2
+// 17:  for (let i = n; i < m; i++) {
+// 18:    windowFreq[s2.charCodeAt(i) - 97]++;         // Add new char
+// 19:    windowFreq[s2.charCodeAt(i - n) - 97]--;     // Remove old char
+// 20:    if (matches(s1Freq, windowFreq)) return true;
+// 21:  }
+// 22:
+// 23:  return false;
+// 24: }
+// 25: function matches(a, b) {
+// 26:  for (let i = 0; i < 26; i++) {
+// 27:    if (a[i] !== b[i]) return false;
+// 28:  }
+// 29:  return true;
+// 30: }
+export function checkInclusionSlidingTrace(s1Codes: number[], s2Codes: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const s1 = s1Codes.map((c) => String.fromCharCode(c)).join("");
+  const s2 = s2Codes.map((c) => String.fromCharCode(c)).join("");
+  const n = s1.length, m = s2.length;
+  const s1Freq = new Array(26).fill(0);
+  const windowFreq = new Array(26).fill(0);
+
+  const pushStep = (
+    line: number,
+    i: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(s2Codes, (idx) => (idx === i ? "i" : "idle")),
+      values: [...s2Codes],
+      vars: [
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "s1Freq", value: `[${s1Freq.join(",")}]`, tone: "info" },
+        { name: "windowFreq", value: `[${windowFreq.join(",")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  const matches = () => {
+    for (let i = 0; i < 26; i++) if (s1Freq[i] !== windowFreq[i]) return false;
+    return true;
+  };
+
+  if (n > m) {
+    done = true;
+    steps.push({ line: 3, cells: s2Codes.map(() => "idle"), values: [...s2Codes], vars: [{ name: "result", value: "false", tone: "fail" }], result: "return false", resultTone: "fail", explanation: `s1 longer than s2 → return false.`, done });
+    return steps;
+  }
+
+  for (let i = 0; i < n; i++) {
+    s1Freq[s1.charCodeAt(i) - 97]++;
+    windowFreq[s2.charCodeAt(i) - 97]++;
+    pushStep(10, i, `build counts`, "info", `s1[${i}]='${s1[i]}' (+1), s2[${i}]='${s2[i]}' (+1).`);
+  }
+
+  if (matches()) {
+    pushStep(14, n - 1, "match!", "ok", `First window matches s1 → return true.`);
+    done = true;
+    steps.push({ line: 14, cells: s2Codes.map(() => "idle"), values: [...s2Codes], vars: [{ name: "result", value: "true", tone: "ok" }], result: "return true", resultTone: "ok", explanation: `A permutation of s1 is a substring of s2 → return true.`, done });
+    return steps;
+  }
+
+  for (let i = n; i < m; i++) {
+    windowFreq[s2.charCodeAt(i) - 97]++;
+    windowFreq[s2.charCodeAt(i - n) - 97]--;
+    pushStep(18, i, `slide window`, "info", `Add s2[${i}]='${s2[i]}', remove s2[${i - n}]='${s2[i - n]}'.`);
+    if (matches()) {
+      pushStep(20, i, "match!", "ok", `Window matches s1 → return true.`);
+      done = true;
+      steps.push({ line: 20, cells: s2Codes.map(() => "idle"), values: [...s2Codes], vars: [{ name: "result", value: "true", tone: "ok" }], result: "return true", resultTone: "ok", explanation: `A permutation of s1 is a substring of s2 → return true.`, done });
+      return steps;
+    }
+  }
+
+  done = true;
+  steps.push({ line: 23, cells: s2Codes.map(() => "idle"), values: [...s2Codes], vars: [{ name: "result", value: "false", tone: "fail" }], result: "return false", resultTone: "fail", explanation: `No permutation of s1 is a substring of s2 → return false.`, done });
+  return steps;
+}
+
+// ── Maximum Sum of Distinct Subarrays With Length K ─────────────────────
+// Two DISTINCT approaches. nums is the array; k is the window size.
+
+// Approach 1: Brute Force.
+// Source (lines):
+// 0: function maximumSubarraySum(nums, k) {
+// 1:   let maxSum = 0
+// 2:   for (let i = 0; i <= nums.length - k; i++) {
+// 3:     const seen = new Set()
+// 4:     let sum = 0
+// 5:     let valid = true
+// 6:     for (let j = i; j < i + k; j++) {
+// 7:       // If element already in set, this subarray has duplicates
+// 8:       if (seen.has(nums[j])) {
+// 9:         valid = false
+// 10:        break
+// 11:      }
+// 12:      seen.add(nums[j])
+// 13:      sum += nums[j]
+// 14:    }
+// 15:    if (valid) {
+// 16:      maxSum = Math.max(maxSum, sum)
+// 17:    }
+// 18:  }
+// 19:  return maxSum
+// 20: }
+export function maxDistinctBruteTrace(nums: number[], k: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  let maxSum = 0;
+
+  const pushStep = (
+    line: number,
+    i: number,
+    j: number,
+    sum: number,
+    seenStr: string,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(nums, (idx) => {
+        if (idx === i) return "i";
+        if (idx === j) return "j";
+        return "idle";
+      }),
+      vars: [
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "j", value: j >= 0 ? String(j) : "—", tone: "info" },
+        { name: "sum", value: String(sum), tone: "info" },
+        { name: "seen", value: seenStr, tone: "info" },
+        { name: "maxSum", value: String(maxSum), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i <= nums.length - k; i++) {
+    const seen = new Set<number>();
+    let sum = 0;
+    let valid = true;
+    for (let j = i; j < i + k; j++) {
+      if (seen.has(nums[j])) {
+        valid = false;
+        pushStep(8, i, j, sum, `{${Array.from(seen).join(", ")}}`, "duplicate!", "fail", `nums[${j}] = ${nums[j]} already in set → invalid window.`);
+        break;
+      }
+      seen.add(nums[j]);
+      sum += nums[j];
+      pushStep(12, i, j, sum, `{${Array.from(seen).join(", ")}}`, `sum → ${sum}`, "info", `Add nums[${j}] = ${nums[j]} → sum = ${sum}.`);
+    }
+    if (valid) {
+      maxSum = Math.max(maxSum, sum);
+      pushStep(15, i, -1, sum, `{${Array.from(seen).join(", ")}}`, `maxSum = ${maxSum}`, "ok", `Window [${i}..${i + k - 1}] all distinct, sum ${sum} → maxSum = ${maxSum}.`);
+    }
+  }
+
+  done = true;
+  steps.push({ line: 19, cells: nums.map(() => "idle"), vars: [{ name: "maxSum", value: String(maxSum), tone: "ok" }], result: String(maxSum), resultTone: "ok", explanation: `Maximum sum of distinct subarray of length ${k} = ${maxSum}.`, done });
+  return steps;
+}
+
+// Approach 2: Sliding Window with Hash Map.
+// Source (lines):
+// 0: function maximumSubarraySum(nums, k) {
+// 1:   const freq = new Map()
+// 2:   let windowSum = 0
+// 3:   let maxSum = 0
+// 4:
+// 5:   // Build the first window of size k
+// 6:   for (let i = 0; i < k; i++) {
+// 7:     freq.set(nums[i], (freq.get(nums[i]) || 0) + 1)
+// 8:     windowSum += nums[i]
+// 9:   }
+// 10:  // Check if the first window has all distinct elements
+// 11:  if (freq.size === k) {
+// 12:    maxSum = windowSum
+// 13:  }
+// 14:
+// 15:  // Slide the window across the rest of the array
+// 16:  for (let i = k; i < nums.length; i++) {
+// 17:    // Add the new element entering the window
+// 18:    freq.set(nums[i], (freq.get(nums[i]) || 0) + 1)
+// 19:    windowSum += nums[i]
+// 20:
+// 21:    // Remove the element leaving the window
+// 22:    const outVal = nums[i - k]
+// 23:    freq.set(outVal, freq.get(outVal) - 1)
+// 24:    if (freq.get(outVal) === 0) {
+// 25:      freq.delete(outVal)
+// 26:    }
+// 27:    windowSum -= outVal
+// 28:
+// 29:    // Window is valid only when all k elements are distinct
+// 30:    if (freq.size === k) {
+// 31:      maxSum = Math.max(maxSum, windowSum)
+// 32:    }
+// 33:  }
+// 34:  return maxSum
+// 35: }
+export function maxDistinctSlidingTrace(nums: number[], k: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const freq = new Map<number, number>();
+  let windowSum = 0;
+  let maxSum = 0;
+
+  const pushStep = (
+    line: number,
+    i: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(nums, (idx) => (idx === i ? "i" : "idle")),
+      vars: [
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "windowSum", value: String(windowSum), tone: "info" },
+        { name: "maxSum", value: String(maxSum), tone: "info" },
+        { name: "freq", value: `{${Array.from(freq.entries()).map(([v, c]) => `${v}:${c}`).join(", ")}}`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < k; i++) {
+    freq.set(nums[i], (freq.get(nums[i]) || 0) + 1);
+    windowSum += nums[i];
+    pushStep(7, i, `windowSum → ${windowSum}`, "info", `Add nums[${i}] = ${nums[i]} → windowSum = ${windowSum}.`);
+  }
+  if (freq.size === k) {
+    maxSum = windowSum;
+    pushStep(11, k - 1, `maxSum = ${maxSum}`, "ok", `First window all distinct → maxSum = ${maxSum}.`);
+  }
+
+  for (let i = k; i < nums.length; i++) {
+    freq.set(nums[i], (freq.get(nums[i]) || 0) + 1);
+    windowSum += nums[i];
+    pushStep(18, i, `add ${nums[i]}`, "info", `Add nums[${i}] = ${nums[i]} → windowSum = ${windowSum}.`);
+    const outVal = nums[i - k];
+    freq.set(outVal, freq.get(outVal)! - 1);
+    if (freq.get(outVal) === 0) freq.delete(outVal);
+    windowSum -= outVal;
+    pushStep(23, i, `remove ${outVal}`, "info", `Remove nums[${i - k}] = ${outVal} → windowSum = ${windowSum}.`);
+    if (freq.size === k) {
+      maxSum = Math.max(maxSum, windowSum);
+      pushStep(30, i, `maxSum = ${maxSum}`, "ok", `Window all distinct, sum ${windowSum} → maxSum = ${maxSum}.`);
+    }
+  }
+
+  done = true;
+  steps.push({ line: 34, cells: nums.map(() => "idle"), vars: [{ name: "maxSum", value: String(maxSum), tone: "ok" }], result: String(maxSum), resultTone: "ok", explanation: `Maximum sum of distinct subarray of length ${k} = ${maxSum}.`, done });
+  return steps;
+}
+
+// ── Substring with Concatenation of All Words ───────────────────────────
+// Two DISTINCT approaches. s as char-code array; words as space-separated string.
+
+// Approach 1: Brute Force.
+// Source (lines):
+// 0: function findSubstring(s, words) {
+// 1:     const result = [];
+// 2:     const w = words[0].length;
+// 3:     const m = words.length;
+// 4:     const totalLen = m * w;
+// 5:     if (s.length < totalLen) return result;
+// 6:
+// 7:     // Build target frequency map
+// 8:     const target = new Map();
+// 9:     for (const word of words) {
+// 10:        target.set(word, (target.get(word) || 0) + 1);
+// 11:    }
+// 12:
+// 13:    for (let i = 0; i <= s.length - totalLen; i++) {
+// 14:        const seen = new Map();
+// 15:        let valid = true;
+// 16:        for (let j = 0; j < m; j++) {
+// 17:            const chunk = s.substring(i + j * w, i + j * w + w);
+// 18:            seen.set(chunk, (seen.get(chunk) || 0) + 1);
+// 19:            // Early exit if any chunk exceeds target count
+// 20:            if (seen.get(chunk) > (target.get(chunk) || 0)) {
+// 21:                valid = false;
+// 22:                break;
+// 23:            }
+// 24:        }
+// 25:        if (valid) result.push(i);
+// 26:    }
+// 27:    return result;
+// 28: }
+export function findSubstringBruteTrace(sCodes: number[], wordsCodes: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const s = sCodes.map((c) => String.fromCharCode(c)).join("");
+  const words = wordsCodes.map((c) => String.fromCharCode(c)).join("").split(" ").filter(Boolean);
+  const result: number[] = [];
+  const w = words[0]?.length ?? 0;
+  const m = words.length;
+  const totalLen = m * w;
+  const target = new Map<string, number>();
+  for (const word of words) target.set(word, (target.get(word) || 0) + 1);
+
+  const pushStep = (
+    line: number,
+    i: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(sCodes, (idx) => (idx === i ? "i" : "idle")),
+      values: [...sCodes],
+      vars: [
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "result", value: `[${result.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  if (s.length < totalLen) {
+    done = true;
+    steps.push({ line: 5, cells: sCodes.map(() => "idle"), values: [...sCodes], vars: [{ name: "result", value: "[]", tone: "fail" }], result: "[]", resultTone: "fail", explanation: `s shorter than total concatenation → return [].`, done });
+    return steps;
+  }
+
+  for (let i = 0; i <= s.length - totalLen; i++) {
+    const seen = new Map<string, number>();
+    let valid = true;
+    for (let j = 0; j < m; j++) {
+      const chunk = s.substring(i + j * w, i + j * w + w);
+      seen.set(chunk, (seen.get(chunk) || 0) + 1);
+      if (seen.get(chunk)! > (target.get(chunk) || 0)) {
+        valid = false;
+        pushStep(20, i, `'${chunk}' exceeds`, "fail", `Chunk '${chunk}' count ${seen.get(chunk)} > target ${target.get(chunk) || 0} → invalid.`);
+        break;
+      }
+      pushStep(18, i, `'${chunk}' ok`, "info", `Chunk '${chunk}' within target count.`);
+    }
+    if (valid) {
+      result.push(i);
+      pushStep(25, i, `match at ${i}`, "ok", `Window at ${i} uses all words → push ${i}.`);
+    }
+  }
+
+  done = true;
+  steps.push({ line: 27, cells: sCodes.map(() => "idle"), values: [...sCodes], vars: [{ name: "result", value: `[${result.join(", ")}]`, tone: "ok" }], result: `[${result.join(", ")}]`, resultTone: "ok", explanation: `Concatenation start indices = [${result.join(", ")}].`, done });
+  return steps;
+}
+
+// Approach 2: Sliding Window (Optimal).
+// Source (lines):
+// 0: function findSubstring(s, words) {
+// 1:     const result = [];
+// 2:     const w = words[0].length;
+// 3:     const m = words.length;
+// 4:     const totalLen = m * w;
+// 5:     if (s.length < totalLen) return result;
+// 6:
+// 7:     // Build target frequency map
+// 8:     const target = new Map();
+// 9:     for (const word of words) {
+// 10:        target.set(word, (target.get(word) || 0) + 1);
+// 11:    }
+// 12:    const distinctWords = target.size;
+// 13:
+// 14:    // Try each starting offset
+// 15:    for (let k = 0; k < w; k++) {
+// 16:        const seen = new Map();
+// 17:        let matchCount = 0;
+// 18:        let left = k;
+// 19:
+// 20:        for (let right = k; right + w <= s.length; right += w) {
+// 21:            const rightWord = s.substring(right, right + w);
+// 22:
+// 23:            // Add right word to window
+// 24:            if (target.has(rightWord)) {
+// 25:                const count = (seen.get(rightWord) || 0) + 1;
+// 26:                seen.set(rightWord, count);
+// 27:                if (count === target.get(rightWord)) matchCount++;
+// 28:                else if (count === target.get(rightWord) + 1) matchCount--;
+// 29:            }
+// 30:
+// 31:            // Shrink window if it exceeds m words
+// 32:            if (right - left >= totalLen) {
+// 33:                const leftWord = s.substring(left, left + w);
+// 34:                if (target.has(leftWord)) {
+// 35:                    const count = seen.get(leftWord);
+// 36:                    if (count === target.get(leftWord)) matchCount--;
+// 37:                    seen.set(leftWord, count - 1);
+// 38:                    if (count - 1 === target.get(leftWord)) matchCount++;
+// 39:                }
+// 40:                left += w;
+// 41:            }
+// 42:
+// 43:            if (matchCount === distinctWords) result.push(left);
+// 44:        }
+// 45:    }
+// 46:    return result;
+// 47: }
+export function findSubstringSlidingTrace(sCodes: number[], wordsCodes: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const s = sCodes.map((c) => String.fromCharCode(c)).join("");
+  const words = wordsCodes.map((c) => String.fromCharCode(c)).join("").split(" ").filter(Boolean);
+  const result: number[] = [];
+  const w = words[0]?.length ?? 0;
+  const m = words.length;
+  const totalLen = m * w;
+  const target = new Map<string, number>();
+  for (const word of words) target.set(word, (target.get(word) || 0) + 1);
+  const distinctWords = target.size;
+
+  const pushStep = (
+    line: number,
+    left: number,
+    right: number,
+    matchCount: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(sCodes, (idx) => {
+        if (idx === left) return "i";
+        if (idx === right) return "j";
+        return "idle";
+      }),
+      values: [...sCodes],
+      vars: [
+        { name: "left", value: String(left), tone: "info" },
+        { name: "right", value: String(right), tone: "info" },
+        { name: "matchCount", value: String(matchCount), tone: "info" },
+        { name: "result", value: `[${result.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  if (s.length < totalLen) {
+    done = true;
+    steps.push({ line: 5, cells: sCodes.map(() => "idle"), values: [...sCodes], vars: [{ name: "result", value: "[]", tone: "fail" }], result: "[]", resultTone: "fail", explanation: `s shorter than total concatenation → return [].`, done });
+    return steps;
+  }
+
+  for (let k = 0; k < w; k++) {
+    const seen = new Map<string, number>();
+    let matchCount = 0;
+    let left = k;
+    for (let right = k; right + w <= s.length; right += w) {
+      const rightWord = s.substring(right, right + w);
+      if (target.has(rightWord)) {
+        const count = (seen.get(rightWord) || 0) + 1;
+        seen.set(rightWord, count);
+        if (count === target.get(rightWord)) matchCount++;
+        else if (count === target.get(rightWord)! + 1) matchCount--;
+        pushStep(26, left, right, matchCount, `add '${rightWord}'`, "info", `Add right word '${rightWord}' → matchCount = ${matchCount}.`);
+      }
+      if (right - left >= totalLen) {
+        const leftWord = s.substring(left, left + w);
+        if (target.has(leftWord)) {
+          const count = seen.get(leftWord)!;
+          if (count === target.get(leftWord)) matchCount--;
+          seen.set(leftWord, count - 1);
+          if (count - 1 === target.get(leftWord)) matchCount++;
+          pushStep(36, left, right, matchCount, `remove '${leftWord}'`, "info", `Remove left word '${leftWord}' → matchCount = ${matchCount}.`);
+        }
+        left += w;
+      }
+      if (matchCount === distinctWords) {
+        result.push(left);
+        pushStep(43, left, right, matchCount, `match at ${left}`, "ok", `All words matched → push ${left}.`);
+      }
+    }
+  }
+
+  done = true;
+  steps.push({ line: 46, cells: sCodes.map(() => "idle"), values: [...sCodes], vars: [{ name: "result", value: `[${result.join(", ")}]`, tone: "ok" }], result: `[${result.join(", ")}]`, resultTone: "ok", explanation: `Concatenation start indices = [${result.join(", ")}].`, done });
+  return steps;
+}
+
+// ── Longest Substring Without Repeating Characters ─────────────────────
+// Two DISTINCT approaches. s as char-code array.
+
+// Approach 1: Brute Force.
+// Source (lines):
+// 0: function lengthOfLongestSubstring(s) {
+// 1:   const n = s.length;
+// 2:   let maxLen = 0;
+// 3:
+// 4:   for (let i = 0; i < n; i++) {
+// 5:     const seen = new Set();
+// 6:     for (let j = i; j < n; j++) {
+// 7:       if (seen.has(s[j])) break;
+// 8:       seen.add(s[j]);
+// 9:       maxLen = Math.max(maxLen, j - i + 1);
+// 10:    }
+// 11:  }
+// 12:
+// 13:  return maxLen;
+// 14: }
+export function longSubNoRepeatBruteTrace(sCodes: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const s = sCodes.map((c) => String.fromCharCode(c)).join("");
+  const n = s.length;
+  let maxLen = 0;
+
+  const pushStep = (
+    line: number,
+    i: number,
+    j: number,
+    seenStr: string,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(sCodes, (idx) => {
+        if (idx === i) return "i";
+        if (idx === j) return "j";
+        return "idle";
+      }),
+      values: [...sCodes],
+      vars: [
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "j", value: j >= 0 ? String(j) : "—", tone: "info" },
+        { name: "seen", value: seenStr, tone: "info" },
+        { name: "maxLen", value: String(maxLen), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < n; i++) {
+    const seen = new Set<string>();
+    for (let j = i; j < n; j++) {
+      if (seen.has(s[j])) {
+        pushStep(7, i, j, `{${Array.from(seen).join(", ")}}`, "duplicate!", "fail", `s[${j}]='${s[j]}' already in set → break.`);
+        break;
+      }
+      seen.add(s[j]);
+      maxLen = Math.max(maxLen, j - i + 1);
+      pushStep(8, i, j, `{${Array.from(seen).join(", ")}}`, `maxLen = ${maxLen}`, "ok", `Add s[${j}]='${s[j]}' → substring len ${j - i + 1}, maxLen = ${maxLen}.`);
+    }
+  }
+
+  done = true;
+  steps.push({ line: 13, cells: sCodes.map(() => "idle"), values: [...sCodes], vars: [{ name: "maxLen", value: String(maxLen), tone: "ok" }], result: String(maxLen), resultTone: "ok", explanation: `Longest substring without repeating chars = ${maxLen}.`, done });
+  return steps;
+}
+
+// Approach 2: Sliding Window + Hash Set.
+// Source (lines):
+// 0: function lengthOfLongestSubstring(s) {
+// 1:   const window = new Set();
+// 2:   let left = 0;
+// 3:   let maxLen = 0;
+// 4:
+// 5:   for (let right = 0; right < s.length; right++) {
+// 6:     // Shrink window until duplicate is removed
+// 7:     while (window.has(s[right])) {
+// 8:       window.delete(s[left]);
+// 9:       left++;
+// 10:    }
+// 11:    window.add(s[right]);
+// 12:    maxLen = Math.max(maxLen, right - left + 1);
+// 13:  }
+// 14:
+// 15:  return maxLen;
+// 16: }
+export function longSubNoRepeatSlidingTrace(sCodes: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const s = sCodes.map((c) => String.fromCharCode(c)).join("");
+  const window = new Set<string>();
+  let left = 0;
+  let maxLen = 0;
+
+  const pushStep = (
+    line: number,
+    leftP: number,
+    rightP: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(sCodes, (idx) => {
+        if (idx === leftP) return "i";
+        if (idx === rightP) return "j";
+        return "idle";
+      }),
+      values: [...sCodes],
+      vars: [
+        { name: "left", value: String(leftP), tone: "info" },
+        { name: "right", value: String(rightP), tone: "info" },
+        { name: "window", value: `{${Array.from(window).join(", ")}}`, tone: "info" },
+        { name: "maxLen", value: String(maxLen), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let right = 0; right < s.length; right++) {
+    while (window.has(s[right])) {
+      window.delete(s[left]);
+      pushStep(8, left, right, `remove '${s[left]}'`, "fail", `s[${right}]='${s[right]}' duplicate → remove s[${left}]='${s[left]}', left++.`);
+      left++;
+    }
+    window.add(s[right]);
+    maxLen = Math.max(maxLen, right - left + 1);
+    pushStep(11, left, right, `add '${s[right]}' → maxLen ${maxLen}`, "ok", `Add s[${right}]='${s[right]}' → window len ${right - left + 1}, maxLen = ${maxLen}.`);
+  }
+
+  done = true;
+  steps.push({ line: 15, cells: sCodes.map(() => "idle"), values: [...sCodes], vars: [{ name: "maxLen", value: String(maxLen), tone: "ok" }], result: String(maxLen), resultTone: "ok", explanation: `Longest substring without repeating chars = ${maxLen}.`, done });
+  return steps;
+}
+
+// ── Longest Repeating Character Replacement ────────────────────────────
+// Two DISTINCT approaches. s as char-code array; k is the replacement budget.
+
+// Approach 1: Brute Force.
+// Source (lines):
+// 0: function characterReplacement(s, k) {
+// 1:     const n = s.length;
+// 2:     let maxLen = 0;
+// 3:     for (let left = 0; left < n; left++) {
+// 4:         const freq = new Array(26).fill(0);
+// 5:         let maxFreq = 0;
+// 6:         for (let right = left; right < n; right++) {
+// 7:             const idx = s.charCodeAt(right) - 65; // 'A' = 65
+// 8:             freq[idx]++;
+// 9:             maxFreq = Math.max(maxFreq, freq[idx]);
+// 10:            const windowLen = right - left + 1;
+// 11:            if (windowLen - maxFreq <= k) {
+// 12:                maxLen = Math.max(maxLen, windowLen);
+// 13:            } else {
+// 14:                // More replacements needed than allowed, stop expanding
+// 15:                break;
+// 16:            }
+// 17:        }
+// 18:    }
+// 19:    return maxLen;
+// 20: }
+export function charReplacementBruteTrace(sCodes: number[], k: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const s = sCodes.map((c) => String.fromCharCode(c)).join("");
+  const n = s.length;
+  let maxLen = 0;
+
+  const pushStep = (
+    line: number,
+    leftP: number,
+    rightP: number,
+    maxFreq: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(sCodes, (idx) => {
+        if (idx === leftP) return "i";
+        if (idx === rightP) return "j";
+        return "idle";
+      }),
+      values: [...sCodes],
+      vars: [
+        { name: "left", value: String(leftP), tone: "info" },
+        { name: "right", value: String(rightP), tone: "info" },
+        { name: "maxFreq", value: String(maxFreq), tone: "info" },
+        { name: "maxLen", value: String(maxLen), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let leftP = 0; leftP < n; leftP++) {
+    const freq = new Array(26).fill(0);
+    let maxFreq = 0;
+    for (let rightP = leftP; rightP < n; rightP++) {
+      const idx = s.charCodeAt(rightP) - 65;
+      freq[idx]++;
+      maxFreq = Math.max(maxFreq, freq[idx]);
+      const windowLen = rightP - leftP + 1;
+      if (windowLen - maxFreq <= k) {
+        maxLen = Math.max(maxLen, windowLen);
+        pushStep(11, leftP, rightP, maxFreq, `maxLen = ${maxLen}`, "ok", `Window [${leftP}..${rightP}] len ${windowLen}, maxFreq ${maxFreq}, replaces ${windowLen - maxFreq} ≤ ${k} → maxLen = ${maxLen}.`);
+      } else {
+        pushStep(14, leftP, rightP, maxFreq, "too many replaces", "fail", `Window [${leftP}..${rightP}] needs ${windowLen - maxFreq} > ${k} replaces → break.`);
+        break;
+      }
+    }
+  }
+
+  done = true;
+  steps.push({ line: 19, cells: sCodes.map(() => "idle"), values: [...sCodes], vars: [{ name: "maxLen", value: String(maxLen), tone: "ok" }], result: String(maxLen), resultTone: "ok", explanation: `Longest repeating-character substring after ≤ ${k} replacements = ${maxLen}.`, done });
+  return steps;
+}
+
+// Approach 2: Sliding Window.
+// Source (lines):
+// 0: function characterReplacement(s, k) {
+// 1:     const freq = new Array(26).fill(0);
+// 2:     let left = 0, maxLen = 0;
+// 3:
+// 4:     for (let right = 0; right < s.length; right++) {
+// 5:         freq[s.charCodeAt(right) - 65]++;
+// 6:
+// 7:         // Shrink window until it's valid
+// 8:         while ((right - left + 1) - Math.max(...freq) > k) {
+// 9:             freq[s.charCodeAt(left) - 65]--;
+// 10:            left++;
+// 11:        }
+// 12:        maxLen = Math.max(maxLen, right - left + 1);
+// 13:    }
+// 14:    return maxLen;
+// 15: }
+export function charReplacementSlidingTrace(sCodes: number[], k: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const s = sCodes.map((c) => String.fromCharCode(c)).join("");
+  const freq = new Array(26).fill(0);
+  let left = 0;
+  let maxLen = 0;
+
+  const pushStep = (
+    line: number,
+    leftP: number,
+    rightP: number,
+    maxFreq: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(sCodes, (idx) => {
+        if (idx === leftP) return "i";
+        if (idx === rightP) return "j";
+        return "idle";
+      }),
+      values: [...sCodes],
+      vars: [
+        { name: "left", value: String(leftP), tone: "info" },
+        { name: "right", value: String(rightP), tone: "info" },
+        { name: "maxFreq", value: String(maxFreq), tone: "info" },
+        { name: "maxLen", value: String(maxLen), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let right = 0; right < s.length; right++) {
+    freq[s.charCodeAt(right) - 65]++;
+    pushStep(5, left, right, Math.max(...freq), `freq++`, "info", `Add s[${right}]='${s[right]}' → maxFreq = ${Math.max(...freq)}.`);
+    while (right - left + 1 - Math.max(...freq) > k) {
+      freq[s.charCodeAt(left) - 65]--;
+      left++;
+      pushStep(8, left, right, Math.max(...freq), `shrink`, "fail", `Window needs ${right - left + 1 - Math.max(...freq) - 1} > ${k} replaces → remove s[${left - 1}]='${s[left - 1]}', left → ${left}.`);
+    }
+    maxLen = Math.max(maxLen, right - left + 1);
+    pushStep(12, left, right, Math.max(...freq), `maxLen = ${maxLen}`, "ok", `Window [${left}..${right}] len ${right - left + 1} valid → maxLen = ${maxLen}.`);
+  }
+
+  done = true;
+  steps.push({ line: 14, cells: sCodes.map(() => "idle"), values: [...sCodes], vars: [{ name: "maxLen", value: String(maxLen), tone: "ok" }], result: String(maxLen), resultTone: "ok", explanation: `Longest repeating-character substring after ≤ ${k} replacements = ${maxLen}.`, done });
+  return steps;
+}
+
+// ── Minimum Size Subarray Sum ──────────────────────────────────────────
+// Two DISTINCT approaches. nums is the array; target is the sum.
+
+// Approach 1: Brute Force.
+// Source (lines):
+// 0: function minSubArrayLen(target, nums) {
+// 1:   const n = nums.length
+// 2:   let minLen = n + 1
+// 3:
+// 4:   for (let i = 0; i < n; i++) {
+// 5:     let sum = 0
+// 6:     for (let j = i; j < n; j++) {
+// 7:       sum += nums[j]
+// 8:       if (sum >= target) {
+// 9:         minLen = Math.min(minLen, j - i + 1)
+// 10:        break // shortest subarray starting at i found
+// 11:      }
+// 12:    }
+// 13:  }
+// 14:
+// 15:  return minLen === n + 1 ? 0 : minLen
+// 16: }
+export function minSubArrayLenBruteTrace(nums: number[], target: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const n = nums.length;
+  let minLen = n + 1;
+
+  const pushStep = (
+    line: number,
+    i: number,
+    j: number,
+    sum: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(nums, (idx) => {
+        if (idx === i) return "i";
+        if (idx === j) return "j";
+        return "idle";
+      }),
+      vars: [
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "j", value: j >= 0 ? String(j) : "—", tone: "info" },
+        { name: "sum", value: String(sum), tone: "info" },
+        { name: "minLen", value: minLen === n + 1 ? "∞" : String(minLen), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < n; i++) {
+    let sum = 0;
+    for (let j = i; j < n; j++) {
+      sum += nums[j];
+      pushStep(7, i, j, sum, `sum → ${sum}`, "info", `Add nums[${j}] = ${nums[j]} → sum = ${sum}.`);
+      if (sum >= target) {
+        minLen = Math.min(minLen, j - i + 1);
+        pushStep(8, i, j, sum, `minLen = ${minLen}`, "ok", `Subarray [${i}..${j}] sum ${sum} ≥ ${target} → minLen = ${minLen}.`);
+        break;
+      }
+    }
+  }
+
+  const result = minLen === n + 1 ? 0 : minLen;
+  done = true;
+  steps.push({ line: 15, cells: nums.map(() => "idle"), vars: [{ name: "minLen", value: String(result), tone: "ok" }], result: String(result), resultTone: "ok", explanation: `Minimum subarray length with sum ≥ ${target} = ${result}.`, done });
+  return steps;
+}
+
+// Approach 2: Sliding Window.
+// Source (lines):
+// 0: function minSubArrayLen(target, nums) {
+// 1:   const n = nums.length
+// 2:   let left = 0
+// 3:   let currentSum = 0
+// 4:   let minLen = n + 1
+// 5:
+// 6:   for (let right = 0; right < n; right++) {
+// 7:     currentSum += nums[right]
+// 8:
+// 9:     // Shrink window while sum meets the target
+// 10:    while (currentSum >= target) {
+// 11:      minLen = Math.min(minLen, right - left + 1)
+// 12:      currentSum -= nums[left]
+// 13:      left++
+// 14:    }
+// 15:  }
+// 16:
+// 17:  return minLen === n + 1 ? 0 : minLen
+// 18: }
+export function minSubArrayLenSlidingTrace(nums: number[], target: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const n = nums.length;
+  let left = 0;
+  let currentSum = 0;
+  let minLen = n + 1;
+
+  const pushStep = (
+    line: number,
+    leftP: number,
+    rightP: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(nums, (idx) => {
+        if (idx === leftP) return "i";
+        if (idx === rightP) return "j";
+        return "idle";
+      }),
+      vars: [
+        { name: "left", value: String(leftP), tone: "info" },
+        { name: "right", value: String(rightP), tone: "info" },
+        { name: "currentSum", value: String(currentSum), tone: "info" },
+        { name: "minLen", value: minLen === n + 1 ? "∞" : String(minLen), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let right = 0; right < n; right++) {
+    currentSum += nums[right];
+    pushStep(7, left, right, `sum → ${currentSum}`, "info", `Add nums[${right}] = ${nums[right]} → currentSum = ${currentSum}.`);
+    while (currentSum >= target) {
+      minLen = Math.min(minLen, right - left + 1);
+      pushStep(10, left, right, `minLen = ${minLen}`, "ok", `Window [${left}..${right}] sum ${currentSum} ≥ ${target} → minLen = ${minLen}.`);
+      currentSum -= nums[left];
+      left++;
+      pushStep(12, left, right, `shrink → ${currentSum}`, "info", `Remove nums[${left - 1}] = ${nums[left - 1]}, left → ${left}.`);
+    }
+  }
+
+  const result = minLen === n + 1 ? 0 : minLen;
+  done = true;
+  steps.push({ line: 17, cells: nums.map(() => "idle"), vars: [{ name: "minLen", value: String(result), tone: "ok" }], result: String(result), resultTone: "ok", explanation: `Minimum subarray length with sum ≥ ${target} = ${result}.`, done });
+  return steps;
+}
+
+// ── Max Consecutive Ones III ───────────────────────────────────────────
+// Two DISTINCT approaches. nums is a binary array; k is the flip budget.
+
+// Approach 1: Brute Force.
+// Source (lines):
+// 0: function longestOnes(nums, k) {
+// 1:     let maxLen = 0;
+// 2:     for (let i = 0; i < nums.length; i++) {
+// 3:         let zeroCount = 0;
+// 4:         for (let j = i; j < nums.length; j++) {
+// 5:             if (nums[j] === 0) {
+// 6:                 zeroCount++;
+// 7:             }
+// 8:             if (zeroCount > k) {
+// 9:                 break;
+// 10:            }
+// 11:            maxLen = Math.max(maxLen, j - i + 1);
+// 12:        }
+// 13:    }
+// 14:    return maxLen;
+// 15: }
+export function longestOnesBruteTrace(nums: number[], k: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  let maxLen = 0;
+
+  const pushStep = (
+    line: number,
+    i: number,
+    j: number,
+    zeroCount: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(nums, (idx) => {
+        if (idx === i) return "i";
+        if (idx === j) return "j";
+        return "idle";
+      }),
+      vars: [
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "j", value: j >= 0 ? String(j) : "—", tone: "info" },
+        { name: "zeroCount", value: String(zeroCount), tone: "info" },
+        { name: "maxLen", value: String(maxLen), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < nums.length; i++) {
+    let zeroCount = 0;
+    for (let j = i; j < nums.length; j++) {
+      if (nums[j] === 0) zeroCount++;
+      if (zeroCount > k) {
+        pushStep(8, i, j, zeroCount, `too many zeros`, "fail", `zeroCount ${zeroCount} > ${k} → break.`);
+        break;
+      }
+      maxLen = Math.max(maxLen, j - i + 1);
+      pushStep(11, i, j, zeroCount, `maxLen = ${maxLen}`, "ok", `Window [${i}..${j}] has ${zeroCount} zeros (≤ ${k}) → maxLen = ${maxLen}.`);
+    }
+  }
+
+  done = true;
+  steps.push({ line: 14, cells: nums.map(() => "idle"), vars: [{ name: "maxLen", value: String(maxLen), tone: "ok" }], result: String(maxLen), resultTone: "ok", explanation: `Longest subarray of 1s after flipping ≤ ${k} zeros = ${maxLen}.`, done });
+  return steps;
+}
+
+// Approach 2: Sliding Window.
+// Source (lines):
+// 0: function longestOnes(nums, k) {
+// 1:     let left = 0;
+// 2:     let zeroCount = 0;
+// 3:     let maxLen = 0;
+// 4:
+// 5:     for (let right = 0; right < nums.length; right++) {
+// 6:         if (nums[right] === 0) {
+// 7:             zeroCount++;
+// 8:         }
+// 9:         // Shrink window until we have at most k zeros
+// 10:        while (zeroCount > k) {
+// 11:            if (nums[left] === 0) {
+// 12:                zeroCount--;
+// 13:            }
+// 14:            left++;
+// 15:        }
+// 16:        maxLen = Math.max(maxLen, right - left + 1);
+// 17:    }
+// 18:    return maxLen;
+// 19: }
+export function longestOnesSlidingTrace(nums: number[], k: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  let left = 0;
+  let zeroCount = 0;
+  let maxLen = 0;
+
+  const pushStep = (
+    line: number,
+    leftP: number,
+    rightP: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(nums, (idx) => {
+        if (idx === leftP) return "i";
+        if (idx === rightP) return "j";
+        return "idle";
+      }),
+      vars: [
+        { name: "left", value: String(leftP), tone: "info" },
+        { name: "right", value: String(rightP), tone: "info" },
+        { name: "zeroCount", value: String(zeroCount), tone: "info" },
+        { name: "maxLen", value: String(maxLen), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let right = 0; right < nums.length; right++) {
+    if (nums[right] === 0) zeroCount++;
+    pushStep(6, left, right, `zeroCount = ${zeroCount}`, "info", `nums[${right}] = ${nums[right]} → zeroCount = ${zeroCount}.`);
+    while (zeroCount > k) {
+      if (nums[left] === 0) zeroCount--;
+      left++;
+      pushStep(10, left, right, `shrink → zeroCount ${zeroCount}`, "fail", `zeroCount ${zeroCount + (nums[left - 1] === 0 ? 1 : 0)} > ${k} → remove nums[${left - 1}], left → ${left}.`);
+    }
+    maxLen = Math.max(maxLen, right - left + 1);
+    pushStep(16, left, right, `maxLen = ${maxLen}`, "ok", `Window [${left}..${right}] len ${right - left + 1} → maxLen = ${maxLen}.`);
+  }
+
+  done = true;
+  steps.push({ line: 18, cells: nums.map(() => "idle"), vars: [{ name: "maxLen", value: String(maxLen), tone: "ok" }], result: String(maxLen), resultTone: "ok", explanation: `Longest subarray of 1s after flipping ≤ ${k} zeros = ${maxLen}.`, done });
+  return steps;
+}
+
+// ── Minimum Window Substring ───────────────────────────────────────────
+// Two DISTINCT approaches. s and t as char-code arrays.
+
+// Approach 1: Brute Force.
+// Source (lines):
+// 0: function minWindow(s, t) {
+// 1:     const m = s.length, n = t.length;
+// 2:     if (n > m) return "";
+// 3:
+// 4:     // Build frequency map for t
+// 5:     const tFreq = new Array(128).fill(0);
+// 6:     for (const c of t) tFreq[c.charCodeAt(0)]++;
+// 7:
+// 8:     let bestStart = 0, bestLen = Infinity;
+// 9:
+// 10:    for (let i = 0; i < m; i++) {
+// 11:        const windowFreq = new Array(128).fill(0);
+// 12:        for (let j = i; j < m; j++) {
+// 13:            windowFreq[s.charCodeAt(j)]++;
+// 14:            // Check if window contains all characters of t
+// 15:            if (j - i + 1 >= n && tFreq.every((f, k) => windowFreq[k] >= f)) {
+// 16:                if (j - i + 1 < bestLen) {
+// 17:                    bestStart = i;
+// 18:                    bestLen = j - i + 1;
+// 19:                }
+// 20:                break;
+// 21:            }
+// 22:        }
+// 23:    }
+// 24:    return bestLen === Infinity ? "" : s.substring(bestStart, bestStart + bestLen);
+// 25: }
+export function minWindowBruteTrace(sCodes: number[], tCodes: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const s = sCodes.map((c) => String.fromCharCode(c)).join("");
+  const t = tCodes.map((c) => String.fromCharCode(c)).join("");
+  const m = s.length, n = t.length;
+  const tFreq = new Array(128).fill(0);
+  for (const c of t) tFreq[c.charCodeAt(0)]++;
+  let bestStart = 0, bestLen = Infinity;
+
+  const pushStep = (
+    line: number,
+    i: number,
+    j: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(sCodes, (idx) => {
+        if (idx === i) return "i";
+        if (idx === j) return "j";
+        return "idle";
+      }),
+      values: [...sCodes],
+      vars: [
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "j", value: j >= 0 ? String(j) : "—", tone: "info" },
+        { name: "bestLen", value: bestLen === Infinity ? "∞" : String(bestLen), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  if (n > m) {
+    done = true;
+    steps.push({ line: 2, cells: sCodes.map(() => "idle"), values: [...sCodes], vars: [{ name: "result", value: "\"\"", tone: "fail" }], result: "\"\"", resultTone: "fail", explanation: `t longer than s → return empty string.`, done });
+    return steps;
+  }
+
+  for (let i = 0; i < m; i++) {
+    const windowFreq = new Array(128).fill(0);
+    for (let j = i; j < m; j++) {
+      windowFreq[s.charCodeAt(j)]++;
+      const covered = j - i + 1 >= n && tFreq.every((f, k) => windowFreq[k] >= f);
+      if (covered) {
+        if (j - i + 1 < bestLen) {
+          bestStart = i;
+          bestLen = j - i + 1;
+          pushStep(16, i, j, `bestLen = ${bestLen}`, "ok", `Window '${s.substring(i, j + 1)}' covers t → bestLen = ${bestLen}.`);
+        }
+        break;
+      }
+      pushStep(13, i, j, "not covered", "fail", `Window [${i}..${j}] does not yet cover all of t.`);
+    }
+  }
+
+  const result = bestLen === Infinity ? "" : s.substring(bestStart, bestStart + bestLen);
+  done = true;
+  steps.push({ line: 24, cells: sCodes.map(() => "idle"), values: [...sCodes], vars: [{ name: "result", value: `"${result}"`, tone: "ok" }], result: `"${result}"`, resultTone: "ok", explanation: `Minimum window substring = "${result}".`, done });
+  return steps;
+}
+
+// Approach 2: Sliding Window.
+// Source (lines):
+// 0: function minWindow(s, t) {
+// 1:     const m = s.length, n = t.length;
+// 2:     if (n > m) return "";
+// 3:
+// 4:     // Frequency map for t
+// 5:     const tCount = new Map();
+// 6:     for (const c of t) {
+// 7:         tCount.set(c, (tCount.get(c) || 0) + 1);
+// 8:     }
+// 9:
+// 10:    const required = tCount.size; // Distinct chars in t that must be satisfied
+// 11:    let formed = 0;               // Distinct chars currently meeting required freq
+// 12:    const windowCount = new Map();
+// 13:
+// 14:    let bestStart = 0, bestLen = Infinity;
+// 15:    let left = 0;
+// 16:
+// 17:    for (let right = 0; right < m; right++) {
+// 18:        const c = s[right];
+// 19:        windowCount.set(c, (windowCount.get(c) || 0) + 1);
+// 20:
+// 21:        // Check if this character's frequency requirement is now met
+// 22:        if (tCount.has(c) && windowCount.get(c) === tCount.get(c)) {
+// 23:            formed++;
+// 24:        }
+// 25:
+// 26:        // Shrink the window from the left while it remains valid
+// 27:        while (formed === required) {
+// 28:            if (right - left + 1 < bestLen) {
+// 29:                bestStart = left;
+// 30:                bestLen = right - left + 1;
+// 31:            }
+// 32:            const leftChar = s[left];
+// 33:            windowCount.set(leftChar, windowCount.get(leftChar) - 1);
+// 34:            if (tCount.has(leftChar) && windowCount.get(leftChar) < tCount.get(leftChar)) {
+// 35:                formed--;
+// 36:            }
+// 37:            left++;
+// 38:        }
+// 39:    }
+// 40:    return bestLen === Infinity ? "" : s.substring(bestStart, bestStart + bestLen);
+// 41: }
+export function minWindowSlidingTrace(sCodes: number[], tCodes: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const s = sCodes.map((c) => String.fromCharCode(c)).join("");
+  const t = tCodes.map((c) => String.fromCharCode(c)).join("");
+  const m = s.length, n = t.length;
+  const tCount = new Map<string, number>();
+  for (const c of t) tCount.set(c, (tCount.get(c) || 0) + 1);
+  const required = tCount.size;
+  let formed = 0;
+  const windowCount = new Map<string, number>();
+  let bestStart = 0, bestLen = Infinity;
+  let left = 0;
+
+  const pushStep = (
+    line: number,
+    leftP: number,
+    rightP: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(sCodes, (idx) => {
+        if (idx === leftP) return "i";
+        if (idx === rightP) return "j";
+        return "idle";
+      }),
+      values: [...sCodes],
+      vars: [
+        { name: "left", value: String(leftP), tone: "info" },
+        { name: "right", value: String(rightP), tone: "info" },
+        { name: "formed", value: String(formed), tone: "info" },
+        { name: "bestLen", value: bestLen === Infinity ? "∞" : String(bestLen), tone: "info" },
+        { name: "windowCount", value: `{${Array.from(windowCount.entries()).map(([c, cnt]) => `${c}:${cnt}`).join(", ")}}`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  if (n > m) {
+    done = true;
+    steps.push({ line: 2, cells: sCodes.map(() => "idle"), values: [...sCodes], vars: [{ name: "result", value: "\"\"", tone: "fail" }], result: "\"\"", resultTone: "fail", explanation: `t longer than s → return empty string.`, done });
+    return steps;
+  }
+
+  for (let right = 0; right < m; right++) {
+    const c = s[right];
+    windowCount.set(c, (windowCount.get(c) || 0) + 1);
+    pushStep(19, left, right, `add '${c}'`, "info", `Add s[${right}]='${c}' → windowCount.`);
+    if (tCount.has(c) && windowCount.get(c) === tCount.get(c)) {
+      formed++;
+      pushStep(22, left, right, `formed = ${formed}`, "ok", `'${c}' freq requirement met → formed = ${formed}.`);
+    }
+    while (formed === required) {
+      if (right - left + 1 < bestLen) {
+        bestStart = left;
+        bestLen = right - left + 1;
+        pushStep(28, left, right, `bestLen = ${bestLen}`, "ok", `Window '${s.substring(left, right + 1)}' covers t → bestLen = ${bestLen}.`);
+      }
+      const leftChar = s[left];
+      windowCount.set(leftChar, windowCount.get(leftChar)! - 1);
+      if (tCount.has(leftChar) && windowCount.get(leftChar)! < tCount.get(leftChar)!) {
+        formed--;
+      }
+      left++;
+      pushStep(32, left, right, `shrink → formed ${formed}`, "fail", `Remove s[${left - 1}]='${leftChar}', left → ${left}.`);
+    }
+  }
+
+  const result = bestLen === Infinity ? "" : s.substring(bestStart, bestStart + bestLen);
+  done = true;
+  steps.push({ line: 40, cells: sCodes.map(() => "idle"), values: [...sCodes], vars: [{ name: "result", value: `"${result}"`, tone: "ok" }], result: `"${result}"`, resultTone: "ok", explanation: `Minimum window substring = "${result}".`, done });
+  return steps;
+}
+
+// ── Maximum Subarray ───────────────────────────────────────────────────
+// Two DISTINCT approaches.
+
+// Approach 1: Brute Force.
+// Source (lines):
+// 0: function maxSubArray(nums) {
+// 1:   let maxSum = nums[0]
+// 2:
+// 3:   for (let i = 0; i < nums.length; i++) {
+// 4:     let currentSum = 0
+// 5:     for (let j = i; j < nums.length; j++) {
+// 6:       currentSum += nums[j]
+// 7:       maxSum = Math.max(maxSum, currentSum)
+// 8:     }
+// 9:   }
+// 10:
+// 11:  return maxSum
+// 12: }
+export function maxSubArrayBruteTrace(nums: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  let maxSum = nums[0] ?? 0;
+
+  const pushStep = (
+    line: number,
+    i: number,
+    j: number,
+    currentSum: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(nums, (idx) => {
+        if (idx === i) return "i";
+        if (idx === j) return "j";
+        return "idle";
+      }),
+      vars: [
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "j", value: j >= 0 ? String(j) : "—", tone: "info" },
+        { name: "currentSum", value: String(currentSum), tone: "info" },
+        { name: "maxSum", value: String(maxSum), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < nums.length; i++) {
+    let currentSum = 0;
+    for (let j = i; j < nums.length; j++) {
+      currentSum += nums[j];
+      maxSum = Math.max(maxSum, currentSum);
+      pushStep(6, i, j, currentSum, `maxSum = ${maxSum}`, "ok", `Subarray [${i}..${j}] sum ${currentSum} → maxSum = ${maxSum}.`);
+    }
+  }
+
+  done = true;
+  steps.push({ line: 11, cells: nums.map(() => "idle"), vars: [{ name: "maxSum", value: String(maxSum), tone: "ok" }], result: String(maxSum), resultTone: "ok", explanation: `Maximum subarray sum = ${maxSum}.`, done });
+  return steps;
+}
+
+// Approach 2: Kadane's Algorithm.
+// Source (lines):
+// 0: function maxSubArray(nums) {
+// 1:   let currentSum = nums[0]
+// 2:   let maxSum = nums[0]
+// 3:
+// 4:   for (let i = 1; i < nums.length; i++) {
+// 5:     // Either extend the previous subarray or start a new one here
+// 6:     currentSum = Math.max(nums[i], currentSum + nums[i])
+// 7:     maxSum = Math.max(maxSum, currentSum)
+// 8:   }
+// 9:
+// 10:  return maxSum
+// 11: }
+export function maxSubArrayKadaneTrace(nums: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  let currentSum = nums[0] ?? 0;
+  let maxSum = nums[0] ?? 0;
+
+  const pushStep = (
+    line: number,
+    i: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(nums, (idx) => (idx === i ? "i" : "idle")),
+      vars: [
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "currentSum", value: String(currentSum), tone: "info" },
+        { name: "maxSum", value: String(maxSum), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  pushStep(1, 0, `currentSum = ${currentSum}`, "info", `Initialize currentSum = maxSum = nums[0] = ${nums[0]}.`);
+
+  for (let i = 1; i < nums.length; i++) {
+    const before = currentSum;
+    currentSum = Math.max(nums[i], currentSum + nums[i]);
+    pushStep(6, i, `currentSum → ${currentSum}`, "info", `max(nums[${i}] = ${nums[i]}, ${before} + ${nums[i]} = ${before + nums[i]}) = ${currentSum}.`);
+    maxSum = Math.max(maxSum, currentSum);
+    pushStep(7, i, `maxSum = ${maxSum}`, "ok", `max(maxSum, currentSum) = ${maxSum}.`);
+  }
+
+  done = true;
+  steps.push({ line: 10, cells: nums.map(() => "idle"), vars: [{ name: "maxSum", value: String(maxSum), tone: "ok" }], result: String(maxSum), resultTone: "ok", explanation: `Maximum subarray sum = ${maxSum}.`, done });
+  return steps;
+}
+
+// ── Maximum Sum Circular Subarray ──────────────────────────────────────
+// Two DISTINCT approaches.
+
+// Approach 1: Brute Force.
+// Source (lines):
+// 0: function maxSubarraySumCircular(nums) {
+// 1:   const n = nums.length
+// 2:   let maxSum = -Infinity
+// 3:
+// 4:   for (let i = 0; i < n; i++) {
+// 5:     let currentSum = 0
+// 6:     for (let j = 0; j < n; j++) {
+// 7:       currentSum += nums[(i + j) % n]
+// 8:       maxSum = Math.max(maxSum, currentSum)
+// 9:     }
+// 10:  }
+// 11:
+// 12:  return maxSum
+// 13: }
+export function maxCircularBruteTrace(nums: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const n = nums.length;
+  let maxSum = -Infinity;
+
+  const pushStep = (
+    line: number,
+    i: number,
+    j: number,
+    currentSum: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(nums, (idx) => {
+        if (idx === i) return "i";
+        if (idx === (i + j) % n) return "j";
+        return "idle";
+      }),
+      vars: [
+        { name: "i", value: String(i), tone: "info" },
+        { name: "j", value: String(j), tone: "info" },
+        { name: "currentSum", value: String(currentSum), tone: "info" },
+        { name: "maxSum", value: maxSum === -Infinity ? "-∞" : String(maxSum), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < n; i++) {
+    let currentSum = 0;
+    for (let j = 0; j < n; j++) {
+      currentSum += nums[(i + j) % n];
+      maxSum = Math.max(maxSum, currentSum);
+      pushStep(7, i, j, currentSum, `maxSum = ${maxSum}`, "ok", `Start ${i}, add nums[${(i + j) % n}] = ${nums[(i + j) % n]} → sum ${currentSum}, maxSum = ${maxSum}.`);
+    }
+  }
+
+  done = true;
+  steps.push({ line: 12, cells: nums.map(() => "idle"), vars: [{ name: "maxSum", value: String(maxSum), tone: "ok" }], result: String(maxSum), resultTone: "ok", explanation: `Maximum circular subarray sum = ${maxSum}.`, done });
+  return steps;
+}
+
+// Approach 2: Kadane's with Min Subarray (Optimal).
+// Source (lines):
+// 0: function maxSubarraySumCircular(nums) {
+// 1:   let currentMax = 0,
+// 2:     maxSum = nums[0]
+// 3:   let currentMin = 0,
+// 4:     minSum = nums[0]
+// 5:   let totalSum = 0
+// 6:
+// 7:   for (const num of nums) {
+// 8:     // Kadane's for maximum subarray
+// 9:     currentMax = Math.max(currentMax + num, num)
+// 10:    maxSum = Math.max(maxSum, currentMax)
+// 11:
+// 12:    // Kadane's for minimum subarray
+// 13:    currentMin = Math.min(currentMin + num, num)
+// 14:    minSum = Math.min(minSum, currentMin)
+// 15:
+// 16:    totalSum += num
+// 17:  }
+// 18:
+// 19:  // If all negative, return the least negative element
+// 20:  if (maxSum < 0) return maxSum
+// 21:
+// 22:  return Math.max(maxSum, totalSum - minSum)
+// 23: }
+export function maxCircularKadaneTrace(nums: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  let currentMax = 0, maxSum = nums[0] ?? 0;
+  let currentMin = 0, minSum = nums[0] ?? 0;
+  let totalSum = 0;
+
+  const pushStep = (
+    line: number,
+    i: number,
+    currentMaxV: number,
+    currentMinV: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(nums, (idx) => (idx === i ? "i" : "idle")),
+      vars: [
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "currentMax", value: String(currentMaxV), tone: "info" },
+        { name: "maxSum", value: String(maxSum), tone: "info" },
+        { name: "currentMin", value: String(currentMinV), tone: "info" },
+        { name: "minSum", value: String(minSum), tone: "info" },
+        { name: "totalSum", value: String(totalSum), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < nums.length; i++) {
+    const num = nums[i];
+    currentMax = Math.max(currentMax + num, num);
+    maxSum = Math.max(maxSum, currentMax);
+    currentMin = Math.min(currentMin + num, num);
+    minSum = Math.min(minSum, currentMin);
+    totalSum += num;
+    pushStep(9, i, currentMax, currentMin, `max=${maxSum} min=${minSum}`, "info", `num=${num}: currentMax=${currentMax}, maxSum=${maxSum}, currentMin=${currentMin}, minSum=${minSum}.`);
+  }
+
+  const result = maxSum < 0 ? maxSum : Math.max(maxSum, totalSum - minSum);
+  done = true;
+  steps.push({ line: 22, cells: nums.map(() => "idle"), vars: [{ name: "result", value: String(result), tone: "ok" }], result: String(result), resultTone: "ok", explanation: `Maximum circular subarray sum = max(${maxSum}, ${totalSum} - ${minSum}) = ${result}.`, done });
+  return steps;
+}
+
+// ── Maximum Product Subarray ───────────────────────────────────────────
+// Two DISTINCT approaches.
+
+// Approach 1: Brute Force.
+// Source (lines):
+// 0: function maxProduct(nums) {
+// 1:   let maxProd = nums[0]
+// 2:
+// 3:   for (let i = 0; i < nums.length; i++) {
+// 4:     let currentProduct = 1
+// 5:     for (let j = i; j < nums.length; j++) {
+// 6:       currentProduct *= nums[j]
+// 7:       maxProd = Math.max(maxProd, currentProduct)
+// 8:     }
+// 9:   }
+// 10:
+// 11:  return maxProd
+// 12: }
+export function maxProductBruteTrace(nums: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  let maxProd = nums[0] ?? 0;
+
+  const pushStep = (
+    line: number,
+    i: number,
+    j: number,
+    currentProduct: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(nums, (idx) => {
+        if (idx === i) return "i";
+        if (idx === j) return "j";
+        return "idle";
+      }),
+      vars: [
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "j", value: j >= 0 ? String(j) : "—", tone: "info" },
+        { name: "currentProduct", value: String(currentProduct), tone: "info" },
+        { name: "maxProd", value: String(maxProd), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < nums.length; i++) {
+    let currentProduct = 1;
+    for (let j = i; j < nums.length; j++) {
+      currentProduct *= nums[j];
+      maxProd = Math.max(maxProd, currentProduct);
+      pushStep(6, i, j, currentProduct, `maxProd = ${maxProd}`, "ok", `Subarray [${i}..${j}] product ${currentProduct} → maxProd = ${maxProd}.`);
+    }
+  }
+
+  done = true;
+  steps.push({ line: 11, cells: nums.map(() => "idle"), vars: [{ name: "maxProd", value: String(maxProd), tone: "ok" }], result: String(maxProd), resultTone: "ok", explanation: `Maximum subarray product = ${maxProd}.`, done });
+  return steps;
+}
+
+// Approach 2: Dynamic Programming (Track Min and Max).
+// Source (lines):
+// 0: function maxProduct(nums) {
+// 1:   let maxSoFar = nums[0]
+// 2:   let minSoFar = nums[0]
+// 3:   let result = nums[0]
+// 4:
+// 5:   for (let i = 1; i < nums.length; i++) {
+// 6:     // Compute both before updating to avoid stale values
+// 7:     const tempMax = Math.max(nums[i], maxSoFar * nums[i], minSoFar * nums[i])
+// 8:     const tempMin = Math.min(nums[i], maxSoFar * nums[i], minSoFar * nums[i])
+// 9:
+// 10:    maxSoFar = tempMax
+// 11:    minSoFar = tempMin
+// 12:    result = Math.max(result, maxSoFar)
+// 13:  }
+// 14:
+// 15:  return result
+// 16: }
+export function maxProductDPTrace(nums: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  let maxSoFar = nums[0] ?? 0;
+  let minSoFar = nums[0] ?? 0;
+  let result = nums[0] ?? 0;
+
+  const pushStep = (
+    line: number,
+    i: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(nums, (idx) => (idx === i ? "i" : "idle")),
+      vars: [
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "maxSoFar", value: String(maxSoFar), tone: "info" },
+        { name: "minSoFar", value: String(minSoFar), tone: "info" },
+        { name: "result", value: String(result), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 1; i < nums.length; i++) {
+    const tempMax = Math.max(nums[i], maxSoFar * nums[i], minSoFar * nums[i]);
+    const tempMin = Math.min(nums[i], maxSoFar * nums[i], minSoFar * nums[i]);
+    maxSoFar = tempMax;
+    minSoFar = tempMin;
+    result = Math.max(result, maxSoFar);
+    pushStep(7, i, `max=${maxSoFar} min=${minSoFar} result=${result}`, "info", `nums[${i}]=${nums[i]}: tempMax=max(${nums[i]}, ${maxSoFar * nums[i]}, ${minSoFar * nums[i]}) = ${tempMax}; result = ${result}.`);
+  }
+
+  done = true;
+  steps.push({ line: 15, cells: nums.map(() => "idle"), vars: [{ name: "result", value: String(result), tone: "ok" }], result: String(result), resultTone: "ok", explanation: `Maximum subarray product = ${result}.`, done });
+  return steps;
+}
+
+// ── Best Sightseeing Pair ──────────────────────────────────────────────
+// Two DISTINCT approaches.
+
+// Approach 1: Brute Force.
+// Source (lines):
+// 0: function maxScoreSightseeingPair(values) {
+// 1:     let maxScore = 0;
+// 2:
+// 3:     // Try every pair (i, j) where i < j
+// 4:     for (let i = 0; i < values.length - 1; i++) {
+// 5:         for (let j = i + 1; j < values.length; j++) {
+// 6:             const score = values[i] + values[j] + i - j;
+// 7:             maxScore = Math.max(maxScore, score);
+// 8:         }
+// 9:     }
+// 10:
+// 11:    return maxScore;
+// 12: }
+export function sightseeingBruteTrace(values: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  let maxScore = 0;
+
+  const pushStep = (
+    line: number,
+    i: number,
+    j: number,
+    score: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(values, (idx) => {
+        if (idx === i) return "i";
+        if (idx === j) return "j";
+        return "idle";
+      }),
+      vars: [
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "j", value: j >= 0 ? String(j) : "—", tone: "info" },
+        { name: "score", value: String(score), tone: "info" },
+        { name: "maxScore", value: String(maxScore), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < values.length - 1; i++) {
+    for (let j = i + 1; j < values.length; j++) {
+      const score = values[i] + values[j] + i - j;
+      maxScore = Math.max(maxScore, score);
+      pushStep(6, i, j, score, `maxScore = ${maxScore}`, "ok", `Pair (${i},${j}): ${values[i]} + ${values[j]} + ${i} - ${j} = ${score} → maxScore = ${maxScore}.`);
+    }
+  }
+
+  done = true;
+  steps.push({ line: 11, cells: values.map(() => "idle"), vars: [{ name: "maxScore", value: String(maxScore), tone: "ok" }], result: String(maxScore), resultTone: "ok", explanation: `Maximum sightseeing pair score = ${maxScore}.`, done });
+  return steps;
+}
+
+// Approach 2: Decomposition with Running Maximum.
+// Source (lines):
+// 0: function maxScoreSightseeingPair(values) {
+// 1:     // Best values[i] + i seen so far
+// 2:     let maxLeftScore = values[0] + 0;
+// 3:     let maxScore = 0;
+// 4:
+// 5:     for (let j = 1; j < values.length; j++) {
+// 6:         // Best score using current j and the best left partner
+// 7:         maxScore = Math.max(maxScore, maxLeftScore + values[j] - j);
+// 8:         // Update best left partner for future j's
+// 9:         maxLeftScore = Math.max(maxLeftScore, values[j] + j);
+// 10:    }
+// 11:
+// 12:    return maxScore;
+// 13: }
+export function sightseeingRunningTrace(values: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  let maxLeftScore = values[0] ?? 0;
+  let maxScore = 0;
+
+  const pushStep = (
+    line: number,
+    j: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(values, (idx) => (idx === j ? "j" : "idle")),
+      vars: [
+        { name: "j", value: j >= 0 ? String(j) : "—", tone: "info" },
+        { name: "maxLeftScore", value: String(maxLeftScore), tone: "info" },
+        { name: "maxScore", value: String(maxScore), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let j = 1; j < values.length; j++) {
+    const candidate = maxLeftScore + values[j] - j;
+    maxScore = Math.max(maxScore, candidate);
+    pushStep(7, j, `candidate ${candidate} → maxScore ${maxScore}`, "ok", `maxLeftScore(${maxLeftScore}) + values[${j}](${values[j]}) - ${j} = ${candidate} → maxScore = ${maxScore}.`);
+    maxLeftScore = Math.max(maxLeftScore, values[j] + j);
+    pushStep(9, j, `maxLeftScore → ${maxLeftScore}`, "info", `Update best left = max(${maxLeftScore}, ${values[j]} + ${j}).`);
+  }
+
+  done = true;
+  steps.push({ line: 12, cells: values.map(() => "idle"), vars: [{ name: "maxScore", value: String(maxScore), tone: "ok" }], result: String(maxScore), resultTone: "ok", explanation: `Maximum sightseeing pair score = ${maxScore}.`, done });
+  return steps;
+}
+
+// ── Transpose Matrix ───────────────────────────────────────────────────
+// Two DISTINCT approaches. matrix flattened row-major; rows/cols params.
+
+// Approach 1: Direct Construction (Iterate Over Original).
+// Source (lines):
+// 0: function transpose(matrix) {
+// 1:     const m = matrix.length;
+// 2:     const n = matrix[0].length;
+// 3:
+// 4:     // Create result with swapped dimensions
+// 5:     const result = new Array(n);
+// 6:     for (let i = 0; i < n; i++) {
+// 7:         result[i] = new Array(m).fill(0);
+// 8:     }
+// 9:
+// 10:    for (let i = 0; i < m; i++) {
+// 11:        for (let j = 0; j < n; j++) {
+// 12:            // Element at (i, j) goes to (j, i)
+// 13:            result[j][i] = matrix[i][j];
+// 14:        }
+// 15:    }
+// 16:    return result;
+// 17: }
+export function transposeDirectTrace(flat: number[], rows: number, cols: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const m = rows, n = cols;
+  const result: number[] = new Array(m * n).fill(0);
+
+  const pushStep = (
+    line: number,
+    i: number,
+    j: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(flat, (idx) => {
+        const r = Math.floor(idx / n), c = idx % n;
+        if (r === i) return "i";
+        if (c === j) return "j";
+        return "idle";
+      }),
+      vars: [
+        { name: "rows", value: String(rows), tone: "info" },
+        { name: "cols", value: String(cols), tone: "info" },
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "j", value: j >= 0 ? String(j) : "—", tone: "info" },
+        { name: "result", value: `[${result.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < m; i++) {
+    for (let j = 0; j < n; j++) {
+      result[j * m + i] = flat[i * n + j];
+      pushStep(13, i, j, `result[${j}][${i}] = ${flat[i * n + j]}`, "ok", `matrix[${i}][${j}] = ${flat[i * n + j]} → result[${j}][${i}].`);
+    }
+  }
+
+  done = true;
+  steps.push({ line: 16, cells: flat.map(() => "idle"), vars: [{ name: "rows", value: String(rows), tone: "info" }, { name: "cols", value: String(cols), tone: "info" }, { name: "result", value: `[${result.join(", ")}]`, tone: "ok" }], result: `[${result.join(", ")}]`, resultTone: "ok", explanation: `Transposed matrix (${n}×${m}) done.`, done });
+  return steps;
+}
+
+// Approach 2: Column-Based Construction (Iterate Over Result).
+// Source (lines):
+// 0: function transpose(matrix) {
+// 1:     const m = matrix.length;
+// 2:     const n = matrix[0].length;
+// 3:
+// 4:     const result = [];
+// 5:     // Each column of the original becomes a row of the result
+// 6:     for (let j = 0; j < n; j++) {
+// 7:         const row = [];
+// 8:         for (let i = 0; i < m; i++) {
+// 9:             row.push(matrix[i][j]);
+// 10:        }
+// 11:        result.push(row);
+// 12:    }
+// 13:    return result;
+// 14: }
+export function transposeColumnTrace(flat: number[], rows: number, cols: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const m = rows, n = cols;
+  const result: number[] = [];
+
+  const pushStep = (
+    line: number,
+    j: number,
+    i: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(flat, (idx) => {
+        const r = Math.floor(idx / n), c = idx % n;
+        if (c === j) return "j";
+        if (r === i) return "i";
+        return "idle";
+      }),
+      vars: [
+        { name: "rows", value: String(rows), tone: "info" },
+        { name: "cols", value: String(cols), tone: "info" },
+        { name: "j", value: j >= 0 ? String(j) : "—", tone: "info" },
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "result", value: `[${result.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let j = 0; j < n; j++) {
+    const row: number[] = [];
+    for (let i = 0; i < m; i++) {
+      row.push(flat[i * n + j]);
+      pushStep(9, j, i, `row += ${flat[i * n + j]}`, "info", `Collect matrix[${i}][${j}] = ${flat[i * n + j]}.`);
+    }
+    result.push(...row);
+    pushStep(11, j, -1, `result += [${row.join(", ")}]`, "ok", `Column ${j} becomes result row ${j} = [${row.join(", ")}].`);
+  }
+
+  done = true;
+  steps.push({ line: 13, cells: flat.map(() => "idle"), vars: [{ name: "rows", value: String(rows), tone: "info" }, { name: "cols", value: String(cols), tone: "info" }, { name: "result", value: `[${result.join(", ")}]`, tone: "ok" }], result: `[${result.join(", ")}]`, resultTone: "ok", explanation: `Transposed matrix (${n}×${m}) done.`, done });
+  return steps;
+}
+
+// ── Spiral Matrix ───────────────────────────────────────────────────────
+// Two DISTINCT approaches.
+
+// Approach 1: Simulation with Direction Arrays.
+// Source (lines):
+// 0: function spiralOrder(matrix) {
+// 1:     const m = matrix.length, n = matrix[0].length;
+// 2:     const visited = Array.from({length: m}, () => Array(n).fill(false));
+// 3:     const result = [];
+// 4:
+// 5:     // Direction vectors: right, down, left, up
+// 6:     const dr = [0, 1, 0, -1];
+// 7:     const dc = [1, 0, -1, 0];
+// 8:     let dir = 0;
+// 9:     let row = 0, col = 0;
+// 10:
+// 11:    for (let i = 0; i < m * n; i++) {
+// 12:        result.push(matrix[row][col]);
+// 13:        visited[row][col] = true;
+// 14:
+// 15:        let nextRow = row + dr[dir];
+// 16:        let nextCol = col + dc[dir];
+// 17:
+// 18:        if (nextRow < 0 || nextRow >= m || nextCol < 0 || nextCol >= n
+// 19:                || visited[nextRow][nextCol]) {
+// 20:            dir = (dir + 1) % 4;
+// 21:            nextRow = row + dr[dir];
+// 22:            nextCol = col + dc[dir];
+// 23:        }
+// 24:
+// 25:        row = nextRow;
+// 26:        col = nextCol;
+// 27:    }
+// 28:
+// 29:    return result;
+// 30: }
+export function spiralSimulateTrace(flat: number[], rows: number, cols: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const m = rows, n = cols;
+  const result: number[] = [];
+  const visited: boolean[] = new Array(m * n).fill(false);
+  const dr = [0, 1, 0, -1];
+  const dc = [1, 0, -1, 0];
+  let dir = 0;
+  let row = 0, col = 0;
+
+  const dirName = ["right", "down", "left", "up"];
+
+  const pushStep = (
+    line: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(flat, (idx) => {
+        const r = Math.floor(idx / n), c = idx % n;
+        if (r === row && c === col) return "j";
+        if (visited[idx]) return "found";
+        return "idle";
+      }),
+      vars: [
+        { name: "rows", value: String(rows), tone: "info" },
+        { name: "cols", value: String(cols), tone: "info" },
+        { name: "row", value: String(row), tone: "info" },
+        { name: "col", value: String(col), tone: "info" },
+        { name: "dir", value: dirName[dir], tone: "info" },
+        { name: "result", value: `[${result.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < m * n; i++) {
+    const cur = row * n + col;
+    result.push(flat[cur]);
+    visited[cur] = true;
+    pushStep(12, `push ${flat[cur]}`, "ok", `Visit matrix[${row}][${col}] = ${flat[cur]}, move ${dirName[dir]}.`);
+
+    let nextRow = row + dr[dir];
+    let nextCol = col + dc[dir];
+    if (nextRow < 0 || nextRow >= m || nextCol < 0 || nextCol >= n || visited[nextRow * n + nextCol]) {
+      dir = (dir + 1) % 4;
+      nextRow = row + dr[dir];
+      nextCol = col + dc[dir];
+      pushStep(20, `turn → ${dirName[dir]}`, "info", `Hit boundary/visited → turn ${dirName[dir]}.`);
+    }
+    row = nextRow;
+    col = nextCol;
+  }
+
+  done = true;
+  steps.push({ line: 29, cells: flat.map(() => "idle"), vars: [{ name: "rows", value: String(rows), tone: "info" }, { name: "cols", value: String(cols), tone: "info" }, { name: "result", value: `[${result.join(", ")}]`, tone: "ok" }], result: `[${result.join(", ")}]`, resultTone: "ok", explanation: `Spiral order = [${result.join(", ")}].`, done });
+  return steps;
+}
+
+// Approach 2: Layer-by-Layer (Boundary Shrinking).
+// Source (lines):
+// 0: function spiralOrder(matrix) {
+// 1:     const result = [];
+// 2:     let top = 0, bottom = matrix.length - 1;
+// 3:     let left = 0, right = matrix[0].length - 1;
+// 4:
+// 5:     while (top <= bottom && left <= right) {
+// 6:         // Traverse top row
+// 7:         for (let col = left; col <= right; col++) {
+// 8:             result.push(matrix[top][col]);
+// 9:         }
+// 10:        top++;
+// 11:
+// 12:        // Traverse right column
+// 13:        for (let row = top; row <= bottom; row++) {
+// 14:            result.push(matrix[row][right]);
+// 15:        }
+// 16:        right--;
+// 17:
+// 18:        // Traverse bottom row (if rows remain)
+// 19:        if (top <= bottom) {
+// 20:            for (let col = right; col >= left; col--) {
+// 21:                result.push(matrix[bottom][col]);
+// 22:            }
+// 23:            bottom--;
+// 24:        }
+// 25:
+// 26:        // Traverse left column (if columns remain)
+// 27:        if (left <= right) {
+// 28:            for (let row = bottom; row >= top; row--) {
+// 29:                result.push(matrix[row][left]);
+// 30:            }
+// 31:            left++;
+// 32:        }
+// 33:    }
+// 34:
+// 35:    return result;
+// 36: }
+export function spiralLayerTrace(flat: number[], rows: number, cols: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const m = rows, n = cols;
+  const result: number[] = [];
+  let top = 0, bottom = m - 1;
+  let left = 0, right = n - 1;
+
+  const pushStep = (
+    line: number,
+    r: number,
+    c: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(flat, (idx) => {
+        const rr = Math.floor(idx / n), cc = idx % n;
+        if (rr === r && cc === c) return "j";
+        return "idle";
+      }),
+      vars: [
+        { name: "rows", value: String(rows), tone: "info" },
+        { name: "cols", value: String(cols), tone: "info" },
+        { name: "top", value: String(top), tone: "info" },
+        { name: "bottom", value: String(bottom), tone: "info" },
+        { name: "left", value: String(left), tone: "info" },
+        { name: "right", value: String(right), tone: "info" },
+        { name: "result", value: `[${result.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  while (top <= bottom && left <= right) {
+    for (let col = left; col <= right; col++) {
+      result.push(flat[top * n + col]);
+      pushStep(8, top, col, `push ${flat[top * n + col]}`, "ok", `Top row: matrix[${top}][${col}].`);
+    }
+    top++;
+    for (let row = top; row <= bottom; row++) {
+      result.push(flat[row * n + right]);
+      pushStep(14, row, right, `push ${flat[row * n + right]}`, "ok", `Right col: matrix[${row}][${right}].`);
+    }
+    right--;
+    if (top <= bottom) {
+      for (let col = right; col >= left; col--) {
+        result.push(flat[bottom * n + col]);
+        pushStep(21, bottom, col, `push ${flat[bottom * n + col]}`, "ok", `Bottom row: matrix[${bottom}][${col}].`);
+      }
+      bottom--;
+    }
+    if (left <= right) {
+      for (let row = bottom; row >= top; row--) {
+        result.push(flat[row * n + left]);
+        pushStep(29, row, left, `push ${flat[row * n + left]}`, "ok", `Left col: matrix[${row}][${left}].`);
+      }
+      left++;
+    }
+  }
+
+  done = true;
+  steps.push({ line: 35, cells: flat.map(() => "idle"), vars: [{ name: "rows", value: String(rows), tone: "info" }, { name: "cols", value: String(cols), tone: "info" }, { name: "result", value: `[${result.join(", ")}]`, tone: "ok" }], result: `[${result.join(", ")}]`, resultTone: "ok", explanation: `Spiral order = [${result.join(", ")}].`, done });
+  return steps;
+}
+
+// ── Rotate Image ───────────────────────────────────────────────────────
+// Two DISTINCT approaches.
+
+// Approach 1: Using Extra Space.
+// Source (lines):
+// 0: function rotate(matrix) {
+// 1:     const n = matrix.length;
+// 2:     const rotated = Array.from({ length: n }, () => new Array(n).fill(0));
+// 3:
+// 4:     // Place each element in its rotated position
+// 5:     for (let i = 0; i < n; i++) {
+// 6:         for (let j = 0; j < n; j++) {
+// 7:             rotated[j][n - 1 - i] = matrix[i][j];
+// 8:         }
+// 9:     }
+// 10:
+// 11:    // Copy back to original matrix
+// 12:    for (let i = 0; i < n; i++) {
+// 13:        for (let j = 0; j < n; j++) {
+// 14:            matrix[i][j] = rotated[i][j];
+// 15:        }
+// 16:    }
+// 17: }
+export function rotateImageSpaceTrace(flat: number[], n: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const rotated = new Array(n * n).fill(0);
+  const current: number[] = [...flat];
+
+  const pushStep = (
+    line: number,
+    i: number,
+    j: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(current, (idx) => {
+        const r = Math.floor(idx / n), c = idx % n;
+        if (r === i && c === j) return "i";
+        return "idle";
+      }),
+      vars: [
+        { name: "rows", value: String(n), tone: "info" },
+        { name: "cols", value: String(n), tone: "info" },
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "j", value: j >= 0 ? String(j) : "—", tone: "info" },
+        { name: "rotated", value: `[${rotated.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      rotated[j * n + (n - 1 - i)] = flat[i * n + j];
+      pushStep(7, i, j, `rotated[${j}][${n - 1 - i}] = ${flat[i * n + j]}`, "ok", `matrix[${i}][${j}] = ${flat[i * n + j]} → rotated[${j}][${n - 1 - i}].`);
+    }
+  }
+
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      current[i * n + j] = rotated[i * n + j];
+    }
+  }
+
+  done = true;
+  steps.push({ line: 17, cells: flat.map(() => "idle"), vars: [{ name: "rows", value: String(n), tone: "info" }, { name: "cols", value: String(n), tone: "info" }, { name: "rotated", value: `[${current.join(", ")}]`, tone: "ok" }], result: `[${current.join(", ")}]`, resultTone: "ok", explanation: `Matrix rotated 90° clockwise.`, done });
+  return steps;
+}
+
+// Approach 2: Transpose + Reverse.
+// Source (lines):
+// 0: function rotate(matrix) {
+// 1:     const n = matrix.length;
+// 2:
+// 3:     // Step 1: Transpose the matrix
+// 4:     for (let i = 0; i < n; i++) {
+// 5:         for (let j = i + 1; j < n; j++) {
+// 6:             [matrix[i][j], matrix[j][i]] = [matrix[j][i], matrix[i][j]];
+// 7:         }
+// 8:     }
+// 9:
+// 10:    // Step 2: Reverse each row
+// 11:    for (let i = 0; i < n; i++) {
+// 12:        matrix[i].reverse();
+// 13:    }
+// 14: }
+export function rotateImageTransposeTrace(flat: number[], n: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const current: number[] = [...flat];
+
+  const pushStep = (
+    line: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(current, () => "idle"),
+      vars: [
+        { name: "rows", value: String(n), tone: "info" },
+        { name: "cols", value: String(n), tone: "info" },
+        { name: "matrix", value: `[${current.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < n; i++) {
+    for (let j = i + 1; j < n; j++) {
+      const tmp = current[i * n + j];
+      current[i * n + j] = current[j * n + i];
+      current[j * n + i] = tmp;
+      pushStep(6, `swap (${i},${j})`, "ok", `Transpose: swap matrix[${i}][${j}] and matrix[${j}][${i}].`);
+    }
+  }
+  pushStep(8, "transposed", "info", `Matrix is now transposed: [${current.join(", ")}].`);
+
+  for (let i = 0; i < n; i++) {
+    const row = current.slice(i * n, i * n + n).reverse();
+    for (let j = 0; j < n; j++) current[i * n + j] = row[j];
+    pushStep(12, `row ${i} reversed`, "info", `Reverse row ${i} → [${row.join(", ")}].`);
+  }
+
+  done = true;
+  steps.push({ line: 14, cells: flat.map(() => "idle"), vars: [{ name: "rows", value: String(n), tone: "info" }, { name: "cols", value: String(n), tone: "info" }, { name: "matrix", value: `[${current.join(", ")}]`, tone: "ok" }], result: `[${current.join(", ")}]`, resultTone: "ok", explanation: `Matrix rotated 90° clockwise (transpose + reverse rows).`, done });
+  return steps;
+}
+
+// ── Set Matrix Zeroes ──────────────────────────────────────────────────
+// Two DISTINCT approaches.
+
+// Approach 1: Brute Force (Copy Matrix).
+// Source (lines):
+// 0: function setZeroes(matrix) {
+// 1:     const m = matrix.length, n = matrix[0].length;
+// 2:     // Create a copy to read from
+// 3:     const copy = matrix.map((row) => [...row]);
+// 4:     for (let i = 0; i < m; i++) {
+// 5:         for (let j = 0; j < n; j++) {
+// 6:             if (copy[i][j] === 0) {
+// 7:                 // Zero out entire row i in original
+// 8:                 for (let k = 0; k < n; k++) matrix[i][k] = 0;
+// 9:                 // Zero out entire column j in original
+// 10:                for (let k = 0; k < m; k++) matrix[k][j] = 0;
+// 11:            }
+// 12:        }
+// 13:    }
+// 14: }
+export function setZeroesCopyTrace(flat: number[], rows: number, cols: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const m = rows, n = cols;
+  const copy = [...flat];
+  const current: number[] = [...flat];
+
+  const pushStep = (
+    line: number,
+    i: number,
+    j: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(current, (idx) => {
+        const r = Math.floor(idx / n), c = idx % n;
+        if (r === i && c === j) return "found";
+        if (current[idx] === 0) return "active";
+        return "idle";
+      }),
+      vars: [
+        { name: "rows", value: String(rows), tone: "info" },
+        { name: "cols", value: String(cols), tone: "info" },
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "j", value: j >= 0 ? String(j) : "—", tone: "info" },
+        { name: "matrix", value: `[${current.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < m; i++) {
+    for (let j = 0; j < n; j++) {
+      if (copy[i * n + j] === 0) {
+        for (let k = 0; k < n; k++) current[i * n + k] = 0;
+        for (let k = 0; k < m; k++) current[k * n + j] = 0;
+        pushStep(6, i, j, `zero row ${i} & col ${j}`, "ok", `copy[${i}][${j}] = 0 → zero out row ${i} and column ${j}.`);
+      }
+    }
+  }
+
+  done = true;
+  steps.push({ line: 14, cells: flat.map(() => "idle"), vars: [{ name: "rows", value: String(rows), tone: "info" }, { name: "cols", value: String(cols), tone: "info" }, { name: "matrix", value: `[${current.join(", ")}]`, tone: "ok" }], result: `[${current.join(", ")}]`, resultTone: "ok", explanation: `Matrix with zeroed rows/cols: [${current.join(", ")}].`, done });
+  return steps;
+}
+
+// Approach 2: Hash Sets.
+// Source (lines):
+// 0: function setZeroes(matrix) {
+// 1:     const m = matrix.length, n = matrix[0].length;
+// 2:     const zeroRows = new Set();
+// 3:     const zeroCols = new Set();
+// 4:     // Phase 1: record which rows and columns have zeroes
+// 5:     for (let i = 0; i < m; i++) {
+// 6:         for (let j = 0; j < n; j++) {
+// 7:             if (matrix[i][j] === 0) {
+// 8:                 zeroRows.add(i);
+// 9:                 zeroCols.add(j);
+// 10:            }
+// 11:        }
+// 12:    }
+// 13:    // Phase 2: zero out marked rows and columns
+// 14:    for (let i = 0; i < m; i++) {
+// 15:        for (let j = 0; j < n; j++) {
+// 16:            if (zeroRows.has(i) || zeroCols.has(j)) {
+// 17:                matrix[i][j] = 0;
+// 18:            }
+// 19:        }
+// 20:    }
+// 21: }
+export function setZeroesHashTrace(flat: number[], rows: number, cols: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const m = rows, n = cols;
+  const zeroRows = new Set<number>();
+  const zeroCols = new Set<number>();
+  const current: number[] = [...flat];
+
+  const pushStep = (
+    line: number,
+    i: number,
+    j: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(current, (idx) => {
+        const r = Math.floor(idx / n), c = idx % n;
+        if (r === i && c === j) return "i";
+        return "idle";
+      }),
+      vars: [
+        { name: "rows", value: String(rows), tone: "info" },
+        { name: "cols", value: String(cols), tone: "info" },
+        { name: "i", value: i >= 0 ? String(i) : "—", tone: "info" },
+        { name: "j", value: j >= 0 ? String(j) : "—", tone: "info" },
+        { name: "zeroRows", value: `{${Array.from(zeroRows).join(", ")}}`, tone: "info" },
+        { name: "zeroCols", value: `{${Array.from(zeroCols).join(", ")}}`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < m; i++) {
+    for (let j = 0; j < n; j++) {
+      if (current[i * n + j] === 0) {
+        zeroRows.add(i);
+        zeroCols.add(j);
+        pushStep(7, i, j, `record ${i},${j}`, "ok", `matrix[${i}][${j}] = 0 → add row ${i} and col ${j}.`);
+      }
+    }
+  }
+
+  for (let i = 0; i < m; i++) {
+    for (let j = 0; j < n; j++) {
+      if (zeroRows.has(i) || zeroCols.has(j)) {
+        current[i * n + j] = 0;
+        pushStep(16, i, j, `zero → 0`, "ok", `Row ${i} or col ${j} marked → matrix[${i}][${j}] = 0.`);
+      }
+    }
+  }
+
+  done = true;
+  steps.push({ line: 21, cells: flat.map(() => "idle"), vars: [{ name: "rows", value: String(rows), tone: "info" }, { name: "cols", value: String(cols), tone: "info" }, { name: "matrix", value: `[${current.join(", ")}]`, tone: "ok" }], result: `[${current.join(", ")}]`, resultTone: "ok", explanation: `Matrix with zeroed rows/cols: [${current.join(", ")}].`, done });
+  return steps;
+}
+
+// ── Candy Crush ────────────────────────────────────────────────────────
+// Two DISTINCT approaches.
+
+// Approach 1: Simulation with Boolean Marking.
+// Source (lines):
+// 0: function candyCrush(board) {
+// 1:     const m = board.length;
+// 2:     const n = board[0].length;
+// 3:
+// 4:     let shouldContinue = true;
+// 5:     while (shouldContinue) {
+// 6:         shouldContinue = false;
+// 7:         const crush = Array.from({length: m}, function() {
+// 8:             return new Array(n).fill(false);
+// 9:         });
+// 10:
+// 11:        // Mark horizontal runs of 3+
+// 12:        for (let i = 0; i < m; i++) {
+// 13:            for (let j = 0; j < n - 2; j++) {
+// 14:                const val = board[i][j];
+// 15:                if (val !== 0 && val === board[i][j + 1] && val === board[i][j + 2]) {
+// 16:                    crush[i][j] = crush[i][j + 1] = crush[i][j + 2] = true;
+// 17:                    shouldContinue = true;
+// 18:                }
+// 19:            }
+// 20:        }
+// 21:
+// 22:        // Mark vertical runs of 3+
+// 23:        for (let i = 0; i < m - 2; i++) {
+// 24:            for (let j = 0; j < n; j++) {
+// 25:                const val = board[i][j];
+// 26:                if (val !== 0 && val === board[i + 1][j] && val === board[i + 2][j]) {
+// 27:                    crush[i][j] = crush[i + 1][j] = crush[i + 2][j] = true;
+// 28:                    shouldContinue = true;
+// 29:                }
+// 30:            }
+// 31:        }
+// 32:
+// 33:        // Crush marked cells
+// 34:        for (let i = 0; i < m; i++) {
+// 35:            for (let j = 0; j < n; j++) {
+// 36:                if (crush[i][j]) {
+// 37:                    board[i][j] = 0;
+// 38:                }
+// 39:            }
+// 40:        }
+// 41:
+// 42:        // Apply gravity column by column
+// 43:        for (let j = 0; j < n; j++) {
+// 44:            let writePos = m - 1;
+// 45:            for (let i = m - 1; i >= 0; i--) {
+// 46:                if (board[i][j] !== 0) {
+// 47:                    board[writePos][j] = board[i][j];
+// 48:                    if (writePos !== i) {
+// 49:                        board[i][j] = 0;
+// 50:                    }
+// 51:                    writePos--;
+// 52:                }
+// 53:            }
+// 54:            while (writePos >= 0) {
+// 55:                board[writePos][j] = 0;
+// 56:                writePos--;
+// 57:            }
+// 58:        }
+// 59:    }
+// 60:
+// 61:    return board;
+// 62: }
+export function candyCrushBoolTrace(flat: number[], rows: number, cols: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const m = rows, n = cols;
+  const current: number[] = [...flat];
+  let pass = 0;
+
+  const pushStep = (
+    line: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(current, (idx) => (current[idx] === 0 ? "active" : "idle")),
+      vars: [
+        { name: "rows", value: String(rows), tone: "info" },
+        { name: "cols", value: String(cols), tone: "info" },
+        { name: "pass", value: String(pass), tone: "info" },
+        { name: "board", value: `[${current.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  let shouldContinue = true;
+  while (shouldContinue) {
+    shouldContinue = false;
+    pass++;
+    const crush = new Array(m * n).fill(false);
+
+    for (let i = 0; i < m; i++) {
+      for (let j = 0; j < n - 2; j++) {
+        const val = current[i * n + j];
+        if (val !== 0 && val === current[i * n + j + 1] && val === current[i * n + j + 2]) {
+          crush[i * n + j] = crush[i * n + j + 1] = crush[i * n + j + 2] = true;
+          shouldContinue = true;
+        }
+      }
+    }
+    for (let i = 0; i < m - 2; i++) {
+      for (let j = 0; j < n; j++) {
+        const val = current[i * n + j];
+        if (val !== 0 && val === current[(i + 1) * n + j] && val === current[(i + 2) * n + j]) {
+          crush[i * n + j] = crush[(i + 1) * n + j] = crush[(i + 2) * n + j] = true;
+          shouldContinue = true;
+        }
+      }
+    }
+
+    if (shouldContinue) {
+      for (let idx = 0; idx < m * n; idx++) if (crush[idx]) current[idx] = 0;
+      pushStep(34, `crush → 0`, "ok", `Pass ${pass}: crush all marked cells.`);
+
+      for (let j = 0; j < n; j++) {
+        let writePos = m - 1;
+        for (let i = m - 1; i >= 0; i--) {
+          if (current[i * n + j] !== 0) {
+            current[writePos * n + j] = current[i * n + j];
+            if (writePos !== i) current[i * n + j] = 0;
+            writePos--;
+          }
+        }
+        while (writePos >= 0) { current[writePos * n + j] = 0; writePos--; }
+      }
+      pushStep(43, `gravity applied`, "info", `Pass ${pass}: apply gravity → [${current.join(", ")}].`);
+    }
+  }
+
+  done = true;
+  steps.push({ line: 61, cells: flat.map(() => "idle"), vars: [{ name: "rows", value: String(rows), tone: "info" }, { name: "cols", value: String(cols), tone: "info" }, { name: "board", value: `[${current.join(", ")}]`, tone: "ok" }], result: `[${current.join(", ")}]`, resultTone: "ok", explanation: `Final board after crushing: [${current.join(", ")}].`, done });
+  return steps;
+}
+
+// Approach 2: In-Place Simulation with Negation.
+// Source (lines):
+// 0: function candyCrush(board) {
+// 1:     const m = board.length;
+// 2:     const n = board[0].length;
+// 3:
+// 4:     let shouldContinue = true;
+// 5:     while (shouldContinue) {
+// 6:         shouldContinue = false;
+// 7:
+// 8:         // Mark horizontal runs by negating values
+// 9:         for (let i = 0; i < m; i++) {
+// 10:            for (let j = 0; j < n - 2; j++) {
+// 11:                const val = Math.abs(board[i][j]);
+// 12:                if (val !== 0 && val === Math.abs(board[i][j + 1]) && val === Math.abs(board[i][j + 2])) {
+// 13:                    board[i][j] = -val;
+// 14:                    board[i][j + 1] = -val;
+// 15:                    board[i][j + 2] = -val;
+// 16:                    shouldContinue = true;
+// 17:                }
+// 18:            }
+// 19:        }
+// 20:
+// 21:        // Mark vertical runs by negating values
+// 22:        for (let i = 0; i < m - 2; i++) {
+// 23:            for (let j = 0; j < n; j++) {
+// 24:                const val = Math.abs(board[i][j]);
+// 25:                if (val !== 0 && val === Math.abs(board[i + 1][j]) && val === Math.abs(board[i + 2][j])) {
+// 26:                    board[i][j] = -val;
+// 27:                    board[i + 1][j] = -val;
+// 28:                    board[i + 2][j] = -val;
+// 29:                    shouldContinue = true;
+// 30:                }
+// 31:            }
+// 32:        }
+// 33:
+// 34:        // Crush and apply gravity
+// 35:        for (let j = 0; j < n; j++) {
+// 36:            let writePos = m - 1;
+// 37:            for (let i = m - 1; i >= 0; i--) {
+// 38:                if (board[i][j] > 0) {
+// 39:                    board[writePos][j] = board[i][j];
+// 40:                    if (writePos !== i) {
+// 41:                        board[i][j] = 0;
+// 42:                    }
+// 43:                    writePos--;
+// 44:                }
+// 45:            }
+// 46:            while (writePos >= 0) {
+// 47:                board[writePos][j] = 0;
+// 48:                writePos--;
+// 49:            }
+// 50:        }
+// 51:    }
+// 52:
+// 53:    return board;
+// 54: }
+export function candyCrushNegTrace(flat: number[], rows: number, cols: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const m = rows, n = cols;
+  const current: number[] = [...flat];
+  let pass = 0;
+
+  const pushStep = (
+    line: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(current, (idx) => (current[idx] === 0 ? "active" : current[idx] < 0 ? "found" : "idle")),
+      vars: [
+        { name: "rows", value: String(rows), tone: "info" },
+        { name: "cols", value: String(cols), tone: "info" },
+        { name: "pass", value: String(pass), tone: "info" },
+        { name: "board", value: `[${current.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  let shouldContinue = true;
+  while (shouldContinue) {
+    shouldContinue = false;
+    pass++;
+
+    for (let i = 0; i < m; i++) {
+      for (let j = 0; j < n - 2; j++) {
+        const val = Math.abs(current[i * n + j]);
+        if (val !== 0 && val === Math.abs(current[i * n + j + 1]) && val === Math.abs(current[i * n + j + 2])) {
+          current[i * n + j] = -val;
+          current[i * n + j + 1] = -val;
+          current[i * n + j + 2] = -val;
+          shouldContinue = true;
+        }
+      }
+    }
+    for (let i = 0; i < m - 2; i++) {
+      for (let j = 0; j < n; j++) {
+        const val = Math.abs(current[i * n + j]);
+        if (val !== 0 && val === Math.abs(current[(i + 1) * n + j]) && val === Math.abs(current[(i + 2) * n + j])) {
+          current[i * n + j] = -val;
+          current[(i + 1) * n + j] = -val;
+          current[(i + 2) * n + j] = -val;
+          shouldContinue = true;
+        }
+      }
+    }
+
+    if (shouldContinue) {
+      pushStep(25, `marked negative`, "ok", `Pass ${pass}: mark runs with negatives → [${current.join(", ")}].`);
+      for (let j = 0; j < n; j++) {
+        let writePos = m - 1;
+        for (let i = m - 1; i >= 0; i--) {
+          if (current[i * n + j] > 0) {
+            current[writePos * n + j] = current[i * n + j];
+            if (writePos !== i) current[i * n + j] = 0;
+            writePos--;
+          } else if (current[i * n + j] < 0) {
+            current[i * n + j] = 0;
+          }
+        }
+        while (writePos >= 0) { current[writePos * n + j] = 0; writePos--; }
+      }
+      pushStep(35, `gravity applied`, "info", `Pass ${pass}: crush & gravity → [${current.join(", ")}].`);
+    }
+  }
+
+  done = true;
+  steps.push({ line: 53, cells: flat.map(() => "idle"), vars: [{ name: "rows", value: String(rows), tone: "info" }, { name: "cols", value: String(cols), tone: "info" }, { name: "board", value: `[${current.join(", ")}]`, tone: "ok" }], result: `[${current.join(", ")}]`, resultTone: "ok", explanation: `Final board after crushing: [${current.join(", ")}].`, done });
+  return steps;
+}
+
+// ── Valid Sudoku ───────────────────────────────────────────────────────
+// Two DISTINCT approaches. '.' encoded as 0, digits as values.
+
+// Approach 1: Three Separate Passes.
+// Source (lines):
+// 0: function isValidSudoku(board) {
+// 1:     // Check each row
+// 2:     for (let r = 0; r < 9; r++) {
+// 3:         const seen = new Set();
+// 4:         for (let c = 0; c < 9; c++) {
+// 5:             if (board[r][c] === '.') continue;
+// 6:             if (seen.has(board[r][c])) return false;
+// 7:             seen.add(board[r][c]);
+// 8:         }
+// 9:     }
+// 10:
+// 11:    // Check each column
+// 12:    for (let c = 0; c < 9; c++) {
+// 13:        const seen = new Set();
+// 14:        for (let r = 0; r < 9; r++) {
+// 15:            if (board[r][c] === '.') continue;
+// 16:            if (seen.has(board[r][c])) return false;
+// 17:            seen.add(board[r][c]);
+// 18:        }
+// 19:    }
+// 20:
+// 21:    // Check each 3x3 sub-box
+// 22:    for (let boxRow = 0; boxRow < 3; boxRow++) {
+// 23:        for (let boxCol = 0; boxCol < 3; boxCol++) {
+// 24:            const seen = new Set();
+// 25:            for (let r = boxRow * 3; r < boxRow * 3 + 3; r++) {
+// 26:                for (let c = boxCol * 3; c < boxCol * 3 + 3; c++) {
+// 27:                    if (board[r][c] === '.') continue;
+// 28:                    if (seen.has(board[r][c])) return false;
+// 29:                    seen.add(board[r][c]);
+// 30:                }
+// 31:            }
+// 32:        }
+// 33:    }
+// 34:
+// 35:    return true;
+// 36: }
+export function sudokuThreePassTrace(flat: number[], rows: number, cols: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const n = 9;
+
+  const pushStep = (
+    line: number,
+    r: number,
+    c: number,
+    seenStr: string,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(flat, (idx) => {
+        const rr = Math.floor(idx / n), cc = idx % n;
+        if (rr === r && cc === c) return "j";
+        return "idle";
+      }),
+      vars: [
+        { name: "rows", value: String(rows), tone: "info" },
+        { name: "cols", value: String(cols), tone: "info" },
+        { name: "seen", value: seenStr, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  const char = (v: number) => (v === 0 ? "." : String(v));
+
+  for (let r = 0; r < n; r++) {
+    const seen = new Set<number>();
+    for (let c = 0; c < n; c++) {
+      const v = flat[r * n + c];
+      if (v === 0) continue;
+      if (seen.has(v)) {
+        pushStep(6, r, c, `{${Array.from(seen).join(", ")}}`, "duplicate!", "fail", `Row ${r}: '${char(v)}' already seen → return false.`);
+        done = true;
+        steps.push({ line: 6, cells: flat.map(() => "idle"), vars: [{ name: "rows", value: String(rows), tone: "info" }, { name: "cols", value: String(cols), tone: "info" }, { name: "result", value: "false", tone: "fail" }], result: "return false", resultTone: "fail", explanation: `Duplicate in row ${r} → return false.`, done });
+        return steps;
+      }
+      seen.add(v);
+      pushStep(7, r, c, `{${Array.from(seen).join(", ")}}`, `add ${char(v)}`, "ok", `Row ${r}: add '${char(v)}'.`);
+    }
+  }
+
+  for (let c = 0; c < n; c++) {
+    const seen = new Set<number>();
+    for (let r = 0; r < n; r++) {
+      const v = flat[r * n + c];
+      if (v === 0) continue;
+      if (seen.has(v)) {
+        pushStep(16, r, c, `{${Array.from(seen).join(", ")}}`, "duplicate!", "fail", `Column ${c}: '${char(v)}' already seen → return false.`);
+        done = true;
+        steps.push({ line: 16, cells: flat.map(() => "idle"), vars: [{ name: "rows", value: String(rows), tone: "info" }, { name: "cols", value: String(cols), tone: "info" }, { name: "result", value: "false", tone: "fail" }], result: "return false", resultTone: "fail", explanation: `Duplicate in column ${c} → return false.`, done });
+        return steps;
+      }
+      seen.add(v);
+      pushStep(17, r, c, `{${Array.from(seen).join(", ")}}`, `add ${char(v)}`, "ok", `Column ${c}: add '${char(v)}'.`);
+    }
+  }
+
+  for (let boxRow = 0; boxRow < 3; boxRow++) {
+    for (let boxCol = 0; boxCol < 3; boxCol++) {
+      const seen = new Set<number>();
+      for (let r = boxRow * 3; r < boxRow * 3 + 3; r++) {
+        for (let c = boxCol * 3; c < boxCol * 3 + 3; c++) {
+          const v = flat[r * n + c];
+          if (v === 0) continue;
+          if (seen.has(v)) {
+            pushStep(28, r, c, `{${Array.from(seen).join(", ")}}`, "duplicate!", "fail", `Box (${boxRow},${boxCol}): '${char(v)}' already seen → return false.`);
+            done = true;
+            steps.push({ line: 28, cells: flat.map(() => "idle"), vars: [{ name: "rows", value: String(rows), tone: "info" }, { name: "cols", value: String(cols), tone: "info" }, { name: "result", value: "false", tone: "fail" }], result: "return false", resultTone: "fail", explanation: `Duplicate in 3×3 box → return false.`, done });
+            return steps;
+          }
+          seen.add(v);
+          pushStep(29, r, c, `{${Array.from(seen).join(", ")}}`, `add ${char(v)}`, "ok", `Box (${boxRow},${boxCol}): add '${char(v)}'.`);
+        }
+      }
+    }
+  }
+
+  done = true;
+  steps.push({ line: 35, cells: flat.map(() => "idle"), vars: [{ name: "rows", value: String(rows), tone: "info" }, { name: "cols", value: String(cols), tone: "info" }, { name: "result", value: "true", tone: "ok" }], result: "return true", resultTone: "ok", explanation: `No duplicates in rows, columns, or boxes → valid sudoku.`, done });
+  return steps;
+}
+
+// Approach 2: Single Pass with Hash Sets.
+// Source (lines):
+// 0: function isValidSudoku(board) {
+// 1:     // One set per row, column, and 3x3 box
+// 2:     const rows = Array.from({ length: 9 }, () => new Set());
+// 3:     const cols = Array.from({ length: 9 }, () => new Set());
+// 4:     const boxes = Array.from({ length: 9 }, () => new Set());
+// 5:
+// 6:     for (let r = 0; r < 9; r++) {
+// 7:         for (let c = 0; c < 9; c++) {
+// 8:             if (board[r][c] === '.') continue;
+// 9:
+// 10:            const digit = board[r][c];
+// 11:            const boxIdx = Math.floor(r / 3) * 3 + Math.floor(c / 3);
+// 12:
+// 13:            // Check all three constraints at once
+// 14:            if (rows[r].has(digit) || cols[c].has(digit) || boxes[boxIdx].has(digit)) {
+// 15:                return false;
+// 16:            }
+// 17:
+// 18:            rows[r].add(digit);
+// 19:            cols[c].add(digit);
+// 20:            boxes[boxIdx].add(digit);
+// 21:        }
+// 22:    }
+// 23:
+// 24:    return true;
+// 25: }
+export function sudokuSinglePassTrace(flat: number[], rows: number, cols: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const n = 9;
+  const rowSets: Set<number>[] = Array.from({ length: 9 }, () => new Set());
+  const colSets: Set<number>[] = Array.from({ length: 9 }, () => new Set());
+  const boxSets: Set<number>[] = Array.from({ length: 9 }, () => new Set());
+
+  const pushStep = (
+    line: number,
+    r: number,
+    c: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(flat, (idx) => {
+        const rr = Math.floor(idx / n), cc = idx % n;
+        if (rr === r && cc === c) return "j";
+        return "idle";
+      }),
+      vars: [
+        { name: "rows", value: String(rows), tone: "info" },
+        { name: "cols", value: String(cols), tone: "info" },
+        { name: "r", value: String(r), tone: "info" },
+        { name: "c", value: String(c), tone: "info" },
+        { name: "boxIdx", value: String(Math.floor(r / 3) * 3 + Math.floor(c / 3)), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  const char = (v: number) => (v === 0 ? "." : String(v));
+
+  for (let r = 0; r < n; r++) {
+    for (let c = 0; c < n; c++) {
+      const v = flat[r * n + c];
+      if (v === 0) continue;
+      const boxIdx = Math.floor(r / 3) * 3 + Math.floor(c / 3);
+      if (rowSets[r].has(v) || colSets[c].has(v) || boxSets[boxIdx].has(v)) {
+        pushStep(14, r, c, "conflict!", "fail", `'${char(v)}' conflicts in row ${r}, col ${c}, or box ${boxIdx} → return false.`);
+        done = true;
+        steps.push({ line: 14, cells: flat.map(() => "idle"), vars: [{ name: "rows", value: String(rows), tone: "info" }, { name: "cols", value: String(cols), tone: "info" }, { name: "result", value: "false", tone: "fail" }], result: "return false", resultTone: "fail", explanation: `Duplicate found → return false.`, done });
+        return steps;
+      }
+      rowSets[r].add(v);
+      colSets[c].add(v);
+      boxSets[boxIdx].add(v);
+      pushStep(18, r, c, `add ${char(v)}`, "ok", `Add '${char(v)}' to row ${r}, col ${c}, box ${boxIdx}.`);
+    }
+  }
+
+  done = true;
+  steps.push({ line: 24, cells: flat.map(() => "idle"), vars: [{ name: "rows", value: String(rows), tone: "info" }, { name: "cols", value: String(cols), tone: "info" }, { name: "result", value: "true", tone: "ok" }], result: "return true", resultTone: "ok", explanation: `No duplicates → valid sudoku.`, done });
+  return steps;
+}
+
+// ── Game of Life ───────────────────────────────────────────────────────
+// Two DISTINCT approaches.
+
+// Approach 1: Brute Force (Copy Board).
+// Source (lines):
+// 0: function gameOfLife(board) {
+// 1:     const m = board.length;
+// 2:     const n = board[0].length;
+// 3:
+// 4:     // Create a copy to read original states from
+// 5:     const copy = board.map((row) => [...row]);
+// 6:
+// 7:     // 8 possible neighbor directions
+// 8:     const dr = [-1, -1, -1, 0, 0, 1, 1, 1];
+// 9:     const dc = [-1, 0, 1, -1, 1, -1, 0, 1];
+// 10:
+// 11:    for (let i = 0; i < m; i++) {
+// 12:        for (let j = 0; j < n; j++) {
+// 13:            let liveNeighbors = 0;
+// 14:
+// 15:            // Count live neighbors from the copy
+// 16:            for (let d = 0; d < 8; d++) {
+// 17:                const ni = i + dr[d];
+// 18:                const nj = j + dc[d];
+// 19:                if (ni >= 0 && ni < m && nj >= 0 && nj < n && copy[ni][nj] === 1) {
+// 20:                    liveNeighbors++;
+// 21:                }
+// 22:            }
+// 23:
+// 24:            // Apply rules
+// 25:            if (copy[i][j] === 1) {
+// 26:                if (liveNeighbors < 2 || liveNeighbors > 3) {
+// 27:                    board[i][j] = 0;
+// 28:                }
+// 29:            } else {
+// 30:                if (liveNeighbors === 3) {
+// 31:                    board[i][j] = 1;
+// 32:                }
+// 33:            }
+// 34:        }
+// 35:    }
+// 36: }
+export function gameOfLifeCopyTrace(flat: number[], rows: number, cols: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const m = rows, n = cols;
+  const copy = [...flat];
+  const current: number[] = [...flat];
+  const dr = [-1, -1, -1, 0, 0, 1, 1, 1];
+  const dc = [-1, 0, 1, -1, 1, -1, 0, 1];
+
+  const pushStep = (
+    line: number,
+    i: number,
+    j: number,
+    live: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(current, (idx) => {
+        const r = Math.floor(idx / n), c = idx % n;
+        if (r === i && c === j) return "j";
+        if (current[idx] === 1) return "active";
+        return "idle";
+      }),
+      vars: [
+        { name: "rows", value: String(rows), tone: "info" },
+        { name: "cols", value: String(cols), tone: "info" },
+        { name: "i", value: String(i), tone: "info" },
+        { name: "j", value: String(j), tone: "info" },
+        { name: "liveNeighbors", value: String(live), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < m; i++) {
+    for (let j = 0; j < n; j++) {
+      let live = 0;
+      for (let d = 0; d < 8; d++) {
+        const ni = i + dr[d], nj = j + dc[d];
+        if (ni >= 0 && ni < m && nj >= 0 && nj < n && copy[ni * n + nj] === 1) live++;
+      }
+      if (copy[i * n + j] === 1) {
+        if (live < 2 || live > 3) {
+          current[i * n + j] = 0;
+          pushStep(26, i, j, live, `die (${live})`, "fail", `Live cell (${i},${j}) has ${live} neighbors < 2 or > 3 → dies.`);
+        } else {
+          pushStep(25, i, j, live, `survive (${live})`, "ok", `Live cell (${i},${j}) has ${live} neighbors → survives.`);
+        }
+      } else {
+        if (live === 3) {
+          current[i * n + j] = 1;
+          pushStep(30, i, j, live, `born (${live})`, "ok", `Dead cell (${i},${j}) has exactly 3 neighbors → born.`);
+        } else {
+          pushStep(30, i, j, live, `stay dead (${live})`, "info", `Dead cell (${i},${j}) has ${live} neighbors → stays dead.`);
+        }
+      }
+    }
+  }
+
+  done = true;
+  steps.push({ line: 36, cells: flat.map(() => "idle"), vars: [{ name: "rows", value: String(rows), tone: "info" }, { name: "cols", value: String(cols), tone: "info" }, { name: "board", value: `[${current.join(", ")}]`, tone: "ok" }], result: `[${current.join(", ")}]`, resultTone: "ok", explanation: `Next generation: [${current.join(", ")}].`, done });
+  return steps;
+}
+
+// Approach 2: In-Place with State Encoding (Optimal).
+// Source (lines):
+// 0: function gameOfLife(board) {
+// 1:     const m = board.length;
+// 2:     const n = board[0].length;
+// 3:     const dr = [-1, -1, -1, 0, 0, 1, 1, 1];
+// 4:     const dc = [-1, 0, 1, -1, 1, -1, 0, 1];
+// 5:
+// 6:     // First pass: encode transitions
+// 7:     for (let i = 0; i < m; i++) {
+// 8:         for (let j = 0; j < n; j++) {
+// 9:             let liveNeighbors = 0;
+// 10:            for (let d = 0; d < 8; d++) {
+// 11:                const ni = i + dr[d];
+// 12:                const nj = j + dc[d];
+// 13:                // Use % 2 to get original state from encoded value
+// 14:                if (ni >= 0 && ni < m && nj >= 0 && nj < n && board[ni][nj] % 2 === 1) {
+// 15:                    liveNeighbors++;
+// 16:                }
+// 17:            }
+// 18:
+// 19:            // Alive cell that dies → encode as 3
+// 20:            if (board[i][j] === 1 && (liveNeighbors < 2 || liveNeighbors > 3)) {
+// 21:                board[i][j] = 3;
+// 22:            }
+// 23:            // Dead cell that becomes alive → encode as 2
+// 24:            if (board[i][j] === 0 && liveNeighbors === 3) {
+// 25:                board[i][j] = 2;
+// 26:            }
+// 27:        }
+// 28:    }
+// 29:
+// 30:    // Second pass: convert encoded values to final states
+// 31:    for (let i = 0; i < m; i++) {
+// 32:        for (let j = 0; j < n; j++) {
+// 33:            board[i][j] = board[i][j] === 1 || board[i][j] === 2 ? 1 : 0;
+// 34:        }
+// 35:    }
+// 36: }
+export function gameOfLifeEncodeTrace(flat: number[], rows: number, cols: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const m = rows, n = cols;
+  const current: number[] = [...flat];
+  const dr = [-1, -1, -1, 0, 0, 1, 1, 1];
+  const dc = [-1, 0, 1, -1, 1, -1, 0, 1];
+
+  const pushStep = (
+    line: number,
+    i: number,
+    j: number,
+    live: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(current, (idx) => {
+        const r = Math.floor(idx / n), c = idx % n;
+        if (r === i && c === j) return "j";
+        return "idle";
+      }),
+      vars: [
+        { name: "rows", value: String(rows), tone: "info" },
+        { name: "cols", value: String(cols), tone: "info" },
+        { name: "i", value: String(i), tone: "info" },
+        { name: "j", value: String(j), tone: "info" },
+        { name: "liveNeighbors", value: String(live), tone: "info" },
+        { name: "board", value: `[${current.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < m; i++) {
+    for (let j = 0; j < n; j++) {
+      let live = 0;
+      for (let d = 0; d < 8; d++) {
+        const ni = i + dr[d], nj = j + dc[d];
+        if (ni >= 0 && ni < m && nj >= 0 && nj < n && current[ni * n + nj] % 2 === 1) live++;
+      }
+      if (current[i * n + j] === 1 && (live < 2 || live > 3)) {
+        current[i * n + j] = 3;
+        pushStep(20, i, j, live, `encode 3 (die)`, "fail", `Live (${i},${j}) with ${live} neighbors → encode 3.`);
+      }
+      if (current[i * n + j] === 0 && live === 3) {
+        current[i * n + j] = 2;
+        pushStep(24, i, j, live, `encode 2 (born)`, "ok", `Dead (${i},${j}) with 3 neighbors → encode 2.`);
+      }
+    }
+  }
+
+  pushStep(30, -1, -1, 0, `encoded: [${current.join(", ")}]`, "info", `All transitions encoded (0/1 original, 2=born, 3=die).`);
+
+  for (let i = 0; i < m; i++) {
+    for (let j = 0; j < n; j++) {
+      current[i * n + j] = current[i * n + j] === 1 || current[i * n + j] === 2 ? 1 : 0;
+    }
+  }
+
+  done = true;
+  steps.push({ line: 36, cells: flat.map(() => "idle"), vars: [{ name: "rows", value: String(rows), tone: "info" }, { name: "cols", value: String(cols), tone: "info" }, { name: "board", value: `[${current.join(", ")}]`, tone: "ok" }], result: `[${current.join(", ")}]`, resultTone: "ok", explanation: `Next generation: [${current.join(", ")}].`, done });
+  return steps;
+}
+
+// ── Intersection of Two Linked Lists ──────────────────────────────────
+// Two DISTINCT approaches. headA and headB as value arrays.
+
+// Approach 1: Hash Set.
+// Source (lines):
+// 0: function getIntersectionNode(headA, headB) {
+// 1:     // Store all nodes from list A in a set
+// 2:     var visited = new Set();
+// 3:     var curr = headA;
+// 4:     while (curr !== null) {
+// 5:         visited.add(curr);
+// 6:         curr = curr.next;
+// 7:     }
+// 8:
+// 9:     // Walk through list B and find the first shared node
+// 10:    curr = headB;
+// 11:    while (curr !== null) {
+// 12:        if (visited.has(curr)) {
+// 13:            return curr;
+// 14:        }
+// 15:        curr = curr.next;
+// 16:    }
+// 17:
+// 18:    return null;
+// 19: }
+export function intersectionHashSetTrace(aVals: number[], bVals: number[], interIdx: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const visited = new Set<number>();
+  const aLen = aVals.length;
+  const bLen = bVals.length;
+
+  const pushStep = (
+    line: number,
+    list: "A" | "B",
+    idx: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    const cells = list === "A" ? aVals : bVals;
+    steps.push({
+      line,
+      cells: cellsFor(cells, (i) => (i === idx ? "i" : "idle")),
+      vars: [
+        { name: "list", value: list, tone: "info" },
+        { name: "idx", value: idx >= 0 ? String(idx) : "—", tone: "info" },
+        { name: "visited", value: `{${Array.from(visited).join(", ")}}`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < aLen; i++) {
+    visited.add(i);
+    pushStep(5, "A", i, `add node ${i}`, "info", `Add list A node ${i} (val ${aVals[i]}) to visited.`);
+  }
+
+  for (let i = 0; i < bLen; i++) {
+    if (visited.has(i)) {
+      pushStep(12, "B", i, "intersection!", "ok", `List B node ${i} (val ${bVals[i]}) is in visited → return it.`);
+      done = true;
+      steps.push({ line: 13, cells: bVals.map(() => "idle"), vars: [{ name: "result", value: `node ${i} (val ${bVals[i]})`, tone: "ok" }], result: `node ${i}`, resultTone: "ok", explanation: `Intersection node = ${bVals[i]}.`, done });
+      return steps;
+    }
+    pushStep(12, "B", i, "not in set", "fail", `List B node ${i} (val ${bVals[i]}) not in visited.`);
+  }
+
+  done = true;
+  steps.push({ line: 18, cells: bVals.map(() => "idle"), vars: [{ name: "result", value: "null", tone: "fail" }], result: "null", resultTone: "fail", explanation: `No intersection → return null.`, done });
+  return steps;
+}
+
+// Approach 2: Two Pointers.
+// Source (lines):
+// 0: function getIntersectionNode(headA, headB) {
+// 1:     var pA = headA;
+// 2:     var pB = headB;
+// 3:
+// 4:     // Each pointer traverses both lists, meeting at intersection or null
+// 5:     while (pA !== pB) {
+// 6:         pA = (pA !== null) ? pA.next : headB;
+// 7:         pB = (pB !== null) ? pB.next : headA;
+// 8:     }
+// 9:
+// 10:    return pA;
+// 11: }
+export function intersectionTwoPointerTrace(aVals: number[], bVals: number[], interIdx: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const aLen = aVals.length;
+  const bLen = bVals.length;
+
+  const pushStep = (
+    line: number,
+    pA: number,
+    pB: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(aVals, (i) => (i === pA ? "i" : "idle")),
+      vars: [
+        { name: "pA", value: pA >= 0 ? `node ${pA}` : "null", tone: "info" },
+        { name: "pB", value: pB >= 0 ? `node ${pB}` : "null", tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  let pA = 0, pB = 0;
+  let guard = 0;
+  while (pA !== pB && guard < aLen + bLen + 2) {
+    pushStep(5, pA, pB, "advance", "info", `pA at node ${pA}, pB at node ${pB}.`);
+    pA = pA + 1 < aLen ? pA + 1 : 0;
+    pB = pB + 1 < bLen ? pB + 1 : 0;
+    guard++;
+  }
+
+  if (pA === pB) {
+    pushStep(5, pA, pB, "meet!", "ok", `pA and pB meet at node ${pA} (val ${aVals[pA]}) → intersection.`);
+    done = true;
+    steps.push({ line: 10, cells: aVals.map(() => "idle"), vars: [{ name: "result", value: `node ${pA} (val ${aVals[pA]})`, tone: "ok" }], result: `node ${pA}`, resultTone: "ok", explanation: `Intersection node = ${aVals[pA]}.`, done });
+    return steps;
+  }
+
+  done = true;
+  steps.push({ line: 10, cells: aVals.map(() => "idle"), vars: [{ name: "result", value: "null", tone: "fail" }], result: "null", resultTone: "fail", explanation: `No intersection → return null.`, done });
+  return steps;
+}
+
+// ── Remove Duplicates from Sorted List ─────────────────────────────────
+// Two DISTINCT approaches.
+
+// Approach 1: Using a Hash Set.
+// Source (lines):
+// 0: function deleteDuplicates(head) {
+// 1:     if (!head) return null;
+// 2:
+// 3:     var seen = new Set();
+// 4:     seen.add(head.val);
+// 5:     var current = head;
+// 6:
+// 7:     while (current.next) {
+// 8:         if (seen.has(current.next.val)) {
+// 9:             // Skip the duplicate node
+// 10:            current.next = current.next.next;
+// 11:        } else {
+// 12:            seen.add(current.next.val);
+// 13:            current = current.next;
+// 14:        }
+// 15:    }
+// 16:
+// 17:    return head;
+// 18: }
+export function deleteDuplicatesSetTrace(vals: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const seen = new Set<number>();
+  const result: number[] = [...vals];
+
+  const pushStep = (
+    line: number,
+    idx: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(result, (i) => (i === idx ? "i" : "idle")),
+      vars: [
+        { name: "idx", value: idx >= 0 ? String(idx) : "—", tone: "info" },
+        { name: "seen", value: `{${Array.from(seen).join(", ")}}`, tone: "info" },
+        { name: "list", value: `[${result.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  if (result.length === 0) {
+    done = true;
+    steps.push({ line: 1, cells: [], vars: [{ name: "result", value: "null", tone: "fail" }], result: "null", resultTone: "fail", explanation: `Empty list → return null.`, done });
+    return steps;
+  }
+
+  seen.add(result[0]);
+  pushStep(4, 0, `seen = {${result[0]}}`, "info", `Add head val ${result[0]}.`);
+
+  let idx = 0;
+  while (idx + 1 < result.length) {
+    if (seen.has(result[idx + 1])) {
+      result.splice(idx + 1, 1);
+      pushStep(8, idx, `skip dup`, "fail", `Val ${result[idx]} already seen → remove next duplicate.`);
+    } else {
+      seen.add(result[idx + 1]);
+      idx++;
+      pushStep(12, idx, `add ${result[idx]}`, "info", `Add val ${result[idx]} to seen, advance.`);
+    }
+  }
+
+  done = true;
+  steps.push({ line: 17, cells: result.map(() => "idle"), vars: [{ name: "result", value: `[${result.join(", ")}]`, tone: "ok" }], result: `[${result.join(", ")}]`, resultTone: "ok", explanation: `Deduplicated list = [${result.join(", ")}].`, done });
+  return steps;
+}
+
+// Approach 2: Single Pass In-Place (Optimal).
+// Source (lines):
+// 0: function deleteDuplicates(head) {
+// 1:     var current = head;
+// 2:
+// 3:     while (current !== null && current.next !== null) {
+// 4:         if (current.val === current.next.val) {
+// 5:             // Skip the duplicate node
+// 6:             current.next = current.next.next;
+// 7:         } else {
+// 8:             // Move to the next distinct node
+// 9:             current = current.next;
+// 10:        }
+// 11:    }
+// 12:
+// 13:    return head;
+// 14: }
+export function deleteDuplicatesInPlaceTrace(vals: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const result: number[] = [...vals];
+
+  const pushStep = (
+    line: number,
+    idx: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(result, (i) => (i === idx ? "i" : "idle")),
+      vars: [
+        { name: "idx", value: idx >= 0 ? String(idx) : "—", tone: "info" },
+        { name: "list", value: `[${result.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  if (result.length === 0) {
+    done = true;
+    steps.push({ line: 1, cells: [], vars: [{ name: "result", value: "null", tone: "fail" }], result: "null", resultTone: "fail", explanation: `Empty list → return null.`, done });
+    return steps;
+  }
+
+  let idx = 0;
+  while (idx + 1 < result.length) {
+    if (result[idx] === result[idx + 1]) {
+      result.splice(idx + 1, 1);
+      pushStep(4, idx, `skip dup`, "fail", `Val ${result[idx]} equals next → skip duplicate.`);
+    } else {
+      idx++;
+      pushStep(8, idx, `advance`, "info", `Val ${result[idx]} distinct → advance.`);
+    }
+  }
+
+  done = true;
+  steps.push({ line: 13, cells: result.map(() => "idle"), vars: [{ name: "result", value: `[${result.join(", ")}]`, tone: "ok" }], result: `[${result.join(", ")}]`, resultTone: "ok", explanation: `Deduplicated list = [${result.join(", ")}].`, done });
+  return steps;
+}
+
+// ── Design Linked List ─────────────────────────────────────────────────
+// Two DISTINCT approaches. Class-based; hardcoded demo sequence.
+
+// Approach 1: Singly Linked List.
+// Source (lines):
+// 0: function MyLinkedList() {
+// 1:     this.sentinel = {val: 0, next: null};
+// 2:     this.size = 0;
+// 3: };
+// 4: MyLinkedList.prototype.get = function(index) {
+// 5:     if (index < 0 || index >= this.size) return -1;
+// 6:     var current = this.sentinel.next;
+// 7:     for (var i = 0; i < index; i++) current = current.next;
+// 8:     return current.val;
+// 9: };
+// 10: MyLinkedList.prototype.addAtHead = function(val) { this.addAtIndex(0, val); };
+// 11: MyLinkedList.prototype.addAtTail = function(val) { this.addAtIndex(this.size, val); };
+// 12: MyLinkedList.prototype.addAtIndex = function(index, val) {
+// 13:    if (index < 0 || index > this.size) return;
+// 14:    var pred = this.sentinel;
+// 15:    for (var i = 0; i < index; i++) pred = pred.next;
+// 16:    var newNode = {val: val, next: pred.next};
+// 17:    pred.next = newNode;
+// 18:    this.size++;
+// 19: };
+// 20: MyLinkedList.prototype.deleteAtIndex = function(index) {
+// 21:    if (index < 0 || index >= this.size) return;
+// 22:    var pred = this.sentinel;
+// 23:    for (var i = 0; i < index; i++) pred = pred.next;
+// 24:    pred.next = pred.next.next;
+// 25:    this.size--;
+// 26: }
+export function designLinkedListSinglyTrace(): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const list: number[] = [];
+  const ops = ["addAtHead(1)", "addAtTail(3)", "addAtIndex(1,2)", "get(1)", "deleteAtIndex(1)", "get(1)"];
+
+  const pushStep = (
+    line: number,
+    opIdx: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(list, () => "idle"),
+      values: [...list],
+      vars: [
+        { name: "op", value: ops[opIdx] ?? "—", tone: "info" },
+        { name: "list", value: `[${list.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  list.push(1); pushStep(10, 0, `addAtHead(1)`, "ok", `addAtHead(1) → list = [1].`);
+  list.push(3); pushStep(11, 1, `addAtTail(3)`, "ok", `addAtTail(3) → list = [1, 3].`);
+  list.splice(1, 0, 2); pushStep(12, 2, `addAtIndex(1,2)`, "ok", `addAtIndex(1,2) → list = [1, 2, 3].`);
+  pushStep(4, 3, `get(1) = ${list[1]}`, "ok", `get(1) → list[1] = ${list[1]}.`);
+  list.splice(1, 1); pushStep(20, 4, `deleteAtIndex(1)`, "fail", `deleteAtIndex(1) → list = [1, 3].`);
+  pushStep(4, 5, `get(1) = ${list[1]}`, "ok", `get(1) → list[1] = ${list[1]}.`);
+
+  done = true;
+  steps.push({ line: 26, cells: list.map(() => "idle"), values: [...list], vars: [{ name: "result", value: `[${list.join(", ")}]`, tone: "ok" }], result: `[${list.join(", ")}]`, resultTone: "ok", explanation: `Final list = [${list.join(", ")}].`, done });
+  return steps;
+}
+
+// Approach 2: Doubly Linked List.
+// Source (lines):
+// 0: function MyLinkedList() {
+// 1:     this.headSentinel = {val: 0, prev: null, next: null};
+// 2:     this.tailSentinel = {val: 0, prev: null, next: null};
+// 3:     this.headSentinel.next = this.tailSentinel;
+// 4:     this.tailSentinel.prev = this.headSentinel;
+// 5:     this.size = 0;
+// 6: };
+// 7: MyLinkedList.prototype._getNodeAt = function(index) {
+// 8:     var node;
+// 9:     if (index < this.size / 2) {
+// 10:        node = this.headSentinel.next;
+// 11:        for (var i = 0; i < index; i++) node = node.next;
+// 12:    } else {
+// 13:        node = this.tailSentinel.prev;
+// 14:        for (var i = this.size - 1; i > index; i--) node = node.prev;
+// 15:    }
+// 16:    return node;
+// 17: };
+// 18: MyLinkedList.prototype.get = function(index) {
+// 19:    if (index < 0 || index >= this.size) return -1;
+// 20:    return this._getNodeAt(index).val;
+// 21: };
+// 22: MyLinkedList.prototype.addAtHead = function(val) {
+// 23:    var newNode = {val: val, prev: null, next: null};
+// 24:    var after = this.headSentinel.next;
+// 25:    this.headSentinel.next = newNode;
+// 26:    newNode.prev = this.headSentinel;
+// 27:    newNode.next = after;
+// 28:    after.prev = newNode;
+// 29:    this.size++;
+// 30: };
+// 31: MyLinkedList.prototype.addAtTail = function(val) {
+// 32:    var newNode = {val: val, prev: null, next: null};
+// 33:    var before = this.tailSentinel.prev;
+// 34:    before.next = newNode;
+// 35:    newNode.prev = before;
+// 36:    newNode.next = this.tailSentinel;
+// 37:    this.tailSentinel.prev = newNode;
+// 38:    this.size++;
+// 39: };
+// 40: MyLinkedList.prototype.addAtIndex = function(index, val) {
+// 41:    if (index < 0 || index > this.size) return;
+// 42:    var successor, predecessor;
+// 43:    if (index === this.size) {
+// 44:        successor = this.tailSentinel;
+// 45:        predecessor = this.tailSentinel.prev;
+// 46:    } else {
+// 47:        successor = this._getNodeAt(index);
+// 48:        predecessor = successor.prev;
+// 49:    }
+// 50:    var newNode = {val: val, prev: predecessor, next: successor};
+// 51:    predecessor.next = newNode;
+// 52:    successor.prev = newNode;
+// 53:    this.size++;
+// 54: };
+// 55: MyLinkedList.prototype.deleteAtIndex = function(index) {
+// 56:    if (index < 0 || index >= this.size) return;
+// 57:    var node = this._getNodeAt(index);
+// 58:    node.prev.next = node.next;
+// 59:    node.next.prev = node.prev;
+// 60:    this.size--;
+// 61: }
+export function designLinkedListDoublyTrace(): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const list: number[] = [];
+  const ops = ["addAtHead(1)", "addAtTail(3)", "addAtIndex(1,2)", "get(1)", "deleteAtIndex(1)", "get(1)"];
+
+  const pushStep = (
+    line: number,
+    opIdx: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(list, () => "idle"),
+      values: [...list],
+      vars: [
+        { name: "op", value: ops[opIdx] ?? "—", tone: "info" },
+        { name: "list", value: `[${list.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  list.push(1); pushStep(22, 0, `addAtHead(1)`, "ok", `addAtHead(1) → list = [1].`);
+  list.push(3); pushStep(31, 1, `addAtTail(3)`, "ok", `addAtTail(3) → list = [1, 3].`);
+  list.splice(1, 0, 2); pushStep(40, 2, `addAtIndex(1,2)`, "ok", `addAtIndex(1,2) → list = [1, 2, 3].`);
+  pushStep(18, 3, `get(1) = ${list[1]}`, "ok", `get(1) → list[1] = ${list[1]}.`);
+  list.splice(1, 1); pushStep(55, 4, `deleteAtIndex(1)`, "fail", `deleteAtIndex(1) → list = [1, 3].`);
+  pushStep(18, 5, `get(1) = ${list[1]}`, "ok", `get(1) → list[1] = ${list[1]}.`);
+
+  done = true;
+  steps.push({ line: 61, cells: list.map(() => "idle"), values: [...list], vars: [{ name: "result", value: `[${list.join(", ")}]`, tone: "ok" }], result: `[${list.join(", ")}]`, resultTone: "ok", explanation: `Final list = [${list.join(", ")}].`, done });
+  return steps;
+}
+
+// ── Remove Nth Node From End of List ───────────────────────────────────
+// Two DISTINCT approaches.
+
+// Approach 1: Two Pass (Count then Remove).
+// Source (lines):
+// 0: function removeNthFromEnd(head, n) {
+// 1:     // Dummy node simplifies edge case of removing head
+// 2:     var dummy = new ListNode(0, head);
+// 3:
+// 4:     // First pass: count total nodes
+// 5:     var length = 0;
+// 6:     var current = head;
+// 7:     while (current !== null) {
+// 8:         length++;
+// 9:         current = current.next;
+// 10:    }
+// 11:
+// 12:    // Second pass: advance (length - n) steps from dummy
+// 13:    var prev = dummy;
+// 14:    for (var i = 0; i < length - n; i++) {
+// 15:        prev = prev.next;
+// 16:    }
+// 17:
+// 18:    // Remove the target node
+// 19:    prev.next = prev.next.next;
+// 20:
+// 21:    return dummy.next;
+// 22: }
+export function removeNthTwoPassTrace(vals: number[], n: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const result: number[] = [...vals];
+  const length = result.length;
+
+  const pushStep = (
+    line: number,
+    idx: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(result, (i) => (i === idx ? "i" : "idle")),
+      vars: [
+        { name: "idx", value: idx >= 0 ? String(idx) : "—", tone: "info" },
+        { name: "length", value: String(length), tone: "info" },
+        { name: "n", value: String(n), tone: "info" },
+        { name: "list", value: `[${result.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  pushStep(5, -1, `length = ${length}`, "info", `First pass counts ${length} nodes.`);
+
+  const target = length - n;
+  for (let i = 0; i < target; i++) {
+    pushStep(14, i, `advance to ${i}`, "info", `Second pass: advance prev to node ${i}.`);
+  }
+  const removed = result[target];
+  result.splice(target, 1);
+  pushStep(19, target, `remove node ${removed}`, "fail", `Remove nth-from-end node (val ${removed}) at index ${target}.`);
+
+  done = true;
+  steps.push({ line: 21, cells: result.map(() => "idle"), vars: [{ name: "result", value: `[${result.join(", ")}]`, tone: "ok" }], result: `[${result.join(", ")}]`, resultTone: "ok", explanation: `List after removing ${n}th from end = [${result.join(", ")}].`, done });
+  return steps;
+}
+
+// Approach 2: One Pass (Two Pointers).
+// Source (lines):
+// 0: function removeNthFromEnd(head, n) {
+// 1:     // Dummy node handles the edge case of removing the head
+// 2:     var dummy = new ListNode(0, head);
+// 3:     var slow = dummy;
+// 4:     var fast = dummy;
+// 5:
+// 6:     // Advance fast by n + 1 steps to create the gap
+// 7:     for (var i = 0; i <= n; i++) {
+// 8:         fast = fast.next;
+// 9:     }
+// 10:
+// 11:    // Move both pointers until fast reaches the end
+// 12:    while (fast !== null) {
+// 13:        slow = slow.next;
+// 14:        fast = fast.next;
+// 15:    }
+// 16:
+// 17:    // slow is now the node before the target, skip the target
+// 18:    slow.next = slow.next.next;
+// 19:
+// 20:    return dummy.next;
+// 21: }
+export function removeNthOnePassTrace(vals: number[], n: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const result: number[] = [...vals];
+  const length = result.length;
+
+  const pushStep = (
+    line: number,
+    slow: number,
+    fast: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(result, (i) => (i === slow ? "i" : i === fast ? "j" : "idle")),
+      vars: [
+        { name: "slow", value: slow >= 0 ? String(slow) : "dummy", tone: "info" },
+        { name: "fast", value: fast >= 0 ? String(fast) : fast === -1 ? "dummy" : "null", tone: "info" },
+        { name: "n", value: String(n), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  let slow = -1, fast = -1;
+  for (let i = 0; i <= n; i++) {
+    fast = fast + 1 < length ? fast + 1 : length;
+    pushStep(7, slow, fast, `fast → ${fast}`, "info", `Advance fast by n+1 steps.`);
+  }
+
+  while (fast < length) {
+    slow++;
+    fast++;
+    pushStep(12, slow, fast, `move both`, "info", `Move slow and fast together.`);
+  }
+
+  const target = slow + 1;
+  const removed = result[target];
+  result.splice(target, 1);
+  pushStep(18, slow, fast, `remove node ${removed}`, "fail", `slow is before target → skip node ${removed}.`);
+
+  done = true;
+  steps.push({ line: 20, cells: result.map(() => "idle"), vars: [{ name: "result", value: `[${result.join(", ")}]`, tone: "ok" }], result: `[${result.join(", ")}]`, resultTone: "ok", explanation: `List after removing ${n}th from end = [${result.join(", ")}].`, done });
+  return steps;
+}
+
+// ── Remove Duplicates from Sorted List II ──────────────────────────────
+// Two DISTINCT approaches.
+
+// Approach 1: Hash Map (Two Pass).
+// Source (lines):
+// 0: function deleteDuplicates(head) {
+// 1:     // Pass 1: count frequencies
+// 2:     var count = new Map();
+// 3:     var current = head;
+// 4:     while (current !== null) {
+// 5:         count.set(current.val, (count.get(current.val) || 0) + 1);
+// 6:         current = current.next;
+// 7:     }
+// 8:
+// 9:     // Pass 2: remove nodes with count > 1
+// 10:    var dummy = new ListNode(0, head);
+// 11:    var prev = dummy;
+// 12:    while (prev.next !== null) {
+// 13:        if (count.get(prev.next.val) > 1) {
+// 14:            // Skip this node
+// 15:            prev.next = prev.next.next;
+// 16:        } else {
+// 17:            prev = prev.next;
+// 18:        }
+// 19:    }
+// 20:
+// 21:    return dummy.next;
+// 22: }
+export function deleteDuplicatesIIMapTrace(vals: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const count = new Map<number, number>();
+  const result: number[] = [...vals];
+
+  const pushStep = (
+    line: number,
+    idx: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(result, (i) => (i === idx ? "i" : "idle")),
+      vars: [
+        { name: "idx", value: idx >= 0 ? String(idx) : "—", tone: "info" },
+        { name: "count", value: `{${Array.from(count.entries()).map(([v, c]) => `${v}:${c}`).join(", ")}}`, tone: "info" },
+        { name: "list", value: `[${result.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (const v of result) count.set(v, (count.get(v) || 0) + 1);
+  pushStep(2, -1, `count = {${Array.from(count.entries()).map(([v, c]) => `${v}:${c}`).join(", ")}}`, "info", `Pass 1: count frequencies.`);
+
+  let idx = 0;
+  while (idx < result.length) {
+    if (count.get(result[idx])! > 1) {
+      result.splice(idx, 1);
+      pushStep(13, idx, `remove ${result[idx] ?? "?"}`, "fail", `Val appears ${count.get(result[idx] ?? 0)} times → remove.`);
+    } else {
+      idx++;
+      pushStep(16, idx, `keep ${result[idx - 1]}`, "ok", `Val ${result[idx - 1]} is unique → keep.`);
+    }
+  }
+
+  done = true;
+  steps.push({ line: 21, cells: result.map(() => "idle"), vars: [{ name: "result", value: `[${result.join(", ")}]`, tone: "ok" }], result: `[${result.join(", ")}]`, resultTone: "ok", explanation: `List with all duplicates removed = [${result.join(", ")}].`, done });
+  return steps;
+}
+
+// Approach 2: Single Pass with Dummy Node (Optimal).
+// Source (lines):
+// 0: function deleteDuplicates(head) {
+// 1:     var dummy = new ListNode(0, head);
+// 2:     var prev = dummy;
+// 3:
+// 4:     var current = head;
+// 5:     while (current !== null) {
+// 6:         // Check if current starts a duplicate run
+// 7:         if (current.next !== null && current.val === current.next.val) {
+// 8:             // Skip all nodes with this value
+// 9:             while (current.next !== null && current.val === current.next.val) {
+// 10:                current = current.next;
+// 11:            }
+// 12:            // Wire prev to the node after the duplicate run
+// 13:            prev.next = current.next;
+// 14:        } else {
+// 15:            // Current is unique, advance prev
+// 16:            prev = prev.next;
+// 17:        }
+// 18:        current = current.next;
+// 19:    }
+// 20:
+// 21:    return dummy.next;
+// 22: }
+export function deleteDuplicatesIISingleTrace(vals: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const result: number[] = [...vals];
+
+  const pushStep = (
+    line: number,
+    idx: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(result, (i) => (i === idx ? "i" : "idle")),
+      vars: [
+        { name: "idx", value: idx >= 0 ? String(idx) : "—", tone: "info" },
+        { name: "list", value: `[${result.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  let idx = 0;
+  while (idx < result.length) {
+    if (idx + 1 < result.length && result[idx] === result[idx + 1]) {
+      const dup = result[idx];
+      while (idx < result.length && result[idx] === dup) {
+        result.splice(idx, 1);
+      }
+      pushStep(7, idx, `remove run of ${dup}`, "fail", `Skip all nodes with value ${dup}.`);
+    } else {
+      idx++;
+      pushStep(15, idx, `keep ${result[idx - 1]}`, "ok", `Val ${result[idx - 1]} is unique → keep.`);
+    }
+  }
+
+  done = true;
+  steps.push({ line: 21, cells: result.map(() => "idle"), vars: [{ name: "result", value: `[${result.join(", ")}]`, tone: "ok" }], result: `[${result.join(", ")}]`, resultTone: "ok", explanation: `List with all duplicates removed = [${result.join(", ")}].`, done });
+  return steps;
+}
+
+// ── Swap Nodes in Pairs ─────────────────────────────────────────────────
+// Two DISTINCT approaches.
+
+// Approach 1: Recursive.
+// Source (lines):
+// 0: function swapPairs(head) {
+// 1:     // Base case: fewer than 2 nodes, nothing to swap
+// 2:     if (!head || !head.next) return head;
+// 3:
+// 4:     var first = head;
+// 5:     var second = head.next;
+// 6:
+// 7:     // Recursively swap the rest of the list
+// 8:     first.next = swapPairs(second.next);
+// 9:     second.next = first;
+// 10:
+// 11:    // second is now the head of this swapped pair
+// 12:    return second;
+// 13: }
+export function swapPairsRecursiveTrace(vals: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const result: number[] = [...vals];
+
+  const pushStep = (
+    line: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(result, () => "idle"),
+      vars: [{ name: "list", value: `[${result.join(", ")}]`, tone: "info" }],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i + 1 < result.length; i += 2) {
+    const tmp = result[i];
+    result[i] = result[i + 1];
+    result[i + 1] = tmp;
+    pushStep(8, `swap (${i},${i + 1})`, "ok", `Recursively swap pair (${i},${i + 1}) → [${result.join(", ")}].`);
+  }
+
+  done = true;
+  steps.push({ line: 12, cells: result.map(() => "idle"), vars: [{ name: "result", value: `[${result.join(", ")}]`, tone: "ok" }], result: `[${result.join(", ")}]`, resultTone: "ok", explanation: `Swapped list = [${result.join(", ")}].`, done });
+  return steps;
+}
+
+// Approach 2: Iterative with Dummy Node.
+// Source (lines):
+// 0: function swapPairs(head) {
+// 1:     // Dummy node simplifies head pointer management
+// 2:     var dummy = new ListNode(0, head);
+// 3:     var prev = dummy;
+// 4:
+// 5:     while (prev.next && prev.next.next) {
+// 6:         var first = prev.next;
+// 7:         var second = prev.next.next;
+// 8:
+// 9:         // Rewire the three pointers
+// 10:        prev.next = second;
+// 11:        first.next = second.next;
+// 12:        second.next = first;
+// 13:
+// 14:        // Advance prev to the end of the swapped pair
+// 15:        prev = first;
+// 16:    }
+// 17:
+// 18:    return dummy.next;
+// 19: }
+export function swapPairsIterativeTrace(vals: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const result: number[] = [...vals];
+
+  const pushStep = (
+    line: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(result, () => "idle"),
+      vars: [{ name: "list", value: `[${result.join(", ")}]`, tone: "info" }],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i + 1 < result.length; i += 2) {
+    const tmp = result[i];
+    result[i] = result[i + 1];
+    result[i + 1] = tmp;
+    pushStep(10, `swap (${i},${i + 1})`, "ok", `Rewire pair (${i},${i + 1}) → [${result.join(", ")}].`);
+  }
+
+  done = true;
+  steps.push({ line: 18, cells: result.map(() => "idle"), vars: [{ name: "result", value: `[${result.join(", ")}]`, tone: "ok" }], result: `[${result.join(", ")}]`, resultTone: "ok", explanation: `Swapped list = [${result.join(", ")}].`, done });
+  return steps;
+}
+
+// ── Copy List with Random Pointer ──────────────────────────────────────
+// Two DISTINCT approaches. Values + random indices.
+
+// Approach 1: Hash Map (Two Pass).
+// Source (lines):
+// 0: function copyRandomList(head) {
+// 1:     if (!head) return null;
+// 2:
+// 3:     // Pass 1: create copy nodes and build the mapping
+// 4:     var map = new Map();
+// 5:     var current = head;
+// 6:     while (current) {
+// 7:         map.set(current, new _Node(current.val));
+// 8:         current = current.next;
+// 9:     }
+// 10:
+// 11:    // Pass 2: wire up next and random pointers
+// 12:    current = head;
+// 13:    while (current) {
+// 14:        map.get(current).next = map.get(current.next) || null;
+// 15:        map.get(current).random = map.get(current.random) || null;
+// 16:        current = current.next;
+// 17:    }
+// 18:
+// 19:    return map.get(head);
+// 20: }
+export function copyRandomListMapTrace(vals: number[], randoms: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const result: number[] = [...vals];
+
+  const pushStep = (
+    line: number,
+    idx: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(result, (i) => (i === idx ? "i" : "idle")),
+      vars: [
+        { name: "idx", value: idx >= 0 ? String(idx) : "—", tone: "info" },
+        { name: "random", value: `[${randoms.join(", ")}]`, tone: "info" },
+        { name: "list", value: `[${result.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < result.length; i++) {
+    pushStep(7, i, `copy node ${i}`, "info", `Pass 1: create copy of node ${i} (val ${result[i]}).`);
+  }
+  for (let i = 0; i < result.length; i++) {
+    pushStep(14, i, `wire next/random`, "info", `Pass 2: wire copy ${i} next → ${i + 1 < result.length ? i + 1 : "null"}, random → ${randoms[i]}.`);
+  }
+
+  done = true;
+  steps.push({ line: 19, cells: result.map(() => "idle"), vars: [{ name: "result", value: `[${result.join(", ")}]`, tone: "ok" }], result: `[${result.join(", ")}]`, resultTone: "ok", explanation: `Deep copy created with next and random pointers.`, done });
+  return steps;
+}
+
+// Approach 2: Interleaving Nodes (O(1) Space).
+// Source (lines):
+// 0: function copyRandomList(head) {
+// 1:     if (!head) return null;
+// 2:
+// 3:     // Pass 1: interleave copy nodes after each original
+// 4:     var current = head;
+// 5:     while (current) {
+// 6:         var copy = new _Node(current.val);
+// 7:         copy.next = current.next;
+// 8:         current.next = copy;
+// 9:         current = copy.next;
+// 10:    }
+// 11:
+// 12:    // Pass 2: set random pointers for copy nodes
+// 13:    current = head;
+// 14:    while (current) {
+// 15:        if (current.random) {
+// 16:            current.next.random = current.random.next;
+// 17:        }
+// 18:        current = current.next.next;
+// 19:    }
+// 20:
+// 21:    // Pass 3: separate the interleaved list into original and copy
+// 22:    var copyHead = head.next;
+// 23:    current = head;
+// 24:    var copyCurrent = copyHead;
+// 25:    while (current) {
+// 26:        current.next = copyCurrent.next;
+// 27:        current = current.next;
+// 28:        if (current) {
+// 29:            copyCurrent.next = current.next;
+// 30:            copyCurrent = copyCurrent.next;
+// 31:        } else {
+// 32:            copyCurrent.next = null;
+// 33:        }
+// 34:    }
+// 35:
+// 36:    return copyHead;
+// 37: }
+export function copyRandomListInterleaveTrace(vals: number[], randoms: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const result: number[] = [...vals];
+
+  const pushStep = (
+    line: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(result, () => "idle"),
+      vars: [{ name: "list", value: `[${result.join(", ")}]`, tone: "info" }],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  pushStep(5, `interleave`, "info", `Pass 1: interleave copy nodes after each original.`);
+  pushStep(14, `set randoms`, "info", `Pass 2: set random pointers for copy nodes.`);
+  pushStep(25, `separate`, "info", `Pass 3: separate interleaved list into original and copy.`);
+
+  done = true;
+  steps.push({ line: 36, cells: result.map(() => "idle"), vars: [{ name: "result", value: `[${result.join(", ")}]`, tone: "ok" }], result: `[${result.join(", ")}]`, resultTone: "ok", explanation: `Deep copy created in O(1) space.`, done });
+  return steps;
+}
+
+// ── Partition List ─────────────────────────────────────────────────────
+// Two DISTINCT approaches.
+
+// Approach 1: Collect into Array and Rebuild.
+// Source (lines):
+// 0: function partition(head, x) {
+// 1:     // Collect values into two arrays based on partition value
+// 2:     var less = [];
+// 3:     var greater = [];
+// 4:
+// 5:     var current = head;
+// 6:     while (current !== null) {
+// 7:         if (current.val < x) {
+// 8:             less.push(current.val);
+// 9:         } else {
+// 10:            greater.push(current.val);
+// 11:        }
+// 12:        current = current.next;
+// 13:    }
+// 14:
+// 15:    // Build the result linked list
+// 16:    var dummy = new ListNode(0);
+// 17:    var tail = dummy;
+// 18:
+// 19:    var combined = less.concat(greater);
+// 20:    for (var i = 0; i < combined.length; i++) {
+// 21:        tail.next = new ListNode(combined[i]);
+// 22:        tail = tail.next;
+// 23:    }
+// 24:
+// 25:    return dummy.next;
+// 26: }
+export function partitionArrayTrace(vals: number[], x: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const less: number[] = [];
+  const greater: number[] = [];
+
+  const pushStep = (
+    line: number,
+    idx: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(vals, (i) => (i === idx ? "i" : "idle")),
+      vars: [
+        { name: "idx", value: idx >= 0 ? String(idx) : "—", tone: "info" },
+        { name: "x", value: String(x), tone: "info" },
+        { name: "less", value: `[${less.join(", ")}]`, tone: "info" },
+        { name: "greater", value: `[${greater.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < vals.length; i++) {
+    if (vals[i] < x) {
+      less.push(vals[i]);
+      pushStep(7, i, `less += ${vals[i]}`, "ok", `Val ${vals[i]} < ${x} → add to less.`);
+    } else {
+      greater.push(vals[i]);
+      pushStep(9, i, `greater += ${vals[i]}`, "info", `Val ${vals[i]} ≥ ${x} → add to greater.`);
+    }
+  }
+
+  const result = [...less, ...greater];
+  done = true;
+  steps.push({ line: 25, cells: vals.map(() => "idle"), vars: [{ name: "result", value: `[${result.join(", ")}]`, tone: "ok" }], result: `[${result.join(", ")}]`, resultTone: "ok", explanation: `Partitioned list = [${result.join(", ")}].`, done });
+  return steps;
+}
+
+// Approach 2: Two Dummy Lists (Optimal).
+// Source (lines):
+// 0: function partition(head, x) {
+// 1:     // Two dummy heads for the less and greater chains
+// 2:     var lessHead = new ListNode(0);
+// 3:     var greaterHead = new ListNode(0);
+// 4:     var lessTail = lessHead;
+// 5:     var greaterTail = greaterHead;
+// 6:
+// 7:     // Distribute nodes into the two chains
+// 8:     var current = head;
+// 9:     while (current !== null) {
+// 10:        if (current.val < x) {
+// 11:            lessTail.next = current;
+// 12:            lessTail = lessTail.next;
+// 13:        } else {
+// 14:            greaterTail.next = current;
+// 15:            greaterTail = greaterTail.next;
+// 16:        }
+// 17:        current = current.next;
+// 18:    }
+// 19:
+// 20:    // Connect the less chain to the greater chain
+// 21:    lessTail.next = greaterHead.next;
+// 22:    // Terminate the greater chain to prevent cycles
+// 23:    greaterTail.next = null;
+// 24:
+// 25:    return lessHead.next;
+// 26: }
+export function partitionTwoDummyTrace(vals: number[], x: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const less: number[] = [];
+  const greater: number[] = [];
+
+  const pushStep = (
+    line: number,
+    idx: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(vals, (i) => (i === idx ? "i" : "idle")),
+      vars: [
+        { name: "idx", value: idx >= 0 ? String(idx) : "—", tone: "info" },
+        { name: "x", value: String(x), tone: "info" },
+        { name: "less", value: `[${less.join(", ")}]`, tone: "info" },
+        { name: "greater", value: `[${greater.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < vals.length; i++) {
+    if (vals[i] < x) {
+      less.push(vals[i]);
+      pushStep(10, i, `less chain += ${vals[i]}`, "ok", `Val ${vals[i]} < ${x} → append to less chain.`);
+    } else {
+      greater.push(vals[i]);
+      pushStep(13, i, `greater chain += ${vals[i]}`, "info", `Val ${vals[i]} ≥ ${x} → append to greater chain.`);
+    }
+  }
+
+  const result = [...less, ...greater];
+  done = true;
+  steps.push({ line: 25, cells: vals.map(() => "idle"), vars: [{ name: "result", value: `[${result.join(", ")}]`, tone: "ok" }], result: `[${result.join(", ")}]`, resultTone: "ok", explanation: `Partitioned list = [${result.join(", ")}].`, done });
+  return steps;
+}
+
+// ── Rotate List ───────────────────────────────────────────────────────
+// Two DISTINCT approaches.
+
+// Approach 1: Brute Force (Rotate One at a Time).
+// Source (lines):
+// 0: function rotateRight(head, k) {
+// 1:     if (!head || !head.next || k === 0) return head;
+// 2:
+// 3:     // Count the length
+// 4:     var n = 0;
+// 5:     var temp = head;
+// 6:     while (temp) {
+// 7:         n++;
+// 8:         temp = temp.next;
+// 9:     }
+// 10:
+// 11:    k = k % n;
+// 12:    if (k === 0) return head;
+// 13:
+// 14:    // Rotate one at a time, k times
+// 15:    for (var i = 0; i < k; i++) {
+// 16:        var prev = null;
+// 17:        var curr = head;
+// 18:        while (curr.next) {
+// 19:            prev = curr;
+// 20:            curr = curr.next;
+// 21:        }
+// 22:        // curr is the last node, prev is second-to-last
+// 23:        prev.next = null;
+// 24:        curr.next = head;
+// 25:        head = curr;
+// 26:    }
+// 27:
+// 28:    return head;
+// 29: }
+export function rotateListBruteTrace(vals: number[], k: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const result: number[] = [...vals];
+  const n = result.length;
+  const effK = n === 0 ? 0 : k % n;
+
+  const pushStep = (
+    line: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(result, () => "idle"),
+      vars: [
+        { name: "k", value: String(k), tone: "info" },
+        { name: "n", value: String(n), tone: "info" },
+        { name: "list", value: `[${result.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  pushStep(4, `n = ${n}`, "info", `Count length = ${n}.`);
+  pushStep(11, `k = ${effK}`, "info", `Effective rotation = ${k} % ${n} = ${effK}.`);
+
+  for (let i = 0; i < effK; i++) {
+    const last = result.pop()!;
+    result.unshift(last);
+    pushStep(15, `rotate → [${result.join(", ")}]`, "ok", `Rotate right by 1 → [${result.join(", ")}].`);
+  }
+
+  done = true;
+  steps.push({ line: 28, cells: result.map(() => "idle"), vars: [{ name: "result", value: `[${result.join(", ")}]`, tone: "ok" }], result: `[${result.join(", ")}]`, resultTone: "ok", explanation: `Rotated list = [${result.join(", ")}].`, done });
+  return steps;
+}
+
+// Approach 2: Find Split Point (Optimal).
+// Source (lines):
+// 0: function rotateRight(head, k) {
+// 1:     if (!head || !head.next || k === 0) return head;
+// 2:
+// 3:     // Find the length and the tail
+// 4:     var n = 1;
+// 5:     var tail = head;
+// 6:     while (tail.next) {
+// 7:         n++;
+// 8:         tail = tail.next;
+// 9:     }
+// 10:
+// 11:    // Compute effective rotation
+// 12:    k = k % n;
+// 13:    if (k === 0) return head;
+// 14:
+// 15:    // Form a circular list
+// 16:    tail.next = head;
+// 17:
+// 18:    // Walk to the new tail: (n - k - 1) steps from head
+// 19:    var newTail = head;
+// 20:    for (var i = 0; i < n - k - 1; i++) {
+// 21:        newTail = newTail.next;
+// 22:    }
+// 23:
+// 24:    // Break the circle
+// 25:    var newHead = newTail.next;
+// 26:    newTail.next = null;
+// 27:
+// 28:    return newHead;
+// 29: }
+export function rotateListSplitTrace(vals: number[], k: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const result: number[] = [...vals];
+  const n = result.length;
+  const effK = n === 0 ? 0 : k % n;
+
+  const pushStep = (
+    line: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(result, () => "idle"),
+      vars: [
+        { name: "k", value: String(k), tone: "info" },
+        { name: "n", value: String(n), tone: "info" },
+        { name: "list", value: `[${result.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  pushStep(4, `n = ${n}`, "info", `Find length and tail.`);
+  pushStep(12, `k = ${effK}`, "info", `Effective rotation = ${effK}.`);
+  pushStep(16, `form circle`, "info", `Form a circular list.`);
+
+  const split = n - effK;
+  const rotated = [...result.slice(split), ...result.slice(0, split)];
+  pushStep(25, `break at ${split}`, "ok", `New head at index ${split} → [${rotated.join(", ")}].`);
+
+  done = true;
+  steps.push({ line: 28, cells: result.map(() => "idle"), vars: [{ name: "result", value: `[${rotated.join(", ")}]`, tone: "ok" }], result: `[${rotated.join(", ")}]`, resultTone: "ok", explanation: `Rotated list = [${rotated.join(", ")}].`, done });
+  return steps;
+}
+
+// ── Add Two Numbers ────────────────────────────────────────────────────
+// Two DISTINCT approaches. l1 and l2 as value arrays.
+
+// Approach 1: Iterative with Carry.
+// Source (lines):
+// 0: function addTwoNumbers(l1, l2) {
+// 1:     var dummy = new ListNode(0);
+// 2:     var current = dummy;
+// 3:     var carry = 0;
+// 4:
+// 5:     while (l1 !== null || l2 !== null || carry !== 0) {
+// 6:         var val1 = l1 !== null ? l1.val : 0;
+// 7:         var val2 = l2 !== null ? l2.val : 0;
+// 8:         var sum = val1 + val2 + carry;
+// 9:
+// 10:        carry = Math.floor(sum / 10);
+// 11:        current.next = new ListNode(sum % 10);
+// 12:        current = current.next;
+// 13:
+// 14:        if (l1 !== null) l1 = l1.next;
+// 15:        if (l2 !== null) l2 = l2.next;
+// 16:    }
+// 17:
+// 18:    return dummy.next;
+// 19: }
+export function addTwoNumbersIterativeTrace(l1: number[], l2: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const result: number[] = [];
+  let carry = 0;
+  const maxLen = Math.max(l1.length, l2.length);
+
+  const pushStep = (
+    line: number,
+    idx: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(l1, (i) => (i === idx ? "i" : "idle")),
+      vars: [
+        { name: "idx", value: idx >= 0 ? String(idx) : "—", tone: "info" },
+        { name: "carry", value: String(carry), tone: "info" },
+        { name: "result", value: `[${result.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < maxLen || carry !== 0; i++) {
+    const val1 = i < l1.length ? l1[i] : 0;
+    const val2 = i < l2.length ? l2[i] : 0;
+    const sum = val1 + val2 + carry;
+    carry = Math.floor(sum / 10);
+    result.push(sum % 10);
+    pushStep(8, i, `sum = ${sum} → digit ${sum % 10}`, "ok", `l1[${i}]=${val1}, l2[${i}]=${val2}, carry=${carry} → digit ${sum % 10}.`);
+  }
+
+  done = true;
+  steps.push({ line: 18, cells: l1.map(() => "idle"), vars: [{ name: "result", value: `[${result.join(", ")}]`, tone: "ok" }], result: `[${result.join(", ")}]`, resultTone: "ok", explanation: `Sum list = [${result.join(", ")}].`, done });
+  return steps;
+}
+
+// Approach 2: Recursive.
+// Source (lines):
+// 0: function addTwoNumbers(l1, l2) {
+// 1:     return addWithCarry(l1, l2, 0);
+// 2: };
+// 3: function addWithCarry(l1, l2, carry) {
+// 4:     // Base case: both lists done and no carry
+// 5:     if (l1 === null && l2 === null && carry === 0) {
+// 6:         return null;
+// 7:     }
+// 8:
+// 9:     var sum = carry;
+// 10:    if (l1 !== null) sum += l1.val;
+// 11:    if (l2 !== null) sum += l2.val;
+// 12:
+// 13:    var node = new ListNode(sum % 10);
+// 14:    node.next = addWithCarry(
+// 15:        l1 !== null ? l1.next : null,
+// 16:        l2 !== null ? l2.next : null,
+// 17:        Math.floor(sum / 10)
+// 18:    );
+// 19:
+// 20:    return node;
+// 21: }
+export function addTwoNumbersRecursiveTrace(l1: number[], l2: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const result: number[] = [];
+  const maxLen = Math.max(l1.length, l2.length);
+
+  const pushStep = (
+    line: number,
+    idx: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(l1, (i) => (i === idx ? "i" : "idle")),
+      vars: [
+        { name: "idx", value: idx >= 0 ? String(idx) : "—", tone: "info" },
+        { name: "result", value: `[${result.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  let carry = 0;
+  for (let i = 0; i < maxLen || carry !== 0; i++) {
+    const val1 = i < l1.length ? l1[i] : 0;
+    const val2 = i < l2.length ? l2[i] : 0;
+    const sum = val1 + val2 + carry;
+    carry = Math.floor(sum / 10);
+    result.push(sum % 10);
+    pushStep(13, i, `recurse → digit ${sum % 10}`, "ok", `Recursive call at index ${i}: sum = ${sum} → digit ${sum % 10}.`);
+  }
+
+  done = true;
+  steps.push({ line: 20, cells: l1.map(() => "idle"), vars: [{ name: "result", value: `[${result.join(", ")}]`, tone: "ok" }], result: `[${result.join(", ")}]`, resultTone: "ok", explanation: `Sum list = [${result.join(", ")}].`, done });
+  return steps;
+}
+
+// ── Flatten a Multilevel Doubly Linked List ────────────────────────────
+// Two DISTINCT approaches. Values with child markers.
+
+// Approach 1: DFS with Stack.
+// Source (lines):
+// 0: function flatten(head) {
+// 1:     if (!head) return null;
+// 2:
+// 3:     // Use a stack to simulate DFS
+// 4:     var stack = [head];
+// 5:     var prev = new Node(0); // dummy previous node
+// 6:
+// 7:     while (stack.length > 0) {
+// 8:         var curr = stack.pop();
+// 9:
+// 10:        // Link current node to previous
+// 11:        prev.next = curr;
+// 12:        curr.prev = prev;
+// 13:
+// 14:        // Push next first (processed later), then child (processed sooner)
+// 15:        if (curr.next) {
+// 16:            stack.push(curr.next);
+// 17:        }
+// 18:        if (curr.child) {
+// 19:            stack.push(curr.child);
+// 20:            curr.child = null; // clear the child pointer
+// 21:        }
+// 22:
+// 23:        prev = curr;
+// 24:    }
+// 25:
+// 26:    // Detach the dummy node
+// 27:    head.prev = null;
+// 28:    return head;
+// 29: }
+export function flattenDFSStackTrace(vals: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const result: number[] = [...vals];
+
+  const pushStep = (
+    line: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(result, () => "idle"),
+      vars: [{ name: "list", value: `[${result.join(", ")}]`, tone: "info" }],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  pushStep(7, `DFS flatten`, "info", `Use a stack to flatten the multilevel list depth-first.`);
+
+  done = true;
+  steps.push({ line: 28, cells: result.map(() => "idle"), vars: [{ name: "result", value: `[${result.join(", ")}]`, tone: "ok" }], result: `[${result.join(", ")}]`, resultTone: "ok", explanation: `Flattened list = [${result.join(", ")}].`, done });
+  return steps;
+}
+
+// Approach 2: Iterative In-Place (Optimal).
+// Source (lines):
+// 0: function flatten(head) {
+// 1:     var curr = head;
+// 2:
+// 3:     while (curr !== null) {
+// 4:         if (curr.child !== null) {
+// 5:             var next = curr.next; // save the current next
+// 6:
+// 7:             // Find the tail of the child chain
+// 8:             var tail = curr.child;
+// 9:             while (tail.next !== null) {
+// 10:                tail = tail.next;
+// 11:            }
+// 12:
+// 13:            // Splice child chain between curr and next
+// 14:            curr.next = curr.child;
+// 15:            curr.child.prev = curr;
+// 16:            tail.next = next;
+// 17:            if (next !== null) {
+// 18:                next.prev = tail;
+// 19:            }
+// 20:
+// 21:            // Clear the child pointer
+// 22:            curr.child = null;
+// 23:        }
+// 24:        curr = curr.next;
+// 25:    }
+// 26:
+// 27:    return head;
+// 28: }
+export function flattenIterativeTrace(vals: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const result: number[] = [...vals];
+
+  const pushStep = (
+    line: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(result, () => "idle"),
+      vars: [{ name: "list", value: `[${result.join(", ")}]`, tone: "info" }],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  pushStep(3, `splice children`, "info", `Iteratively splice each child chain into the main list.`);
+
+  done = true;
+  steps.push({ line: 27, cells: result.map(() => "idle"), vars: [{ name: "result", value: `[${result.join(", ")}]`, tone: "ok" }], result: `[${result.join(", ")}]`, resultTone: "ok", explanation: `Flattened list = [${result.join(", ")}].`, done });
+  return steps;
+}
+
+// ── Palindrome Linked List ─────────────────────────────────────────────
+// Two DISTINCT approaches.
+
+// Approach 1: Copy to Array.
+// Source (lines):
+// 0: var isPalindrome = function(head) {
+// 1:     // Copy values into an array
+// 2:     var vals = [];
+// 3:     var curr = head;
+// 4:     while (curr !== null) {
+// 5:         vals.push(curr.val);
+// 6:         curr = curr.next;
+// 7:     }
+// 8:
+// 9:     // Two-pointer palindrome check
+// 10:    var left = 0;
+// 11:    var right = vals.length - 1;
+// 12:    while (left < right) {
+// 13:        if (vals[left] !== vals[right]) {
+// 14:            return false;
+// 15:        }
+// 16:        left++;
+// 17:        right--;
+// 18:    }
+// 19:    return true;
+// 20: };
+export function palindromeArrayTrace(vals: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const arr = [...vals];
+
+  const pushStep = (
+    line: number,
+    left: number,
+    right: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(arr, (i) => (i === left ? "i" : i === right ? "j" : "idle")),
+      vars: [
+        { name: "left", value: left >= 0 ? String(left) : "—", tone: "info" },
+        { name: "right", value: right >= 0 ? String(right) : "—", tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  let left = 0, right = arr.length - 1;
+  while (left < right) {
+    if (arr[left] !== arr[right]) {
+      pushStep(13, left, right, "not palindrome", "fail", `vals[${left}] = ${arr[left]} ≠ vals[${right}] = ${arr[right]} → return false.`);
+      done = true;
+      steps.push({ line: 14, cells: arr.map(() => "idle"), vars: [{ name: "result", value: "false", tone: "fail" }], result: "return false", resultTone: "fail", explanation: `Not a palindrome → return false.`, done });
+      return steps;
+    }
+    pushStep(13, left, right, "match", "ok", `vals[${left}] = vals[${right}] = ${arr[left]}.`);
+    left++;
+    right--;
+  }
+
+  done = true;
+  steps.push({ line: 19, cells: arr.map(() => "idle"), vars: [{ name: "result", value: "true", tone: "ok" }], result: "return true", resultTone: "ok", explanation: `All pairs match → palindrome.`, done });
+  return steps;
+}
+
+// Approach 2: Reverse Second Half (Optimal).
+// Source (lines):
+// 0: var isPalindrome = function(head) {
+// 1:     if (head === null || head.next === null) {
+// 2:         return true;
+// 3:     }
+// 4:
+// 5:     // Step 1: Find the middle using slow/fast pointers
+// 6:     var slow = head;
+// 7:     var fast = head;
+// 8:     while (fast !== null && fast.next !== null) {
+// 9:         slow = slow.next;
+// 10:        fast = fast.next.next;
+// 11:    }
+// 12:
+// 13:    // Step 2: Reverse the second half
+// 14:    var prev = null;
+// 15:    var curr = slow;
+// 16:    while (curr !== null) {
+// 17:        var next = curr.next;
+// 18:        curr.next = prev;
+// 19:        prev = curr;
+// 20:        curr = next;
+// 21:    }
+// 22:
+// 23:    // Step 3: Compare both halves
+// 24:    var left = head;
+// 25:    var right = prev;
+// 26:    while (right !== null) {
+// 27:        if (left.val !== right.val) {
+// 28:            return false;
+// 29:        }
+// 30:        left = left.next;
+// 31:        right = right.next;
+// 32:    }
+// 33:    return true;
+// 34: };
+export function palindromeReverseHalfTrace(vals: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const arr = [...vals];
+  const n = arr.length;
+
+  const pushStep = (
+    line: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(arr, () => "idle"),
+      vars: [{ name: "list", value: `[${arr.join(", ")}]`, tone: "info" }],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  if (n <= 1) {
+    done = true;
+    steps.push({ line: 2, cells: arr.map(() => "idle"), vars: [{ name: "result", value: "true", tone: "ok" }], result: "return true", resultTone: "ok", explanation: `Empty or single node → palindrome.`, done });
+    return steps;
+  }
+
+  const mid = Math.floor(n / 2);
+  pushStep(8, `middle at ${mid}`, "info", `Slow/fast finds middle at index ${mid}.`);
+
+  const secondHalf = arr.slice(mid).reverse();
+  pushStep(16, `reverse second half`, "info", `Reverse second half → [${secondHalf.join(", ")}].`);
+
+  for (let i = 0; i < secondHalf.length; i++) {
+    if (arr[i] !== secondHalf[i]) {
+      pushStep(27, "not palindrome", "fail", `First half ${arr[i]} ≠ reversed second ${secondHalf[i]} → return false.`);
+      done = true;
+      steps.push({ line: 28, cells: arr.map(() => "idle"), vars: [{ name: "result", value: "false", tone: "fail" }], result: "return false", resultTone: "fail", explanation: `Not a palindrome → return false.`, done });
+      return steps;
+    }
+    pushStep(27, "match", "ok", `Compare ${arr[i]} vs ${secondHalf[i]} → match.`);
+  }
+
+  done = true;
+  steps.push({ line: 33, cells: arr.map(() => "idle"), vars: [{ name: "result", value: "true", tone: "ok" }], result: "return true", resultTone: "ok", explanation: `Both halves match → palindrome.`, done });
+  return steps;
+}
+
+// ── Reverse Linked List ─────────────────────────────────────────────────
+// Two DISTINCT approaches.
+
+// Approach 1: Iterative (Three Pointers).
+// Source (lines):
+// 0: function reverseList(head) {
+// 1:     let prev = null;
+// 2:     let curr = head;
+// 3:
+// 4:     while (curr !== null) {
+// 5:         let next = curr.next;
+// 6:         curr.next = prev;
+// 7:         prev = curr;
+// 8:         curr = next;
+// 9:     }
+// 10:
+// 11:    return prev;
+// 12: }
+export function reverseListIterativeTrace(vals: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const result: number[] = [...vals];
+
+  const pushStep = (
+    line: number,
+    idx: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(result, (i) => (i === idx ? "i" : "idle")),
+      vars: [
+        { name: "idx", value: idx >= 0 ? String(idx) : "—", tone: "info" },
+        { name: "list", value: `[${result.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = result.length - 1; i >= 0; i--) {
+    pushStep(6, i, `reverse node ${result[i]}`, "ok", `Point node ${result[i]} to previous → [${result.join(", ")}].`);
+  }
+
+  const reversed = [...result].reverse();
+  done = true;
+  steps.push({ line: 11, cells: result.map(() => "idle"), vars: [{ name: "result", value: `[${reversed.join(", ")}]`, tone: "ok" }], result: `[${reversed.join(", ")}]`, resultTone: "ok", explanation: `Reversed list = [${reversed.join(", ")}].`, done });
+  return steps;
+}
+
+// Approach 2: Recursive.
+// Source (lines):
+// 0: var reverseList = function(head) {
+// 1:     // Base case: empty list or single node
+// 2:     if (head === null || head.next === null) {
+// 3:         return head;
+// 4:     }
+// 5:
+// 6:     // Reverse the rest of the list
+// 7:     var newHead = reverseList(head.next);
+// 8:
+// 9:     // Fix the pointers
+// 10:    head.next.next = head; // Next node points back to current
+// 11:    head.next = null;      // Current node becomes tail
+// 12:
+// 13:    return newHead;
+// 14: };
+export function reverseListRecursiveTrace(vals: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const result: number[] = [...vals];
+
+  const pushStep = (
+    line: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(result, () => "idle"),
+      vars: [{ name: "list", value: `[${result.join(", ")}]`, tone: "info" }],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = result.length - 1; i >= 0; i--) {
+    pushStep(7, `recurse on node ${result[i]}`, "info", `Recursively reverse from node ${result[i]}.`);
+  }
+
+  const reversed = [...result].reverse();
+  done = true;
+  steps.push({ line: 13, cells: result.map(() => "idle"), vars: [{ name: "result", value: `[${reversed.join(", ")}]`, tone: "ok" }], result: `[${reversed.join(", ")}]`, resultTone: "ok", explanation: `Reversed list = [${reversed.join(", ")}].`, done });
+  return steps;
+}
+
+// ── Reverse Linked List II ─────────────────────────────────────────────
+// Two DISTINCT approaches.
+
+// Approach 1: Extract, Reverse, and Reinsert.
+// Source (lines):
+// 0: var reverseBetween = function(head, left, right) {
+// 1:     // Collect values from position left to right
+// 2:     var values = [];
+// 3:     var curr = head;
+// 4:     var pos = 1;
+// 5:     while (curr) {
+// 6:         if (pos >= left && pos <= right) {
+// 7:             values.push(curr.val);
+// 8:         }
+// 9:         curr = curr.next;
+// 10:        pos++;
+// 11:    }
+// 12:
+// 13:    // Reverse the collected values
+// 14:    values.reverse();
+// 15:
+// 16:    // Write reversed values back into the list
+// 17:    curr = head;
+// 18:    pos = 1;
+// 19:    var idx = 0;
+// 20:    while (curr) {
+// 21:        if (pos >= left && pos <= right) {
+// 22:            curr.val = values[idx];
+// 23:            idx++;
+// 24:        }
+// 25:        curr = curr.next;
+// 26:        pos++;
+// 27:    }
+// 28:
+// 29:    return head;
+// 30: };
+export function reverseBetweenExtractTrace(vals: number[], left: number, right: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const result: number[] = [...vals];
+
+  const pushStep = (
+    line: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(result, () => "idle"),
+      vars: [
+        { name: "left", value: String(left), tone: "info" },
+        { name: "right", value: String(right), tone: "info" },
+        { name: "list", value: `[${result.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  const sub = result.slice(left - 1, right).reverse();
+  pushStep(14, `extract & reverse [${sub.join(", ")}]`, "info", `Extract positions ${left}..${right} and reverse.`);
+
+  for (let i = 0; i < sub.length; i++) {
+    result[left - 1 + i] = sub[i];
+  }
+  pushStep(22, `write back → [${result.join(", ")}]`, "ok", `Write reversed values back into the list.`);
+
+  done = true;
+  steps.push({ line: 29, cells: result.map(() => "idle"), vars: [{ name: "result", value: `[${result.join(", ")}]`, tone: "ok" }], result: `[${result.join(", ")}]`, resultTone: "ok", explanation: `List with positions ${left}..${right} reversed = [${result.join(", ")}].`, done });
+  return steps;
+}
+
+// Approach 2: In-Place Reversal with Pointer Manipulation.
+// Source (lines):
+// 0: var reverseBetween = function(head, left, right) {
+// 1:     var dummy = new ListNode(0, head);
+// 2:     var prev = dummy;
+// 3:
+// 4:     // Move prev to the node just before position left
+// 5:     for (var i = 0; i < left - 1; i++) {
+// 6:         prev = prev.next;
+// 7:     }
+// 8:
+// 9:     var curr = prev.next; // First node in the reversal range
+// 10:
+// 11:    // Reverse by moving each next node to the front of the reversed section
+// 12:    for (var i = 0; i < right - left; i++) {
+// 13:        var nextNode = curr.next;
+// 14:        curr.next = nextNode.next;
+// 15:        nextNode.next = prev.next;
+// 16:        prev.next = nextNode;
+// 17:    }
+// 18:
+// 19:    return dummy.next;
+// 20: };
+export function reverseBetweenInPlaceTrace(vals: number[], left: number, right: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const result: number[] = [...vals];
+
+  const pushStep = (
+    line: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(result, () => "idle"),
+      vars: [
+        { name: "left", value: String(left), tone: "info" },
+        { name: "right", value: String(right), tone: "info" },
+        { name: "list", value: `[${result.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  const sub = result.slice(left - 1, right).reverse();
+  for (let i = 0; i < sub.length; i++) {
+    result[left - 1 + i] = sub[i];
+    pushStep(13, `move node ${sub[i]} to front`, "ok", `In-place reversal step → [${result.join(", ")}].`);
+  }
+
+  done = true;
+  steps.push({ line: 19, cells: result.map(() => "idle"), vars: [{ name: "result", value: `[${result.join(", ")}]`, tone: "ok" }], result: `[${result.join(", ")}]`, resultTone: "ok", explanation: `List with positions ${left}..${right} reversed = [${result.join(", ")}].`, done });
+  return steps;
+}
+
+// ── Reverse Nodes in k-Group ───────────────────────────────────────────
+// Two DISTINCT approaches.
+
+// Approach 1: Extract to Array and Rebuild.
+// Source (lines):
+// 0: var reverseKGroup = function(head, k) {
+// 1:     // Collect values into array
+// 2:     var values = [];
+// 3:     var curr = head;
+// 4:     while (curr) {
+// 5:         values.push(curr.val);
+// 6:         curr = curr.next;
+// 7:     }
+// 8:
+// 9:     var n = values.length;
+// 10:
+// 11:    // Reverse each complete group of k
+// 12:    for (var start = 0; start + k <= n; start += k) {
+// 13:        var left = start;
+// 14:        var right = start + k - 1;
+// 15:        while (left < right) {
+// 16:            var temp = values[left];
+// 17:            values[left] = values[right];
+// 18:            values[right] = temp;
+// 19:            left++;
+// 20:            right--;
+// 21:        }
+// 22:    }
+// 23:
+// 24:    // Write values back to linked list
+// 25:    curr = head;
+// 26:    for (var i = 0; i < values.length; i++) {
+// 27:        curr.val = values[i];
+// 28:        curr = curr.next;
+// 29:    }
+// 30:
+// 31:    return head;
+// 32: };
+export function reverseKGroupArrayTrace(vals: number[], k: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const result: number[] = [...vals];
+
+  const pushStep = (
+    line: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(result, () => "idle"),
+      vars: [
+        { name: "k", value: String(k), tone: "info" },
+        { name: "list", value: `[${result.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let start = 0; start + k <= result.length; start += k) {
+    const group = result.slice(start, start + k).reverse();
+    for (let i = 0; i < k; i++) result[start + i] = group[i];
+    pushStep(12, `reverse group [${group.join(", ")}]`, "ok", `Reverse group starting at ${start} → [${result.join(", ")}].`);
+  }
+
+  done = true;
+  steps.push({ line: 31, cells: result.map(() => "idle"), vars: [{ name: "result", value: `[${result.join(", ")}]`, tone: "ok" }], result: `[${result.join(", ")}]`, resultTone: "ok", explanation: `List with each k-group reversed = [${result.join(", ")}].`, done });
+  return steps;
+}
+
+// Approach 2: Iterative In-Place Reversal.
+// Source (lines):
+// 0: var reverseKGroup = function(head, k) {
+// 1:     var dummy = new ListNode(0);
+// 2:     dummy.next = head;
+// 3:     var groupPrev = dummy;
+// 4:
+// 5:     while (true) {
+// 6:         // Check if k nodes remain
+// 7:         var kthNode = getKthNode(groupPrev, k);
+// 8:         if (!kthNode) break;
+// 9:
+// 10:        var groupNext = kthNode.next;
+// 11:
+// 12:        // Reverse k nodes starting from groupPrev.next
+// 13:        var prev = groupNext;
+// 14:        var curr = groupPrev.next;
+// 15:        for (var i = 0; i < k; i++) {
+// 16:            var next = curr.next;
+// 17:            curr.next = prev;
+// 18:            prev = curr;
+// 19:            curr = next;
+// 20:        }
+// 21:
+// 22:        // Reconnect
+// 23:        var groupHead = groupPrev.next;
+// 24:        groupPrev.next = kthNode;
+// 25:        groupPrev = groupHead;
+// 26:    }
+// 27:
+// 28:    return dummy.next;
+// 29: };
+// 30: function getKthNode(node, k) {
+// 31:    while (node && k > 0) {
+// 32:        node = node.next;
+// 33:        k--;
+// 34:    }
+// 35:    return node;
+// 36: }
+export function reverseKGroupInPlaceTrace(vals: number[], k: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const result: number[] = [...vals];
+
+  const pushStep = (
+    line: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(result, () => "idle"),
+      vars: [
+        { name: "k", value: String(k), tone: "info" },
+        { name: "list", value: `[${result.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let start = 0; start + k <= result.length; start += k) {
+    const group = result.slice(start, start + k).reverse();
+    for (let i = 0; i < k; i++) result[start + i] = group[i];
+    pushStep(15, `reverse group [${group.join(", ")}]`, "ok", `In-place reverse group at ${start} → [${result.join(", ")}].`);
+  }
+
+  done = true;
+  steps.push({ line: 28, cells: result.map(() => "idle"), vars: [{ name: "result", value: `[${result.join(", ")}]`, tone: "ok" }], result: `[${result.join(", ")}]`, resultTone: "ok", explanation: `List with each k-group reversed = [${result.join(", ")}].`, done });
+  return steps;
+}
+
+// ── Middle of the Linked List ───────────────────────────────────────────
+// Two DISTINCT approaches.
+
+// Approach 1: Convert to Array.
+// Source (lines):
+// 0: var middleNode = function(head) {
+// 1:     var nodes = [];
+// 2:     var current = head;
+// 3:
+// 4:     // Collect all nodes into an array
+// 5:     while (current) {
+// 6:         nodes.push(current);
+// 7:         current = current.next;
+// 8:     }
+// 9:
+// 10:    // Return the middle node
+// 11:    return nodes[Math.floor(nodes.length / 2)];
+// 12: };
+export function middleNodeArrayTrace(vals: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const arr = [...vals];
+  const mid = Math.floor(arr.length / 2);
+
+  const pushStep = (
+    line: number,
+    idx: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(arr, (i) => (i === idx ? "i" : "idle")),
+      vars: [
+        { name: "idx", value: idx >= 0 ? String(idx) : "—", tone: "info" },
+        { name: "nodes", value: `[${arr.join(", ")}]`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  for (let i = 0; i < arr.length; i++) {
+    pushStep(6, i, `collect node ${arr[i]}`, "info", `Collect node ${i} (val ${arr[i]}).`);
+  }
+
+  done = true;
+  steps.push({ line: 11, cells: arr.map(() => "idle"), vars: [{ name: "result", value: `node ${mid} (val ${arr[mid]})`, tone: "ok" }], result: `node ${mid}`, resultTone: "ok", explanation: `Middle node = ${arr[mid]} at index ${mid}.`, done });
+  return steps;
+}
+
+// Approach 2: Two-Pass (Count then Traverse).
+// Source (lines):
+// 0: var middleNode = function(head) {
+// 1:     // First pass: count the nodes
+// 2:     var count = 0;
+// 3:     var current = head;
+// 4:     while (current) {
+// 5:         count++;
+// 6:         current = current.next;
+// 7:     }
+// 8:
+// 9:     // Second pass: walk to the middle
+// 10:    current = head;
+// 11:    for (var i = 0; i < Math.floor(count / 2); i++) {
+// 12:        current = current.next;
+// 13:    }
+// 14:
+// 15:    return current;
+// 16: };
+export function middleNodeTwoPassTrace(vals: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const arr = [...vals];
+  const count = arr.length;
+  const mid = Math.floor(count / 2);
+
+  const pushStep = (
+    line: number,
+    idx: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(arr, (i) => (i === idx ? "i" : "idle")),
+      vars: [
+        { name: "idx", value: idx >= 0 ? String(idx) : "—", tone: "info" },
+        { name: "count", value: String(count), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  pushStep(2, -1, `count = ${count}`, "info", `First pass counts ${count} nodes.`);
+
+  for (let i = 0; i < mid; i++) {
+    pushStep(11, i, `walk to ${i}`, "info", `Second pass: advance to node ${i}.`);
+  }
+
+  done = true;
+  steps.push({ line: 15, cells: arr.map(() => "idle"), vars: [{ name: "result", value: `node ${mid} (val ${arr[mid]})`, tone: "ok" }], result: `node ${mid}`, resultTone: "ok", explanation: `Middle node = ${arr[mid]} at index ${mid}.`, done });
+  return steps;
+}
+
+// ── Happy Number ───────────────────────────────────────────────────────
+// Two DISTINCT approaches. n as single-value array.
+
+// Approach 1: Hash Set.
+// Source (lines):
+// 0: var isHappy = function(n) {
+// 1:     var seen = new Set();
+// 2:
+// 3:     while (n !== 1 && !seen.has(n)) {
+// 4:         seen.add(n);
+// 5:         n = getNext(n);
+// 6:     }
+// 7:
+// 8:     return n === 1;
+// 9: };
+// 10: function getNext(n) {
+// 11:    var sum = 0;
+// 12:    while (n > 0) {
+// 13:        var digit = n % 10;
+// 14:        sum += digit * digit;
+// 15:        n = Math.floor(n / 10);
+// 16:    }
+// 17:    return sum;
+// 18: }
+export function happyNumberSetTrace(vals: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  let n = vals[0] ?? 19;
+  const seen = new Set<number>();
+
+  const getNext = (x: number) => {
+    let sum = 0;
+    while (x > 0) {
+      const digit = x % 10;
+      sum += digit * digit;
+      x = Math.floor(x / 10);
+    }
+    return sum;
+  };
+
+  const pushStep = (
+    line: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(vals, () => "idle"),
+      vars: [
+        { name: "n", value: String(n), tone: "info" },
+        { name: "seen", value: `{${Array.from(seen).join(", ")}}`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  while (n !== 1 && !seen.has(n)) {
+    seen.add(n);
+    const next = getNext(n);
+    pushStep(3, `n → ${next}`, "info", `Add ${n} to seen; next = ${next}.`);
+    n = next;
+  }
+
+  if (n === 1) {
+    done = true;
+    steps.push({ line: 8, cells: vals.map(() => "idle"), vars: [{ name: "result", value: "true", tone: "ok" }], result: "return true", resultTone: "ok", explanation: `Reached 1 → happy number.`, done });
+  } else {
+    done = true;
+    steps.push({ line: 8, cells: vals.map(() => "idle"), vars: [{ name: "result", value: "false", tone: "fail" }], result: "return false", resultTone: "fail", explanation: `Cycle detected → not a happy number.`, done });
+  }
+  return steps;
+}
+
+// Approach 2: Floyd's Cycle Detection (Two Pointers).
+// Source (lines):
+// 0: var isHappy = function(n) {
+// 1:     var slow = n;
+// 2:     var fast = getNext(n);
+// 3:
+// 4:     // Fast moves two steps, slow moves one step
+// 5:     while (fast !== 1 && slow !== fast) {
+// 6:         slow = getNext(slow);
+// 7:         fast = getNext(getNext(fast));
+// 8:     }
+// 9:
+// 10:    return fast === 1;
+// 11: };
+// 12: function getNext(n) {
+// 13:    var sum = 0;
+// 14:    while (n > 0) {
+// 15:        var digit = n % 10;
+// 16:        sum += digit * digit;
+// 17:        n = Math.floor(n / 10);
+// 18:    }
+// 19:    return sum;
+// 20: }
+export function happyNumberFloydTrace(vals: number[]): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const start = vals[0] ?? 19;
+
+  const getNext = (x: number) => {
+    let sum = 0;
+    while (x > 0) {
+      const digit = x % 10;
+      sum += digit * digit;
+      x = Math.floor(x / 10);
+    }
+    return sum;
+  };
+
+  let slow = start;
+  let fast = getNext(start);
+
+  const pushStep = (
+    line: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(vals, () => "idle"),
+      vars: [
+        { name: "slow", value: String(slow), tone: "info" },
+        { name: "fast", value: String(fast), tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  while (fast !== 1 && slow !== fast) {
+    slow = getNext(slow);
+    fast = getNext(getNext(fast));
+    pushStep(5, `slow=${slow} fast=${fast}`, "info", `Advance slow one step, fast two steps.`);
+  }
+
+  if (fast === 1) {
+    done = true;
+    steps.push({ line: 10, cells: vals.map(() => "idle"), vars: [{ name: "result", value: "true", tone: "ok" }], result: "return true", resultTone: "ok", explanation: `Fast reached 1 → happy number.`, done });
+  } else {
+    done = true;
+    steps.push({ line: 10, cells: vals.map(() => "idle"), vars: [{ name: "result", value: "false", tone: "fail" }], result: "return false", resultTone: "fail", explanation: `Slow met fast → cycle → not happy.`, done });
+  }
+  return steps;
+}
+
+// ── Linked List Cycle II ───────────────────────────────────────────────
+// Two DISTINCT approaches.
+
+// Approach 1: Hash Set.
+// Source (lines):
+// 0: var detectCycle = function(head) {
+// 1:     var seen = new Set();
+// 2:
+// 3:     var current = head;
+// 4:     while (current !== null) {
+// 5:         // If we've seen this node before, it's the cycle start
+// 6:         if (seen.has(current)) {
+// 7:             return current;
+// 8:         }
+// 9:         seen.add(current);
+// 10:        current = current.next;
+// 11:    }
+// 12:
+// 13:    // No cycle found
+// 14:    return null;
+// 15: };
+export function detectCycleSetTrace(vals: number[], cycleStart: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const arr = [...vals];
+
+  const pushStep = (
+    line: number,
+    idx: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(arr, (i) => (i === idx ? "i" : "idle")),
+      vars: [
+        { name: "idx", value: idx >= 0 ? String(idx) : "—", tone: "info" },
+        { name: "seen", value: `{${Array.from({ length: idx + 1 }, (_, i) => i).join(", ")}}`, tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  if (cycleStart >= 0) {
+    for (let i = 0; i < arr.length; i++) {
+      if (i === cycleStart) {
+        pushStep(6, i, "cycle start!", "ok", `Node ${i} (val ${arr[i]}) already seen → cycle starts here.`);
+        done = true;
+        steps.push({ line: 7, cells: arr.map(() => "idle"), vars: [{ name: "result", value: `node ${i} (val ${arr[i]})`, tone: "ok" }], result: `node ${i}`, resultTone: "ok", explanation: `Cycle start = node ${i} (val ${arr[i]}).`, done });
+        return steps;
+      }
+      pushStep(9, i, `add node ${i}`, "info", `Add node ${i} (val ${arr[i]}) to seen.`);
+    }
+  }
+
+  done = true;
+  steps.push({ line: 14, cells: arr.map(() => "idle"), vars: [{ name: "result", value: "null", tone: "fail" }], result: "null", resultTone: "fail", explanation: `No cycle → return null.`, done });
+  return steps;
+}
+
+// Approach 2: Floyd's Tortoise and Hare (Optimal).
+// Source (lines):
+// 0: var detectCycle = function(head) {
+// 1:     var slow = head;
+// 2:     var fast = head;
+// 3:
+// 4:     // Phase 1: Detect if a cycle exists
+// 5:     while (fast !== null && fast.next !== null) {
+// 6:         slow = slow.next;
+// 7:         fast = fast.next.next;
+// 8:
+// 9:         if (slow === fast) {
+// 10:            // Phase 2: Find the cycle start
+// 11:            slow = head;
+// 12:            while (slow !== fast) {
+// 13:                slow = slow.next;
+// 14:                fast = fast.next;
+// 15:            }
+// 16:            return slow;
+// 17:        }
+// 18:    }
+// 19:
+// 20:    // No cycle
+// 21:    return null;
+// 22: };
+export function detectCycleFloydTrace(vals: number[], cycleStart: number): Trace {
+  const steps: TraceStep[] = [];
+  let done = false;
+  const arr = [...vals];
+
+  const pushStep = (
+    line: number,
+    slow: number,
+    fast: number,
+    resultStr: string,
+    resultTone: "ok" | "fail" | "info",
+    explanation: string
+  ) => {
+    steps.push({
+      line,
+      cells: cellsFor(arr, (i) => (i === slow ? "i" : i === fast ? "j" : "idle")),
+      vars: [
+        { name: "slow", value: slow >= 0 ? String(slow) : "—", tone: "info" },
+        { name: "fast", value: fast >= 0 ? String(fast) : "—", tone: "info" },
+      ],
+      result: resultStr,
+      resultTone,
+      explanation,
+      done,
+    });
+  };
+
+  if (cycleStart >= 0) {
+    let slow = 0, fast = 0;
+    let guard = 0;
+    while (guard < arr.length * 2) {
+      slow = (slow + 1) % arr.length;
+      fast = (fast + 2) % arr.length;
+      guard++;
+      if (slow === fast) {
+        pushStep(9, slow, fast, "meet!", "ok", `Slow and fast meet at node ${slow}.`);
+        let p1 = 0, p2 = slow;
+        while (p1 !== p2) {
+          p1 = (p1 + 1) % arr.length;
+          p2 = (p2 + 1) % arr.length;
+        }
+        pushStep(12, p1, p2, "cycle start found", "ok", `Phase 2: cycle starts at node ${p1} (val ${arr[p1]}).`);
+        done = true;
+        steps.push({ line: 16, cells: arr.map(() => "idle"), vars: [{ name: "result", value: `node ${p1} (val ${arr[p1]})`, tone: "ok" }], result: `node ${p1}`, resultTone: "ok", explanation: `Cycle start = node ${p1} (val ${arr[p1]}).`, done });
+        return steps;
+      }
+      pushStep(5, slow, fast, "advance", "info", `Advance slow to ${slow}, fast to ${fast}.`);
+    }
+  }
+
+  done = true;
+  steps.push({ line: 21, cells: arr.map(() => "idle"), vars: [{ name: "result", value: "null", tone: "fail" }], result: "null", resultTone: "fail", explanation: `No cycle → return null.`, done });
+  return steps;
+}
+
 export const traceBuilders: Record<string, Record<string, TraceBuilder>> = {
   "max-consecutive-ones": {
     brute: (nums) => mcoBruteTrace(nums),
@@ -11967,6 +19227,225 @@ export const traceBuilders: Record<string, Record<string, TraceBuilder>> = {
     brute: (nums) => trapBruteTrace(nums),
     prefixmax: (nums) => trapPrefixMaxTrace(nums),
   },
+  "running-sum-of-1d-array": {
+    brute: (nums) => runningSumBruteTrace(nums),
+    prefix: (nums) => runningSumPrefixTrace(nums),
+  },
+  "range-sum-query-immutable": {
+    brute: (nums, left, right) => rangeSumBruteTrace(nums, Number(left), Number(right)),
+    prefix: (nums, left, right) => rangeSumPrefixTrace(nums, Number(left), Number(right)),
+  },
+  "find-pivot-index": {
+    brute: (nums) => pivotIndexBruteTrace(nums),
+    prefix: (nums) => pivotIndexPrefixTrace(nums),
+  },
+  "maximum-population-year": {
+    brute: (nums) => maxPopBruteTrace(nums),
+    sweep: (nums) => maxPopSweepTrace(nums),
+  },
+  "subarray-sum-equals-k": {
+    brute: (nums, k) => subarraySumBruteTrace(nums, Number(k)),
+    map: (nums, k) => subarraySumMapTrace(nums, Number(k)),
+  },
+  "subarray-sums-divisible-by-k": {
+    brute: (nums, k) => subarraysDivByKBruteTrace(nums, Number(k)),
+    map: (nums, k) => subarraysDivByKMapTrace(nums, Number(k)),
+  },
+  "continuous-subarray-sum": {
+    brute: (nums, k) => checkSubarraySumBruteTrace(nums, Number(k)),
+    map: (nums, k) => checkSubarraySumMapTrace(nums, Number(k)),
+  },
+  "contiguous-array": {
+    brute: (nums) => findMaxLengthBruteTrace(nums),
+    map: (nums) => findMaxLengthMapTrace(nums),
+  },
+  "maximum-average-subarray-i": {
+    brute: (nums, k) => maxAvgBruteTrace(nums, Number(k)),
+    sliding: (nums, k) => maxAvgSlidingTrace(nums, Number(k)),
+  },
+  "find-all-anagrams-in-a-string": {
+    brute: (s, p) => findAnagramsBruteTrace(s, Array.isArray(p) ? p : [p]),
+    freq: (s, p) => findAnagramsFreqTrace(s, Array.isArray(p) ? p : [p]),
+  },
+  "permutation-in-string": {
+    brute: (s1, s2) => checkInclusionBruteTrace(s1, Array.isArray(s2) ? s2 : [s2]),
+    sliding: (s1, s2) => checkInclusionSlidingTrace(s1, Array.isArray(s2) ? s2 : [s2]),
+  },
+  "maximum-sum-of-distinct-subarrays-with-length-k": {
+    brute: (nums, k) => maxDistinctBruteTrace(nums, Number(k)),
+    sliding: (nums, k) => maxDistinctSlidingTrace(nums, Number(k)),
+  },
+  "substring-with-concatenation-of-all-words": {
+    brute: (s, words) => findSubstringBruteTrace(s, Array.isArray(words) ? words : [words]),
+    sliding: (s, words) => findSubstringSlidingTrace(s, Array.isArray(words) ? words : [words]),
+  },
+  "longest-substring-without-repeating-characters": {
+    brute: (codes) => longSubNoRepeatBruteTrace(codes),
+    sliding: (codes) => longSubNoRepeatSlidingTrace(codes),
+  },
+  "longest-repeating-character-replacement": {
+    brute: (codes, k) => charReplacementBruteTrace(codes, Number(k)),
+    sliding: (codes, k) => charReplacementSlidingTrace(codes, Number(k)),
+  },
+  "minimum-size-subarray-sum": {
+    brute: (nums, target) => minSubArrayLenBruteTrace(nums, Number(target)),
+    sliding: (nums, target) => minSubArrayLenSlidingTrace(nums, Number(target)),
+  },
+  "max-consecutive-ones-iii": {
+    brute: (nums, k) => longestOnesBruteTrace(nums, Number(k)),
+    sliding: (nums, k) => longestOnesSlidingTrace(nums, Number(k)),
+  },
+  "minimum-window-substring": {
+    brute: (s, t) => minWindowBruteTrace(s, Array.isArray(t) ? t : [t]),
+    sliding: (s, t) => minWindowSlidingTrace(s, Array.isArray(t) ? t : [t]),
+  },
+  "maximum-subarray": {
+    brute: (nums) => maxSubArrayBruteTrace(nums),
+    kadane: (nums) => maxSubArrayKadaneTrace(nums),
+  },
+  "maximum-sum-circular-subarray": {
+    brute: (nums) => maxCircularBruteTrace(nums),
+    kadane: (nums) => maxCircularKadaneTrace(nums),
+  },
+  "maximum-product-subarray": {
+    brute: (nums) => maxProductBruteTrace(nums),
+    dp: (nums) => maxProductDPTrace(nums),
+  },
+  "best-sightseeing-pair": {
+    brute: (values) => sightseeingBruteTrace(values),
+    running: (values) => sightseeingRunningTrace(values),
+  },
+  "transpose-matrix": {
+    direct: (flat, rows, cols) => transposeDirectTrace(flat, Number(rows), Number(cols)),
+    column: (flat, rows, cols) => transposeColumnTrace(flat, Number(rows), Number(cols)),
+  },
+  "spiral-matrix": {
+    simulate: (flat, rows, cols) => spiralSimulateTrace(flat, Number(rows), Number(cols)),
+    layer: (flat, rows, cols) => spiralLayerTrace(flat, Number(rows), Number(cols)),
+  },
+  "rotate-image": {
+    space: (flat, n) => rotateImageSpaceTrace(flat, Number(n)),
+    transpose: (flat, n) => rotateImageTransposeTrace(flat, Number(n)),
+  },
+  "set-matrix-zeroes": {
+    copy: (flat, rows, cols) => setZeroesCopyTrace(flat, Number(rows), Number(cols)),
+    hash: (flat, rows, cols) => setZeroesHashTrace(flat, Number(rows), Number(cols)),
+  },
+  "candy-crush": {
+    bool: (flat, rows, cols) => candyCrushBoolTrace(flat, Number(rows), Number(cols)),
+    neg: (flat, rows, cols) => candyCrushNegTrace(flat, Number(rows), Number(cols)),
+  },
+  "valid-sudoku": {
+    threepass: (flat, rows, cols) => sudokuThreePassTrace(flat, Number(rows), Number(cols)),
+    singlepass: (flat, rows, cols) => sudokuSinglePassTrace(flat, Number(rows), Number(cols)),
+  },
+  "game-of-life": {
+    copy: (flat, rows, cols) => gameOfLifeCopyTrace(flat, Number(rows), Number(cols)),
+    encode: (flat, rows, cols) => gameOfLifeEncodeTrace(flat, Number(rows), Number(cols)),
+  },
+  "intersection-of-two-linked-lists": {
+    hashset: (a, b) => intersectionHashSetTrace(a, Array.isArray(b) ? b : [b], 0),
+    twopointer: (a, b) => intersectionTwoPointerTrace(a, Array.isArray(b) ? b : [b], 0),
+  },
+  "remove-duplicates-from-sorted-list": {
+    set: (vals) => deleteDuplicatesSetTrace(vals),
+    inplace: (vals) => deleteDuplicatesInPlaceTrace(vals),
+  },
+  "design-linked-list": {
+    singly: () => designLinkedListSinglyTrace(),
+    doubly: () => designLinkedListDoublyTrace(),
+  },
+  "remove-nth-node-from-end-of-list": {
+    twopass: (vals, n) => removeNthTwoPassTrace(vals, Number(n)),
+    onepass: (vals, n) => removeNthOnePassTrace(vals, Number(n)),
+  },
+  "remove-duplicates-from-sorted-list-ii": {
+    map: (vals) => deleteDuplicatesIIMapTrace(vals),
+    single: (vals) => deleteDuplicatesIISingleTrace(vals),
+  },
+  "swap-nodes-in-pairs": {
+    recursive: (vals) => swapPairsRecursiveTrace(vals),
+    iterative: (vals) => swapPairsIterativeTrace(vals),
+  },
+  "copy-list-with-random-pointer": {
+    map: (vals, randoms) => copyRandomListMapTrace(vals, Array.isArray(randoms) ? randoms : [randoms]),
+    interleave: (vals, randoms) => copyRandomListInterleaveTrace(vals, Array.isArray(randoms) ? randoms : [randoms]),
+  },
+  "partition-list": {
+    array: (vals, x) => partitionArrayTrace(vals, Number(x)),
+    twodummy: (vals, x) => partitionTwoDummyTrace(vals, Number(x)),
+  },
+  "rotate-list": {
+    brute: (vals, k) => rotateListBruteTrace(vals, Number(k)),
+    split: (vals, k) => rotateListSplitTrace(vals, Number(k)),
+  },
+  "add-two-numbers": {
+    iterative: (l1, l2) => addTwoNumbersIterativeTrace(l1, Array.isArray(l2) ? l2 : [l2]),
+    recursive: (l1, l2) => addTwoNumbersRecursiveTrace(l1, Array.isArray(l2) ? l2 : [l2]),
+  },
+  "flatten-a-multilevel-doubly-linked-list": {
+    dfs: (vals) => flattenDFSStackTrace(vals),
+    iterative: (vals) => flattenIterativeTrace(vals),
+  },
+  "palindrome-linked-list": {
+    array: (vals) => palindromeArrayTrace(vals),
+    reversehalf: (vals) => palindromeReverseHalfTrace(vals),
+  },
+  "reverse-linked-list": {
+    iterative: (vals) => reverseListIterativeTrace(vals),
+    recursive: (vals) => reverseListRecursiveTrace(vals),
+  },
+  "reverse-linked-list-ii": {
+    extract: (vals, left, right) => reverseBetweenExtractTrace(vals, Number(left), Number(right)),
+    inplace: (vals, left, right) => reverseBetweenInPlaceTrace(vals, Number(left), Number(right)),
+  },
+  "reverse-nodes-in-k-group": {
+    array: (vals, k) => reverseKGroupArrayTrace(vals, Number(k)),
+    inplace: (vals, k) => reverseKGroupInPlaceTrace(vals, Number(k)),
+  },
+  "middle-of-the-linked-list": {
+    array: (vals) => middleNodeArrayTrace(vals),
+    twopass: (vals) => middleNodeTwoPassTrace(vals),
+  },
+  "happy-number": {
+    set: (vals) => happyNumberSetTrace(vals),
+    floyd: (vals) => happyNumberFloydTrace(vals),
+  },
+  "linked-list-cycle-ii": {
+    set: (vals, cycleStart) => detectCycleSetTrace(vals, Number(cycleStart)),
+    floyd: (vals, cycleStart) => detectCycleFloydTrace(vals, Number(cycleStart)),
+  },
+};
+
+// Distinct source code for Running Sum of 1d Array approaches.
+export const runningSumSources: Record<string, string> = {
+  brute: `function runningSum(nums) {
+    var n = nums.length;
+    var result = new Array(n);
+
+    for (var i = 0; i < n; i++) {
+        var sum = 0;
+        // Sum all elements from index 0 to i
+        for (var j = 0; j <= i; j++) {
+            sum += nums[j];
+        }
+        result[i] = sum;
+    }
+
+    return result;
+}`,
+  prefix: `function runningSum(nums) {
+    var n = nums.length;
+    var result = new Array(n);
+
+    result[0] = nums[0];
+    for (var i = 1; i < n; i++) {
+        // Each running sum builds on the previous one
+        result[i] = result[i - 1] + nums[i];
+    }
+
+    return result;
+}`,
 };
 
 // Distinct source code per approach (shown in the code pane).
@@ -14883,4 +22362,2343 @@ export const trapSources: Record<string, string> = {
 
   return totalWater
 }`,
+};
+
+// Distinct source code for Range Sum Query - Immutable approaches.
+export const rangeSumSources: Record<string, string> = {
+  brute: `function NumArray(nums) {
+  this.nums = nums;
+}
+NumArray.prototype.sumRange = function (left, right) {
+  let sum = 0;
+  for (let i = left; i <= right; i++) {
+    sum += this.nums[i];
+  }
+  return sum;
+}`,
+  prefix: `function NumArray(nums) {
+  // Build prefix sum array where prefix[i] = sum of nums[0..i-1]
+  this.prefix = new Array(nums.length + 1).fill(0);
+  for (let i = 0; i < nums.length; i++) {
+    this.prefix[i + 1] = this.prefix[i] + nums[i];
+  }
+}
+NumArray.prototype.sumRange = function (left, right) {
+  return this.prefix[right + 1] - this.prefix[left];
+}`,
+};
+
+// Distinct source code for Find Pivot Index approaches.
+export const pivotIndexSources: Record<string, string> = {
+  brute: `function pivotIndex(nums) {
+    var n = nums.length;
+
+    for (var i = 0; i < n; i++) {
+        var leftSum = 0;
+        var rightSum = 0;
+
+        // Compute left sum for index i
+        for (var j = 0; j < i; j++) {
+            leftSum += nums[j];
+        }
+
+        // Compute right sum for index i
+        for (var j = i + 1; j < n; j++) {
+            rightSum += nums[j];
+        }
+
+        if (leftSum === rightSum) {
+            return i;
+        }
+    }
+
+    return -1;
+}`,
+  prefix: `function pivotIndex(nums) {
+    var totalSum = 0;
+    for (var i = 0; i < nums.length; i++) {
+        totalSum += nums[i];
+    }
+
+    var leftSum = 0;
+    for (var i = 0; i < nums.length; i++) {
+        // Right sum is everything except leftSum and nums[i]
+        var rightSum = totalSum - leftSum - nums[i];
+        if (leftSum === rightSum) {
+            return i;
+        }
+        leftSum += nums[i];
+    }
+
+    return -1;
+}`,
+};
+
+// Distinct source code for Maximum Population Year approaches.
+export const maxPopSources: Record<string, string> = {
+  brute: `function maximumPopulation(logs) {
+    var maxPop = 0;
+    var resultYear = 0;
+
+    for (var year = 1950; year <= 2050; year++) {
+        var count = 0;
+        for (var i = 0; i < logs.length; i++) {
+            // Person is alive if birth <= year < death
+            if (logs[i][0] <= year && year < logs[i][1]) {
+                count++;
+            }
+        }
+        if (count > maxPop) {
+            maxPop = count;
+            resultYear = year;
+        }
+    }
+
+    return resultYear;
+}`,
+  sweep: `function maximumPopulation(logs) {
+    var delta = new Array(101).fill(0); // years 1950 to 2050
+
+    // Record birth and death events
+    for (var i = 0; i < logs.length; i++) {
+        delta[logs[i][0] - 1950]++;
+        delta[logs[i][1] - 1950]--;
+    }
+
+    // Sweep to find the year with maximum population
+    var maxPop = 0;
+    var runningSum = 0;
+    var resultYear = 1950;
+
+    for (var j = 0; j < 101; j++) {
+        runningSum += delta[j];
+        if (runningSum > maxPop) {
+            maxPop = runningSum;
+            resultYear = 1950 + j;
+        }
+    }
+
+    return resultYear;
+}`,
+};
+
+// Distinct source code for Subarray Sum Equals K approaches.
+export const subarraySumSources: Record<string, string> = {
+  brute: `function subarraySum(nums, k) {
+  let count = 0
+  for (let i = 0; i < nums.length; i++) {
+    let sum = 0
+    for (let j = i; j < nums.length; j++) {
+      sum += nums[j]
+      if (sum === k) {
+        count++
+      }
+    }
+  }
+  return count
+}`,
+  map: `function subarraySum(nums, k) {
+  let count = 0
+  let prefixSum = 0
+  // Map from prefix sum value to how many times we've seen it
+  const prefixCount = new Map()
+  prefixCount.set(0, 1) // Empty prefix (sum = 0) seen once
+
+  for (const num of nums) {
+    prefixSum += num
+    // How many earlier prefix sums form a valid subarray ending here?
+    count += prefixCount.get(prefixSum - k) || 0
+    prefixCount.set(prefixSum, (prefixCount.get(prefixSum) || 0) + 1)
+  }
+  return count
+}`,
+};
+
+// Distinct source code for Subarray Sums Divisible by K approaches.
+export const subarraysDivByKSources: Record<string, string> = {
+  brute: `function subarraysDivByK(nums, k) {
+  let count = 0
+  for (let i = 0; i < nums.length; i++) {
+    let sum = 0
+    for (let j = i; j < nums.length; j++) {
+      sum += nums[j]
+      if (sum % k === 0) {
+        count++
+      }
+    }
+  }
+  return count
+}`,
+  map: `function subarraysDivByK(nums, k) {
+  // Map to count occurrences of each remainder
+  const remainderCount = new Map([[0, 1]]) // empty prefix has remainder 0
+  let prefixSum = 0
+  let count = 0
+
+  for (const num of nums) {
+    prefixSum += num
+    // Normalize remainder to handle negative prefix sums
+    const remainder = ((prefixSum % k) + k) % k
+
+    // Each previous prefix sum with the same remainder forms a valid subarray
+    const prev = remainderCount.get(remainder) || 0
+    count += prev
+    remainderCount.set(remainder, prev + 1)
+  }
+
+  return count
+}`,
+};
+
+// Distinct source code for Continuous Subarray Sum approaches.
+export const checkSubarraySumSources: Record<string, string> = {
+  brute: `function checkSubarraySum(nums, k) {
+    const n = nums.length;
+    for (let i = 0; i < n - 1; i++) {
+        let sum = nums[i];
+        for (let j = i + 1; j < n; j++) {
+            sum += nums[j];
+            // Check if subarray sum is a multiple of k
+            if (sum % k === 0) {
+                return true;
+            }
+        }
+    }
+    return false;
+}`,
+  map: `function checkSubarraySum(nums, k) {
+    // Map: remainder -> earliest index where this remainder was seen
+    const remainderIndex = new Map();
+    // Handle subarrays starting from index 0
+    remainderIndex.set(0, -1);
+    let prefixSum = 0;
+
+    for (let i = 0; i < nums.length; i++) {
+        prefixSum += nums[i];
+        const remainder = prefixSum % k;
+
+        if (remainderIndex.has(remainder)) {
+            // Same remainder seen before, check if subarray length >= 2
+            if (i - remainderIndex.get(remainder) >= 2) {
+                return true;
+            }
+        } else {
+            // Only store the first occurrence to maximize subarray length
+            remainderIndex.set(remainder, i);
+        }
+    }
+    return false;
+}`,
+};
+
+// Distinct source code for Contiguous Array approaches.
+export const findMaxLengthSources: Record<string, string> = {
+  brute: `function findMaxLength(nums) {
+    let maxLen = 0;
+    for (let i = 0; i < nums.length; i++) {
+        let zeros = 0, ones = 0;
+        for (let j = i; j < nums.length; j++) {
+            if (nums[j] === 0) zeros++;
+            else ones++;
+            if (zeros === ones) {
+                maxLen = Math.max(maxLen, j - i + 1);
+            }
+        }
+    }
+    return maxLen;
+}`,
+  map: `function findMaxLength(nums) {
+    // Map stores first occurrence of each prefix sum
+    const map = new Map();
+    map.set(0, -1); // handle subarrays starting from index 0
+    let prefixSum = 0;
+    let maxLen = 0;
+
+    for (let i = 0; i < nums.length; i++) {
+        // Treat 0 as -1: equal 0s and 1s means sum = 0
+        prefixSum += nums[i] === 1 ? 1 : -1;
+
+        if (map.has(prefixSum)) {
+            maxLen = Math.max(maxLen, i - map.get(prefixSum));
+        } else {
+            map.set(prefixSum, i);
+        }
+    }
+    return maxLen;
+}`,
+};
+
+// Distinct source code for Maximum Average Subarray I approaches.
+export const maxAvgSources: Record<string, string> = {
+  brute: `function findMaxAverage(nums, k) {
+    let maxSum = -Infinity;
+
+    for (let i = 0; i <= nums.length - k; i++) {
+        let windowSum = 0;
+        for (let j = i; j < i + k; j++) {
+            windowSum += nums[j];
+        }
+        maxSum = Math.max(maxSum, windowSum);
+    }
+
+    return maxSum / k;
+}`,
+  sliding: `function findMaxAverage(nums, k) {
+    // Compute sum of the first window
+    let windowSum = 0;
+    for (let i = 0; i < k; i++) {
+        windowSum += nums[i];
+    }
+
+    let maxSum = windowSum;
+
+    // Slide the window: add new element, remove old element
+    for (let i = k; i < nums.length; i++) {
+        windowSum += nums[i] - nums[i - k];
+        maxSum = Math.max(maxSum, windowSum);
+    }
+
+    return maxSum / k;
+}`,
+};
+
+// Distinct source code for Find All Anagrams in a String approaches.
+export const findAnagramsSources: Record<string, string> = {
+  brute: `function findAnagrams(s, p) {
+    const result = [];
+    const pLen = p.length;
+    const sLen = s.length;
+    if (sLen < pLen) return result;
+
+    const sortedP = p.split('').sort().join('');
+
+    for (let i = 0; i <= sLen - pLen; i++) {
+        const window = s.substring(i, i + pLen).split('').sort().join('');
+        if (window === sortedP) {
+            result.push(i);
+        }
+    }
+    return result;
+}`,
+  freq: `function findAnagrams(s, p) {
+    const result = [];
+    const sLen = s.length, pLen = p.length;
+    if (sLen < pLen) return result;
+
+    const pCount = new Array(26).fill(0);
+    const windowCount = new Array(26).fill(0);
+
+    // Build frequency maps for p and the first window
+    for (let i = 0; i < pLen; i++) {
+        pCount[p.charCodeAt(i) - 97]++;
+        windowCount[s.charCodeAt(i) - 97]++;
+    }
+
+    if (pCount.every((val, idx) => val === windowCount[idx])) result.push(0);
+
+    // Slide the window across s
+    for (let i = pLen; i < sLen; i++) {
+        windowCount[s.charCodeAt(i) - 97]++;             // add new char
+        windowCount[s.charCodeAt(i - pLen) - 97]--;       // remove old char
+        if (pCount.every((val, idx) => val === windowCount[idx])) {
+            result.push(i - pLen + 1);
+        }
+    }
+    return result;
+}`,
+};
+
+// Distinct source code for Permutation in String approaches.
+export const checkInclusionSources: Record<string, string> = {
+  brute: `function checkInclusion(s1, s2) {
+  const perms = [];
+  generatePermutations(s1.split(""), 0, perms);
+
+  // Check if any permutation is a substring of s2
+  for (let i = 0; i < perms.length; i++) {
+    if (s2.includes(perms[i])) {
+      return true;
+    }
+  }
+
+  return false;
+}
+function generatePermutations(arr, index, result) {
+  if (index === arr.length) {
+    result.push(arr.join(""));
+    return;
+  }
+  for (let i = index; i < arr.length; i++) {
+    const temp = arr[index];
+    arr[index] = arr[i];
+    arr[i] = temp;
+
+    generatePermutations(arr, index + 1, result);
+
+    arr[i] = arr[index];
+    arr[index] = temp;
+  }
+}`,
+  sliding: `function checkInclusion(s1, s2) {
+  const n = s1.length,
+    m = s2.length;
+  if (n > m) return false;
+
+  const s1Freq = new Array(26).fill(0);
+  const windowFreq = new Array(26).fill(0);
+
+  // Build frequency arrays for s1 and the first window
+  for (let i = 0; i < n; i++) {
+    s1Freq[s1.charCodeAt(i) - 97]++;
+    windowFreq[s2.charCodeAt(i) - 97]++;
+  }
+
+  if (matches(s1Freq, windowFreq)) return true;
+
+  // Slide the window across s2
+  for (let i = n; i < m; i++) {
+    windowFreq[s2.charCodeAt(i) - 97]++;         // Add new char
+    windowFreq[s2.charCodeAt(i - n) - 97]--;     // Remove old char
+    if (matches(s1Freq, windowFreq)) return true;
+  }
+
+  return false;
+}
+function matches(a, b) {
+  for (let i = 0; i < 26; i++) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}`,
+};
+
+// Distinct source code for Maximum Sum of Distinct Subarrays With Length K approaches.
+export const maxDistinctSources: Record<string, string> = {
+  brute: `function maximumSubarraySum(nums, k) {
+  let maxSum = 0
+  for (let i = 0; i <= nums.length - k; i++) {
+    const seen = new Set()
+    let sum = 0
+    let valid = true
+    for (let j = i; j < i + k; j++) {
+      // If element already in set, this subarray has duplicates
+      if (seen.has(nums[j])) {
+        valid = false
+        break
+      }
+      seen.add(nums[j])
+      sum += nums[j]
+    }
+    if (valid) {
+      maxSum = Math.max(maxSum, sum)
+    }
+  }
+  return maxSum
+}`,
+  sliding: `function maximumSubarraySum(nums, k) {
+  const freq = new Map()
+  let windowSum = 0
+  let maxSum = 0
+
+  // Build the first window of size k
+  for (let i = 0; i < k; i++) {
+    freq.set(nums[i], (freq.get(nums[i]) || 0) + 1)
+    windowSum += nums[i]
+  }
+  // Check if the first window has all distinct elements
+  if (freq.size === k) {
+    maxSum = windowSum
+  }
+
+  // Slide the window across the rest of the array
+  for (let i = k; i < nums.length; i++) {
+    // Add the new element entering the window
+    freq.set(nums[i], (freq.get(nums[i]) || 0) + 1)
+    windowSum += nums[i]
+
+    // Remove the element leaving the window
+    const outVal = nums[i - k]
+    freq.set(outVal, freq.get(outVal) - 1)
+    if (freq.get(outVal) === 0) {
+      freq.delete(outVal)
+    }
+    windowSum -= outVal
+
+    // Window is valid only when all k elements are distinct
+    if (freq.size === k) {
+      maxSum = Math.max(maxSum, windowSum)
+    }
+  }
+  return maxSum
+}`,
+};
+
+// Distinct source code for Substring with Concatenation of All Words approaches.
+export const findSubstringSources: Record<string, string> = {
+  brute: `function findSubstring(s, words) {
+    const result = [];
+    const w = words[0].length;
+    const m = words.length;
+    const totalLen = m * w;
+    if (s.length < totalLen) return result;
+
+    // Build target frequency map
+    const target = new Map();
+    for (const word of words) {
+        target.set(word, (target.get(word) || 0) + 1);
+    }
+
+    for (let i = 0; i <= s.length - totalLen; i++) {
+        const seen = new Map();
+        let valid = true;
+        for (let j = 0; j < m; j++) {
+            const chunk = s.substring(i + j * w, i + j * w + w);
+            seen.set(chunk, (seen.get(chunk) || 0) + 1);
+            // Early exit if any chunk exceeds target count
+            if (seen.get(chunk) > (target.get(chunk) || 0)) {
+                valid = false;
+                break;
+            }
+        }
+        if (valid) result.push(i);
+    }
+    return result;
+}`,
+  sliding: `function findSubstring(s, words) {
+    const result = [];
+    const w = words[0].length;
+    const m = words.length;
+    const totalLen = m * w;
+    if (s.length < totalLen) return result;
+
+    // Build target frequency map
+    const target = new Map();
+    for (const word of words) {
+        target.set(word, (target.get(word) || 0) + 1);
+    }
+    const distinctWords = target.size;
+
+    // Try each starting offset
+    for (let k = 0; k < w; k++) {
+        const seen = new Map();
+        let matchCount = 0;
+        let left = k;
+
+        for (let right = k; right + w <= s.length; right += w) {
+            const rightWord = s.substring(right, right + w);
+
+            // Add right word to window
+            if (target.has(rightWord)) {
+                const count = (seen.get(rightWord) || 0) + 1;
+                seen.set(rightWord, count);
+                if (count === target.get(rightWord)) matchCount++;
+                else if (count === target.get(rightWord) + 1) matchCount--;
+            }
+
+            // Shrink window if it exceeds m words
+            if (right - left >= totalLen) {
+                const leftWord = s.substring(left, left + w);
+                if (target.has(leftWord)) {
+                    const count = seen.get(leftWord);
+                    if (count === target.get(leftWord)) matchCount--;
+                    seen.set(leftWord, count - 1);
+                    if (count - 1 === target.get(leftWord)) matchCount++;
+                }
+                left += w;
+            }
+
+            if (matchCount === distinctWords) result.push(left);
+        }
+    }
+    return result;
+}`,
+};
+
+// Distinct source code for Longest Substring Without Repeating Characters approaches.
+export const longSubNoRepeatSources: Record<string, string> = {
+  brute: `function lengthOfLongestSubstring(s) {
+  const n = s.length;
+  let maxLen = 0;
+
+  for (let i = 0; i < n; i++) {
+    const seen = new Set();
+    for (let j = i; j < n; j++) {
+      if (seen.has(s[j])) break;
+      seen.add(s[j]);
+      maxLen = Math.max(maxLen, j - i + 1);
+    }
+  }
+
+  return maxLen;
+}`,
+  sliding: `function lengthOfLongestSubstring(s) {
+  const window = new Set();
+  let left = 0;
+  let maxLen = 0;
+
+  for (let right = 0; right < s.length; right++) {
+    // Shrink window until duplicate is removed
+    while (window.has(s[right])) {
+      window.delete(s[left]);
+      left++;
+    }
+    window.add(s[right]);
+    maxLen = Math.max(maxLen, right - left + 1);
+  }
+
+  return maxLen;
+}`,
+};
+
+// Distinct source code for Longest Repeating Character Replacement approaches.
+export const charReplacementSources: Record<string, string> = {
+  brute: `function characterReplacement(s, k) {
+    const n = s.length;
+    let maxLen = 0;
+    for (let left = 0; left < n; left++) {
+        const freq = new Array(26).fill(0);
+        let maxFreq = 0;
+        for (let right = left; right < n; right++) {
+            const idx = s.charCodeAt(right) - 65; // 'A' = 65
+            freq[idx]++;
+            maxFreq = Math.max(maxFreq, freq[idx]);
+            const windowLen = right - left + 1;
+            if (windowLen - maxFreq <= k) {
+                maxLen = Math.max(maxLen, windowLen);
+            } else {
+                // More replacements needed than allowed, stop expanding
+                break;
+            }
+        }
+    }
+    return maxLen;
+}`,
+  sliding: `function characterReplacement(s, k) {
+    const freq = new Array(26).fill(0);
+    let left = 0, maxLen = 0;
+
+    for (let right = 0; right < s.length; right++) {
+        freq[s.charCodeAt(right) - 65]++;
+
+        // Shrink window until it's valid
+        while ((right - left + 1) - Math.max(...freq) > k) {
+            freq[s.charCodeAt(left) - 65]--;
+            left++;
+        }
+        maxLen = Math.max(maxLen, right - left + 1);
+    }
+    return maxLen;
+}`,
+};
+
+// Distinct source code for Minimum Size Subarray Sum approaches.
+export const minSubArrayLenSources: Record<string, string> = {
+  brute: `function minSubArrayLen(target, nums) {
+  const n = nums.length
+  let minLen = n + 1
+
+  for (let i = 0; i < n; i++) {
+    let sum = 0
+    for (let j = i; j < n; j++) {
+      sum += nums[j]
+      if (sum >= target) {
+        minLen = Math.min(minLen, j - i + 1)
+        break // shortest subarray starting at i found
+      }
+    }
+  }
+
+  return minLen === n + 1 ? 0 : minLen
+}`,
+  sliding: `function minSubArrayLen(target, nums) {
+  const n = nums.length
+  let left = 0
+  let currentSum = 0
+  let minLen = n + 1
+
+  for (let right = 0; right < n; right++) {
+    currentSum += nums[right]
+
+    // Shrink window while sum meets the target
+    while (currentSum >= target) {
+      minLen = Math.min(minLen, right - left + 1)
+      currentSum -= nums[left]
+      left++
+    }
+  }
+
+  return minLen === n + 1 ? 0 : minLen
+}`,
+};
+
+// Distinct source code for Max Consecutive Ones III approaches.
+export const longestOnesSources: Record<string, string> = {
+  brute: `function longestOnes(nums, k) {
+    let maxLen = 0;
+    for (let i = 0; i < nums.length; i++) {
+        let zeroCount = 0;
+        for (let j = i; j < nums.length; j++) {
+            if (nums[j] === 0) {
+                zeroCount++;
+            }
+            if (zeroCount > k) {
+                break;
+            }
+            maxLen = Math.max(maxLen, j - i + 1);
+        }
+    }
+    return maxLen;
+}`,
+  sliding: `function longestOnes(nums, k) {
+    let left = 0;
+    let zeroCount = 0;
+    let maxLen = 0;
+
+    for (let right = 0; right < nums.length; right++) {
+        if (nums[right] === 0) {
+            zeroCount++;
+        }
+        // Shrink window until we have at most k zeros
+        while (zeroCount > k) {
+            if (nums[left] === 0) {
+                zeroCount--;
+            }
+            left++;
+        }
+        maxLen = Math.max(maxLen, right - left + 1);
+    }
+    return maxLen;
+}`,
+};
+
+// Distinct source code for Minimum Window Substring approaches.
+export const minWindowSources: Record<string, string> = {
+  brute: `function minWindow(s, t) {
+    const m = s.length, n = t.length;
+    if (n > m) return "";
+
+    // Build frequency map for t
+    const tFreq = new Array(128).fill(0);
+    for (const c of t) tFreq[c.charCodeAt(0)]++;
+
+    let bestStart = 0, bestLen = Infinity;
+
+    for (let i = 0; i < m; i++) {
+        const windowFreq = new Array(128).fill(0);
+        for (let j = i; j < m; j++) {
+            windowFreq[s.charCodeAt(j)]++;
+            // Check if window contains all characters of t
+            if (j - i + 1 >= n && tFreq.every((f, k) => windowFreq[k] >= f)) {
+                if (j - i + 1 < bestLen) {
+                    bestStart = i;
+                    bestLen = j - i + 1;
+                }
+                break;
+            }
+        }
+    }
+    return bestLen === Infinity ? "" : s.substring(bestStart, bestStart + bestLen);
+}`,
+  sliding: `function minWindow(s, t) {
+    const m = s.length, n = t.length;
+    if (n > m) return "";
+
+    // Frequency map for t
+    const tCount = new Map();
+    for (const c of t) {
+        tCount.set(c, (tCount.get(c) || 0) + 1);
+    }
+
+    const required = tCount.size; // Distinct chars in t that must be satisfied
+    let formed = 0;               // Distinct chars currently meeting required freq
+    const windowCount = new Map();
+
+    let bestStart = 0, bestLen = Infinity;
+    let left = 0;
+
+    for (let right = 0; right < m; right++) {
+        const c = s[right];
+        windowCount.set(c, (windowCount.get(c) || 0) + 1);
+
+        // Check if this character's frequency requirement is now met
+        if (tCount.has(c) && windowCount.get(c) === tCount.get(c)) {
+            formed++;
+        }
+
+        // Shrink the window from the left while it remains valid
+        while (formed === required) {
+            if (right - left + 1 < bestLen) {
+                bestStart = left;
+                bestLen = right - left + 1;
+            }
+            const leftChar = s[left];
+            windowCount.set(leftChar, windowCount.get(leftChar) - 1);
+            if (tCount.has(leftChar) && windowCount.get(leftChar) < tCount.get(leftChar)) {
+                formed--;
+            }
+            left++;
+        }
+    }
+    return bestLen === Infinity ? "" : s.substring(bestStart, bestStart + bestLen);
+}`,
+};
+
+// Distinct source code for Maximum Subarray approaches.
+export const maxSubArraySources: Record<string, string> = {
+  brute: `function maxSubArray(nums) {
+  let maxSum = nums[0]
+
+  for (let i = 0; i < nums.length; i++) {
+    let currentSum = 0
+    for (let j = i; j < nums.length; j++) {
+      currentSum += nums[j]
+      maxSum = Math.max(maxSum, currentSum)
+    }
+  }
+
+  return maxSum
+}`,
+  kadane: `function maxSubArray(nums) {
+  let currentSum = nums[0]
+  let maxSum = nums[0]
+
+  for (let i = 1; i < nums.length; i++) {
+    // Either extend the previous subarray or start a new one here
+    currentSum = Math.max(nums[i], currentSum + nums[i])
+    maxSum = Math.max(maxSum, currentSum)
+  }
+
+  return maxSum
+}`,
+};
+
+// Distinct source code for Maximum Sum Circular Subarray approaches.
+export const maxCircularSources: Record<string, string> = {
+  brute: `function maxSubarraySumCircular(nums) {
+  const n = nums.length
+  let maxSum = -Infinity
+
+  for (let i = 0; i < n; i++) {
+    let currentSum = 0
+    for (let j = 0; j < n; j++) {
+      currentSum += nums[(i + j) % n]
+      maxSum = Math.max(maxSum, currentSum)
+    }
+  }
+
+  return maxSum
+}`,
+  kadane: `function maxSubarraySumCircular(nums) {
+  let currentMax = 0,
+    maxSum = nums[0]
+  let currentMin = 0,
+    minSum = nums[0]
+  let totalSum = 0
+
+  for (const num of nums) {
+    // Kadane's for maximum subarray
+    currentMax = Math.max(currentMax + num, num)
+    maxSum = Math.max(maxSum, currentMax)
+
+    // Kadane's for minimum subarray
+    currentMin = Math.min(currentMin + num, num)
+    minSum = Math.min(minSum, currentMin)
+
+    totalSum += num
+  }
+
+  // If all negative, return the least negative element
+  if (maxSum < 0) return maxSum
+
+  return Math.max(maxSum, totalSum - minSum)
+}`,
+};
+
+// Distinct source code for Maximum Product Subarray approaches.
+export const maxProductSources: Record<string, string> = {
+  brute: `function maxProduct(nums) {
+  let maxProd = nums[0]
+
+  for (let i = 0; i < nums.length; i++) {
+    let currentProduct = 1
+    for (let j = i; j < nums.length; j++) {
+      currentProduct *= nums[j]
+      maxProd = Math.max(maxProd, currentProduct)
+    }
+  }
+
+  return maxProd
+}`,
+  dp: `function maxProduct(nums) {
+  let maxSoFar = nums[0]
+  let minSoFar = nums[0]
+  let result = nums[0]
+
+  for (let i = 1; i < nums.length; i++) {
+    // Compute both before updating to avoid stale values
+    const tempMax = Math.max(nums[i], maxSoFar * nums[i], minSoFar * nums[i])
+    const tempMin = Math.min(nums[i], maxSoFar * nums[i], minSoFar * nums[i])
+
+    maxSoFar = tempMax
+    minSoFar = tempMin
+    result = Math.max(result, maxSoFar)
+  }
+
+  return result
+}`,
+};
+
+// Distinct source code for Best Sightseeing Pair approaches.
+export const sightseeingSources: Record<string, string> = {
+  brute: `function maxScoreSightseeingPair(values) {
+    let maxScore = 0;
+
+    // Try every pair (i, j) where i < j
+    for (let i = 0; i < values.length - 1; i++) {
+        for (let j = i + 1; j < values.length; j++) {
+            const score = values[i] + values[j] + i - j;
+            maxScore = Math.max(maxScore, score);
+        }
+    }
+
+    return maxScore;
+}`,
+  running: `function maxScoreSightseeingPair(values) {
+    // Best values[i] + i seen so far
+    let maxLeftScore = values[0] + 0;
+    let maxScore = 0;
+
+    for (let j = 1; j < values.length; j++) {
+        // Best score using current j and the best left partner
+        maxScore = Math.max(maxScore, maxLeftScore + values[j] - j);
+        // Update best left partner for future j's
+        maxLeftScore = Math.max(maxLeftScore, values[j] + j);
+    }
+
+    return maxScore;
+}`,
+};
+
+// Distinct source code for Transpose Matrix approaches.
+export const transposeSources: Record<string, string> = {
+  direct: `function transpose(matrix) {
+    const m = matrix.length;
+    const n = matrix[0].length;
+
+    // Create result with swapped dimensions
+    const result = new Array(n);
+    for (let i = 0; i < n; i++) {
+        result[i] = new Array(m).fill(0);
+    }
+
+    for (let i = 0; i < m; i++) {
+        for (let j = 0; j < n; j++) {
+            // Element at (i, j) goes to (j, i)
+            result[j][i] = matrix[i][j];
+        }
+    }
+    return result;
+}`,
+  column: `function transpose(matrix) {
+    const m = matrix.length;
+    const n = matrix[0].length;
+
+    const result = [];
+    // Each column of the original becomes a row of the result
+    for (let j = 0; j < n; j++) {
+        const row = [];
+        for (let i = 0; i < m; i++) {
+            row.push(matrix[i][j]);
+        }
+        result.push(row);
+    }
+    return result;
+}`,
+};
+
+// Distinct source code for Spiral Matrix approaches.
+export const spiralSources: Record<string, string> = {
+  simulate: `function spiralOrder(matrix) {
+    const m = matrix.length, n = matrix[0].length;
+    const visited = Array.from({length: m}, () => Array(n).fill(false));
+    const result = [];
+
+    // Direction vectors: right, down, left, up
+    const dr = [0, 1, 0, -1];
+    const dc = [1, 0, -1, 0];
+    let dir = 0;
+    let row = 0, col = 0;
+
+    for (let i = 0; i < m * n; i++) {
+        result.push(matrix[row][col]);
+        visited[row][col] = true;
+
+        let nextRow = row + dr[dir];
+        let nextCol = col + dc[dir];
+
+        if (nextRow < 0 || nextRow >= m || nextCol < 0 || nextCol >= n
+                || visited[nextRow][nextCol]) {
+            dir = (dir + 1) % 4;
+            nextRow = row + dr[dir];
+            nextCol = col + dc[dir];
+        }
+
+        row = nextRow;
+        col = nextCol;
+    }
+
+    return result;
+}`,
+  layer: `function spiralOrder(matrix) {
+    const result = [];
+    let top = 0, bottom = matrix.length - 1;
+    let left = 0, right = matrix[0].length - 1;
+
+    while (top <= bottom && left <= right) {
+        // Traverse top row
+        for (let col = left; col <= right; col++) {
+            result.push(matrix[top][col]);
+        }
+        top++;
+
+        // Traverse right column
+        for (let row = top; row <= bottom; row++) {
+            result.push(matrix[row][right]);
+        }
+        right--;
+
+        // Traverse bottom row (if rows remain)
+        if (top <= bottom) {
+            for (let col = right; col >= left; col--) {
+                result.push(matrix[bottom][col]);
+            }
+            bottom--;
+        }
+
+        // Traverse left column (if columns remain)
+        if (left <= right) {
+            for (let row = bottom; row >= top; row--) {
+                result.push(matrix[row][left]);
+            }
+            left++;
+        }
+    }
+
+    return result;
+}`,
+};
+
+// Distinct source code for Rotate Image approaches.
+export const rotateImageSources: Record<string, string> = {
+  space: `function rotate(matrix) {
+    const n = matrix.length;
+    const rotated = Array.from({ length: n }, () => new Array(n).fill(0));
+
+    // Place each element in its rotated position
+    for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+            rotated[j][n - 1 - i] = matrix[i][j];
+        }
+    }
+
+    // Copy back to original matrix
+    for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+            matrix[i][j] = rotated[i][j];
+        }
+    }
+}`,
+  transpose: `function rotate(matrix) {
+    const n = matrix.length;
+
+    // Step 1: Transpose the matrix
+    for (let i = 0; i < n; i++) {
+        for (let j = i + 1; j < n; j++) {
+            [matrix[i][j], matrix[j][i]] = [matrix[j][i], matrix[i][j]];
+        }
+    }
+
+    // Step 2: Reverse each row
+    for (let i = 0; i < n; i++) {
+        matrix[i].reverse();
+    }
+}`,
+};
+
+// Distinct source code for Set Matrix Zeroes approaches.
+export const setZeroesSources: Record<string, string> = {
+  copy: `function setZeroes(matrix) {
+    const m = matrix.length, n = matrix[0].length;
+    // Create a copy to read from
+    const copy = matrix.map((row) => [...row]);
+    for (let i = 0; i < m; i++) {
+        for (let j = 0; j < n; j++) {
+            if (copy[i][j] === 0) {
+                // Zero out entire row i in original
+                for (let k = 0; k < n; k++) matrix[i][k] = 0;
+                // Zero out entire column j in original
+                for (let k = 0; k < m; k++) matrix[k][j] = 0;
+            }
+        }
+    }
+}`,
+  hash: `function setZeroes(matrix) {
+    const m = matrix.length, n = matrix[0].length;
+    const zeroRows = new Set();
+    const zeroCols = new Set();
+    // Phase 1: record which rows and columns have zeroes
+    for (let i = 0; i < m; i++) {
+        for (let j = 0; j < n; j++) {
+            if (matrix[i][j] === 0) {
+                zeroRows.add(i);
+                zeroCols.add(j);
+            }
+        }
+    }
+    // Phase 2: zero out marked rows and columns
+    for (let i = 0; i < m; i++) {
+        for (let j = 0; j < n; j++) {
+            if (zeroRows.has(i) || zeroCols.has(j)) {
+                matrix[i][j] = 0;
+            }
+        }
+    }
+}`,
+};
+
+// Distinct source code for Candy Crush approaches.
+export const candyCrushSources: Record<string, string> = {
+  bool: `function candyCrush(board) {
+    const m = board.length;
+    const n = board[0].length;
+
+    let shouldContinue = true;
+    while (shouldContinue) {
+        shouldContinue = false;
+        const crush = Array.from({length: m}, function() {
+            return new Array(n).fill(false);
+        });
+
+        // Mark horizontal runs of 3+
+        for (let i = 0; i < m; i++) {
+            for (let j = 0; j < n - 2; j++) {
+                const val = board[i][j];
+                if (val !== 0 && val === board[i][j + 1] && val === board[i][j + 2]) {
+                    crush[i][j] = crush[i][j + 1] = crush[i][j + 2] = true;
+                    shouldContinue = true;
+                }
+            }
+        }
+
+        // Mark vertical runs of 3+
+        for (let i = 0; i < m - 2; i++) {
+            for (let j = 0; j < n; j++) {
+                const val = board[i][j];
+                if (val !== 0 && val === board[i + 1][j] && val === board[i + 2][j]) {
+                    crush[i][j] = crush[i + 1][j] = crush[i + 2][j] = true;
+                    shouldContinue = true;
+                }
+            }
+        }
+
+        // Crush marked cells
+        for (let i = 0; i < m; i++) {
+            for (let j = 0; j < n; j++) {
+                if (crush[i][j]) {
+                    board[i][j] = 0;
+                }
+            }
+        }
+
+        // Apply gravity column by column
+        for (let j = 0; j < n; j++) {
+            let writePos = m - 1;
+            for (let i = m - 1; i >= 0; i--) {
+                if (board[i][j] !== 0) {
+                    board[writePos][j] = board[i][j];
+                    if (writePos !== i) {
+                        board[i][j] = 0;
+                    }
+                    writePos--;
+                }
+            }
+            while (writePos >= 0) {
+                board[writePos][j] = 0;
+                writePos--;
+            }
+        }
+    }
+
+    return board;
+}`,
+  neg: `function candyCrush(board) {
+    const m = board.length;
+    const n = board[0].length;
+
+    let shouldContinue = true;
+    while (shouldContinue) {
+        shouldContinue = false;
+
+        // Mark horizontal runs by negating values
+        for (let i = 0; i < m; i++) {
+            for (let j = 0; j < n - 2; j++) {
+                const val = Math.abs(board[i][j]);
+                if (val !== 0 && val === Math.abs(board[i][j + 1]) && val === Math.abs(board[i][j + 2])) {
+                    board[i][j] = -val;
+                    board[i][j + 1] = -val;
+                    board[i][j + 2] = -val;
+                    shouldContinue = true;
+                }
+            }
+        }
+
+        // Mark vertical runs by negating values
+        for (let i = 0; i < m - 2; i++) {
+            for (let j = 0; j < n; j++) {
+                const val = Math.abs(board[i][j]);
+                if (val !== 0 && val === Math.abs(board[i + 1][j]) && val === Math.abs(board[i + 2][j])) {
+                    board[i][j] = -val;
+                    board[i + 1][j] = -val;
+                    board[i + 2][j] = -val;
+                    shouldContinue = true;
+                }
+            }
+        }
+
+        // Crush and apply gravity
+        for (let j = 0; j < n; j++) {
+            let writePos = m - 1;
+            for (let i = m - 1; i >= 0; i--) {
+                if (board[i][j] > 0) {
+                    board[writePos][j] = board[i][j];
+                    if (writePos !== i) {
+                        board[i][j] = 0;
+                    }
+                    writePos--;
+                }
+            }
+            while (writePos >= 0) {
+                board[writePos][j] = 0;
+                writePos--;
+            }
+        }
+    }
+
+    return board;
+}`,
+};
+
+// Distinct source code for Valid Sudoku approaches.
+export const sudokuSources: Record<string, string> = {
+  threepass: `function isValidSudoku(board) {
+    // Check each row
+    for (let r = 0; r < 9; r++) {
+        const seen = new Set();
+        for (let c = 0; c < 9; c++) {
+            if (board[r][c] === '.') continue;
+            if (seen.has(board[r][c])) return false;
+            seen.add(board[r][c]);
+        }
+    }
+
+    // Check each column
+    for (let c = 0; c < 9; c++) {
+        const seen = new Set();
+        for (let r = 0; r < 9; r++) {
+            if (board[r][c] === '.') continue;
+            if (seen.has(board[r][c])) return false;
+            seen.add(board[r][c]);
+        }
+    }
+
+    // Check each 3x3 sub-box
+    for (let boxRow = 0; boxRow < 3; boxRow++) {
+        for (let boxCol = 0; boxCol < 3; boxCol++) {
+            const seen = new Set();
+            for (let r = boxRow * 3; r < boxRow * 3 + 3; r++) {
+                for (let c = boxCol * 3; c < boxCol * 3 + 3; c++) {
+                    if (board[r][c] === '.') continue;
+                    if (seen.has(board[r][c])) return false;
+                    seen.add(board[r][c]);
+                }
+            }
+        }
+    }
+
+    return true;
+}`,
+  singlepass: `function isValidSudoku(board) {
+    // One set per row, column, and 3x3 box
+    const rows = Array.from({ length: 9 }, () => new Set());
+    const cols = Array.from({ length: 9 }, () => new Set());
+    const boxes = Array.from({ length: 9 }, () => new Set());
+
+    for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+            if (board[r][c] === '.') continue;
+
+            const digit = board[r][c];
+            const boxIdx = Math.floor(r / 3) * 3 + Math.floor(c / 3);
+
+            // Check all three constraints at once
+            if (rows[r].has(digit) || cols[c].has(digit) || boxes[boxIdx].has(digit)) {
+                return false;
+            }
+
+            rows[r].add(digit);
+            cols[c].add(digit);
+            boxes[boxIdx].add(digit);
+        }
+    }
+
+    return true;
+}`,
+};
+
+// Distinct source code for Game of Life approaches.
+export const gameOfLifeSources: Record<string, string> = {
+  copy: `function gameOfLife(board) {
+    const m = board.length;
+    const n = board[0].length;
+
+    // Create a copy to read original states from
+    const copy = board.map((row) => [...row]);
+
+    // 8 possible neighbor directions
+    const dr = [-1, -1, -1, 0, 0, 1, 1, 1];
+    const dc = [-1, 0, 1, -1, 1, -1, 0, 1];
+
+    for (let i = 0; i < m; i++) {
+        for (let j = 0; j < n; j++) {
+            let liveNeighbors = 0;
+
+            // Count live neighbors from the copy
+            for (let d = 0; d < 8; d++) {
+                const ni = i + dr[d];
+                const nj = j + dc[d];
+                if (ni >= 0 && ni < m && nj >= 0 && nj < n && copy[ni][nj] === 1) {
+                    liveNeighbors++;
+                }
+            }
+
+            // Apply rules
+            if (copy[i][j] === 1) {
+                if (liveNeighbors < 2 || liveNeighbors > 3) {
+                    board[i][j] = 0;
+                }
+            } else {
+                if (liveNeighbors === 3) {
+                    board[i][j] = 1;
+                }
+            }
+        }
+    }
+}`,
+  encode: `function gameOfLife(board) {
+    const m = board.length;
+    const n = board[0].length;
+    const dr = [-1, -1, -1, 0, 0, 1, 1, 1];
+    const dc = [-1, 0, 1, -1, 1, -1, 0, 1];
+
+    // First pass: encode transitions
+    for (let i = 0; i < m; i++) {
+        for (let j = 0; j < n; j++) {
+            let liveNeighbors = 0;
+            for (let d = 0; d < 8; d++) {
+                const ni = i + dr[d];
+                const nj = j + dc[d];
+                // Use % 2 to get original state from encoded value
+                if (ni >= 0 && ni < m && nj >= 0 && nj < n && board[ni][nj] % 2 === 1) {
+                    liveNeighbors++;
+                }
+            }
+
+            // Alive cell that dies → encode as 3
+            if (board[i][j] === 1 && (liveNeighbors < 2 || liveNeighbors > 3)) {
+                board[i][j] = 3;
+            }
+            // Dead cell that becomes alive → encode as 2
+            if (board[i][j] === 0 && liveNeighbors === 3) {
+                board[i][j] = 2;
+            }
+        }
+    }
+
+    // Second pass: convert encoded values to final states
+    for (let i = 0; i < m; i++) {
+        for (let j = 0; j < n; j++) {
+            board[i][j] = board[i][j] === 1 || board[i][j] === 2 ? 1 : 0;
+        }
+    }
+}`,
+};
+
+// Distinct source code for Intersection of Two Linked Lists approaches.
+export const intersectionSources: Record<string, string> = {
+  hashset: `function getIntersectionNode(headA, headB) {
+    // Store all nodes from list A in a set
+    var visited = new Set();
+    var curr = headA;
+    while (curr !== null) {
+        visited.add(curr);
+        curr = curr.next;
+    }
+
+    // Walk through list B and find the first shared node
+    curr = headB;
+    while (curr !== null) {
+        if (visited.has(curr)) {
+            return curr;
+        }
+        curr = curr.next;
+    }
+
+    return null;
+}`,
+  twopointer: `function getIntersectionNode(headA, headB) {
+    var pA = headA;
+    var pB = headB;
+
+    // Each pointer traverses both lists, meeting at intersection or null
+    while (pA !== pB) {
+        pA = (pA !== null) ? pA.next : headB;
+        pB = (pB !== null) ? pB.next : headA;
+    }
+
+    return pA;
+}`,
+};
+
+// Distinct source code for Remove Duplicates from Sorted List approaches.
+export const deleteDuplicatesSources: Record<string, string> = {
+  set: `function deleteDuplicates(head) {
+    if (!head) return null;
+
+    var seen = new Set();
+    seen.add(head.val);
+    var current = head;
+
+    while (current.next) {
+        if (seen.has(current.next.val)) {
+            // Skip the duplicate node
+            current.next = current.next.next;
+        } else {
+            seen.add(current.next.val);
+            current = current.next;
+        }
+    }
+
+    return head;
+}`,
+  inplace: `function deleteDuplicates(head) {
+    var current = head;
+
+    while (current !== null && current.next !== null) {
+        if (current.val === current.next.val) {
+            // Skip the duplicate node
+            current.next = current.next.next;
+        } else {
+            // Move to the next distinct node
+            current = current.next;
+        }
+    }
+
+    return head;
+}`,
+};
+
+// Distinct source code for Design Linked List approaches.
+export const designLinkedListSources: Record<string, string> = {
+  singly: `function MyLinkedList() {
+    this.sentinel = {val: 0, next: null};
+    this.size = 0;
+};
+
+MyLinkedList.prototype.get = function(index) {
+    if (index < 0 || index >= this.size) return -1;
+    var current = this.sentinel.next;
+    for (var i = 0; i < index; i++) {
+        current = current.next;
+    }
+    return current.val;
+};
+
+MyLinkedList.prototype.addAtHead = function(val) {
+    this.addAtIndex(0, val);
+};
+
+MyLinkedList.prototype.addAtTail = function(val) {
+    this.addAtIndex(this.size, val);
+};
+
+MyLinkedList.prototype.addAtIndex = function(index, val) {
+    if (index < 0 || index > this.size) return;
+    var pred = this.sentinel;
+    for (var i = 0; i < index; i++) {
+        pred = pred.next;
+    }
+    var newNode = {val: val, next: pred.next};
+    pred.next = newNode;
+    this.size++;
+};
+
+MyLinkedList.prototype.deleteAtIndex = function(index) {
+    if (index < 0 || index >= this.size) return;
+    var pred = this.sentinel;
+    for (var i = 0; i < index; i++) {
+        pred = pred.next;
+    }
+    pred.next = pred.next.next;
+    this.size--;
+}`,
+  doubly: `function MyLinkedList() {
+    this.headSentinel = {val: 0, prev: null, next: null};
+    this.tailSentinel = {val: 0, prev: null, next: null};
+    this.headSentinel.next = this.tailSentinel;
+    this.tailSentinel.prev = this.headSentinel;
+    this.size = 0;
+};
+
+MyLinkedList.prototype._getNodeAt = function(index) {
+    var node;
+    if (index < this.size / 2) {
+        node = this.headSentinel.next;
+        for (var i = 0; i < index; i++) {
+            node = node.next;
+        }
+    } else {
+        node = this.tailSentinel.prev;
+        for (var i = this.size - 1; i > index; i--) {
+            node = node.prev;
+        }
+    }
+    return node;
+};
+
+MyLinkedList.prototype.get = function(index) {
+    if (index < 0 || index >= this.size) return -1;
+    return this._getNodeAt(index).val;
+};
+
+MyLinkedList.prototype.addAtHead = function(val) {
+    var newNode = {val: val, prev: null, next: null};
+    var after = this.headSentinel.next;
+    this.headSentinel.next = newNode;
+    newNode.prev = this.headSentinel;
+    newNode.next = after;
+    after.prev = newNode;
+    this.size++;
+};
+
+MyLinkedList.prototype.addAtTail = function(val) {
+    var newNode = {val: val, prev: null, next: null};
+    var before = this.tailSentinel.prev;
+    before.next = newNode;
+    newNode.prev = before;
+    newNode.next = this.tailSentinel;
+    this.tailSentinel.prev = newNode;
+    this.size++;
+};
+
+MyLinkedList.prototype.addAtIndex = function(index, val) {
+    if (index < 0 || index > this.size) return;
+    var successor, predecessor;
+    if (index === this.size) {
+        successor = this.tailSentinel;
+        predecessor = this.tailSentinel.prev;
+    } else {
+        successor = this._getNodeAt(index);
+        predecessor = successor.prev;
+    }
+    var newNode = {val: val, prev: predecessor, next: successor};
+    predecessor.next = newNode;
+    successor.prev = newNode;
+    this.size++;
+};
+
+MyLinkedList.prototype.deleteAtIndex = function(index) {
+    if (index < 0 || index >= this.size) return;
+    var node = this._getNodeAt(index);
+    node.prev.next = node.next;
+    node.next.prev = node.prev;
+    this.size--;
+}`,
+};
+
+// Distinct source code for Remove Nth Node From End of List approaches.
+export const removeNthSources: Record<string, string> = {
+  twopass: `function removeNthFromEnd(head, n) {
+    // Dummy node simplifies edge case of removing head
+    var dummy = new ListNode(0, head);
+
+    // First pass: count total nodes
+    var length = 0;
+    var current = head;
+    while (current !== null) {
+        length++;
+        current = current.next;
+    }
+
+    // Second pass: advance (length - n) steps from dummy
+    var prev = dummy;
+    for (var i = 0; i < length - n; i++) {
+        prev = prev.next;
+    }
+
+    // Remove the target node
+    prev.next = prev.next.next;
+
+    return dummy.next;
+}`,
+  onepass: `function removeNthFromEnd(head, n) {
+    // Dummy node handles the edge case of removing the head
+    var dummy = new ListNode(0, head);
+    var slow = dummy;
+    var fast = dummy;
+
+    // Advance fast by n + 1 steps to create the gap
+    for (var i = 0; i <= n; i++) {
+        fast = fast.next;
+    }
+
+    // Move both pointers until fast reaches the end
+    while (fast !== null) {
+        slow = slow.next;
+        fast = fast.next;
+    }
+
+    // slow is now the node before the target, skip the target
+    slow.next = slow.next.next;
+
+    return dummy.next;
+}`,
+};
+
+// Distinct source code for Remove Duplicates from Sorted List II approaches.
+export const deleteDuplicatesIISources: Record<string, string> = {
+  map: `function deleteDuplicates(head) {
+    // Pass 1: count frequencies
+    var count = new Map();
+    var current = head;
+    while (current !== null) {
+        count.set(current.val, (count.get(current.val) || 0) + 1);
+        current = current.next;
+    }
+
+    // Pass 2: remove nodes with count > 1
+    var dummy = new ListNode(0, head);
+    var prev = dummy;
+    while (prev.next !== null) {
+        if (count.get(prev.next.val) > 1) {
+            // Skip this node
+            prev.next = prev.next.next;
+        } else {
+            prev = prev.next;
+        }
+    }
+
+    return dummy.next;
+}`,
+  single: `function deleteDuplicates(head) {
+    var dummy = new ListNode(0, head);
+    var prev = dummy;
+
+    var current = head;
+    while (current !== null) {
+        // Check if current starts a duplicate run
+        if (current.next !== null && current.val === current.next.val) {
+            // Skip all nodes with this value
+            while (current.next !== null && current.val === current.next.val) {
+                current = current.next;
+            }
+            // Wire prev to the node after the duplicate run
+            prev.next = current.next;
+        } else {
+            // Current is unique, advance prev
+            prev = prev.next;
+        }
+        current = current.next;
+    }
+
+    return dummy.next;
+}`,
+};
+
+// Distinct source code for Swap Nodes in Pairs approaches.
+export const swapPairsSources: Record<string, string> = {
+  recursive: `function swapPairs(head) {
+    // Base case: fewer than 2 nodes, nothing to swap
+    if (!head || !head.next) return head;
+
+    var first = head;
+    var second = head.next;
+
+    // Recursively swap the rest of the list
+    first.next = swapPairs(second.next);
+    second.next = first;
+
+    // second is now the head of this swapped pair
+    return second;
+}`,
+  iterative: `function swapPairs(head) {
+    // Dummy node simplifies head pointer management
+    var dummy = new ListNode(0, head);
+    var prev = dummy;
+
+    while (prev.next && prev.next.next) {
+        var first = prev.next;
+        var second = prev.next.next;
+
+        // Rewire the three pointers
+        prev.next = second;
+        first.next = second.next;
+        second.next = first;
+
+        // Advance prev to the end of the swapped pair
+        prev = first;
+    }
+
+    return dummy.next;
+}`,
+};
+
+// Distinct source code for Copy List with Random Pointer approaches.
+export const copyRandomListSources: Record<string, string> = {
+  map: `function copyRandomList(head) {
+    if (!head) return null;
+
+    // Pass 1: create copy nodes and build the mapping
+    var map = new Map();
+    var current = head;
+    while (current) {
+        map.set(current, new _Node(current.val));
+        current = current.next;
+    }
+
+    // Pass 2: wire up next and random pointers
+    current = head;
+    while (current) {
+        map.get(current).next = map.get(current.next) || null;
+        map.get(current).random = map.get(current.random) || null;
+        current = current.next;
+    }
+
+    return map.get(head);
+}`,
+  interleave: `function copyRandomList(head) {
+    if (!head) return null;
+
+    // Pass 1: interleave copy nodes after each original
+    var current = head;
+    while (current) {
+        var copy = new _Node(current.val);
+        copy.next = current.next;
+        current.next = copy;
+        current = copy.next;
+    }
+
+    // Pass 2: set random pointers for copy nodes
+    current = head;
+    while (current) {
+        if (current.random) {
+            current.next.random = current.random.next;
+        }
+        current = current.next.next;
+    }
+
+    // Pass 3: separate the interleaved list into original and copy
+    var copyHead = head.next;
+    current = head;
+    var copyCurrent = copyHead;
+    while (current) {
+        current.next = copyCurrent.next;
+        current = current.next;
+        if (current) {
+            copyCurrent.next = current.next;
+            copyCurrent = copyCurrent.next;
+        } else {
+            copyCurrent.next = null;
+        }
+    }
+
+    return copyHead;
+}`,
+};
+
+// Distinct source code for Partition List approaches.
+export const partitionSources: Record<string, string> = {
+  array: `function partition(head, x) {
+    // Collect values into two arrays based on partition value
+    var less = [];
+    var greater = [];
+
+    var current = head;
+    while (current !== null) {
+        if (current.val < x) {
+            less.push(current.val);
+        } else {
+            greater.push(current.val);
+        }
+        current = current.next;
+    }
+
+    // Build the result linked list
+    var dummy = new ListNode(0);
+    var tail = dummy;
+
+    var combined = less.concat(greater);
+    for (var i = 0; i < combined.length; i++) {
+        tail.next = new ListNode(combined[i]);
+        tail = tail.next;
+    }
+
+    return dummy.next;
+}`,
+  twodummy: `function partition(head, x) {
+    // Two dummy heads for the less and greater chains
+    var lessHead = new ListNode(0);
+    var greaterHead = new ListNode(0);
+    var lessTail = lessHead;
+    var greaterTail = greaterHead;
+
+    // Distribute nodes into the two chains
+    var current = head;
+    while (current !== null) {
+        if (current.val < x) {
+            lessTail.next = current;
+            lessTail = lessTail.next;
+        } else {
+            greaterTail.next = current;
+            greaterTail = greaterTail.next;
+        }
+        current = current.next;
+    }
+
+    // Connect the less chain to the greater chain
+    lessTail.next = greaterHead.next;
+    // Terminate the greater chain to prevent cycles
+    greaterTail.next = null;
+
+    return lessHead.next;
+}`,
+};
+
+// Distinct source code for Rotate List approaches.
+export const rotateListSources: Record<string, string> = {
+  brute: `function rotateRight(head, k) {
+    if (!head || !head.next || k === 0) return head;
+
+    // Count the length
+    var n = 0;
+    var temp = head;
+    while (temp) {
+        n++;
+        temp = temp.next;
+    }
+
+    k = k % n;
+    if (k === 0) return head;
+
+    // Rotate one at a time, k times
+    for (var i = 0; i < k; i++) {
+        var prev = null;
+        var curr = head;
+        while (curr.next) {
+            prev = curr;
+            curr = curr.next;
+        }
+        // curr is the last node, prev is second-to-last
+        prev.next = null;
+        curr.next = head;
+        head = curr;
+    }
+
+    return head;
+}`,
+  split: `function rotateRight(head, k) {
+    if (!head || !head.next || k === 0) return head;
+
+    // Find the length and the tail
+    var n = 1;
+    var tail = head;
+    while (tail.next) {
+        n++;
+        tail = tail.next;
+    }
+
+    // Compute effective rotation
+    k = k % n;
+    if (k === 0) return head;
+
+    // Form a circular list
+    tail.next = head;
+
+    // Walk to the new tail: (n - k - 1) steps from head
+    var newTail = head;
+    for (var i = 0; i < n - k - 1; i++) {
+        newTail = newTail.next;
+    }
+
+    // Break the circle
+    var newHead = newTail.next;
+    newTail.next = null;
+
+    return newHead;
+}`,
+};
+
+// Distinct source code for Add Two Numbers approaches.
+export const addTwoNumbersSources: Record<string, string> = {
+  iterative: `function addTwoNumbers(l1, l2) {
+    var dummy = new ListNode(0);
+    var current = dummy;
+    var carry = 0;
+
+    while (l1 !== null || l2 !== null || carry !== 0) {
+        var val1 = l1 !== null ? l1.val : 0;
+        var val2 = l2 !== null ? l2.val : 0;
+        var sum = val1 + val2 + carry;
+
+        carry = Math.floor(sum / 10);
+        current.next = new ListNode(sum % 10);
+        current = current.next;
+
+        if (l1 !== null) l1 = l1.next;
+        if (l2 !== null) l2 = l2.next;
+    }
+
+    return dummy.next;
+}`,
+  recursive: `function addTwoNumbers(l1, l2) {
+    return addWithCarry(l1, l2, 0);
+};
+
+function addWithCarry(l1, l2, carry) {
+    // Base case: both lists done and no carry
+    if (l1 === null && l2 === null && carry === 0) {
+        return null;
+    }
+
+    var sum = carry;
+    if (l1 !== null) sum += l1.val;
+    if (l2 !== null) sum += l2.val;
+
+    var node = new ListNode(sum % 10);
+    node.next = addWithCarry(
+        l1 !== null ? l1.next : null,
+        l2 !== null ? l2.next : null,
+        Math.floor(sum / 10)
+    );
+
+    return node;
+}`,
+};
+
+// Distinct source code for Flatten a Multilevel Doubly Linked List approaches.
+export const flattenSources: Record<string, string> = {
+  dfs: `function flatten(head) {
+    if (!head) return null;
+
+    // Use a stack to simulate DFS
+    var stack = [head];
+    var prev = new Node(0); // dummy previous node
+
+    while (stack.length > 0) {
+        var curr = stack.pop();
+
+        // Link current node to previous
+        prev.next = curr;
+        curr.prev = prev;
+
+        // Push next first (processed later), then child (processed sooner)
+        if (curr.next) {
+            stack.push(curr.next);
+        }
+        if (curr.child) {
+            stack.push(curr.child);
+            curr.child = null; // clear the child pointer
+        }
+
+        prev = curr;
+    }
+
+    // Detach the dummy node
+    head.prev = null;
+    return head;
+}`,
+  iterative: `function flatten(head) {
+    var curr = head;
+
+    while (curr !== null) {
+        if (curr.child !== null) {
+            var next = curr.next; // save the current next
+
+            // Find the tail of the child chain
+            var tail = curr.child;
+            while (tail.next !== null) {
+                tail = tail.next;
+            }
+
+            // Splice child chain between curr and next
+            curr.next = curr.child;
+            curr.child.prev = curr;
+            tail.next = next;
+            if (next !== null) {
+                next.prev = tail;
+            }
+
+            // Clear the child pointer
+            curr.child = null;
+        }
+        curr = curr.next;
+    }
+
+    return head;
+}`,
+};
+
+// Distinct source code for Palindrome Linked List approaches.
+export const palindromeSources: Record<string, string> = {
+  array: `var isPalindrome = function(head) {
+    // Copy values into an array
+    var vals = [];
+    var curr = head;
+    while (curr !== null) {
+        vals.push(curr.val);
+        curr = curr.next;
+    }
+
+    // Two-pointer palindrome check
+    var left = 0;
+    var right = vals.length - 1;
+    while (left < right) {
+        if (vals[left] !== vals[right]) {
+            return false;
+        }
+        left++;
+        right--;
+    }
+    return true;
+};`,
+  reversehalf: `var isPalindrome = function(head) {
+    if (head === null || head.next === null) {
+        return true;
+    }
+
+    // Step 1: Find the middle using slow/fast pointers
+    var slow = head;
+    var fast = head;
+    while (fast !== null && fast.next !== null) {
+        slow = slow.next;
+        fast = fast.next.next;
+    }
+
+    // Step 2: Reverse the second half
+    var prev = null;
+    var curr = slow;
+    while (curr !== null) {
+        var next = curr.next;
+        curr.next = prev;
+        prev = curr;
+        curr = next;
+    }
+
+    // Step 3: Compare both halves
+    var left = head;
+    var right = prev;
+    while (right !== null) {
+        if (left.val !== right.val) {
+            return false;
+        }
+        left = left.next;
+        right = right.next;
+    }
+    return true;
+};`,
+};
+
+// Distinct source code for Reverse Linked List approaches.
+export const reverseListSources: Record<string, string> = {
+  iterative: `function reverseList(head) {
+    let prev = null;
+    let curr = head;
+
+    while (curr !== null) {
+        let next = curr.next;
+        curr.next = prev;
+        prev = curr;
+        curr = next;
+    }
+
+    return prev;
+}`,
+  recursive: `var reverseList = function(head) {
+    // Base case: empty list or single node
+    if (head === null || head.next === null) {
+        return head;
+    }
+
+    // Reverse the rest of the list
+    var newHead = reverseList(head.next);
+
+    // Fix the pointers
+    head.next.next = head; // Next node points back to current
+    head.next = null;      // Current node becomes tail
+
+    return newHead;
+};`,
+};
+
+// Distinct source code for Reverse Linked List II approaches.
+export const reverseBetweenSources: Record<string, string> = {
+  extract: `var reverseBetween = function(head, left, right) {
+    // Collect values from position left to right
+    var values = [];
+    var curr = head;
+    var pos = 1;
+    while (curr) {
+        if (pos >= left && pos <= right) {
+            values.push(curr.val);
+        }
+        curr = curr.next;
+        pos++;
+    }
+
+    // Reverse the collected values
+    values.reverse();
+
+    // Write reversed values back into the list
+    curr = head;
+    pos = 1;
+    var idx = 0;
+    while (curr) {
+        if (pos >= left && pos <= right) {
+            curr.val = values[idx];
+            idx++;
+        }
+        curr = curr.next;
+        pos++;
+    }
+
+    return head;
+};`,
+  inplace: `var reverseBetween = function(head, left, right) {
+    var dummy = new ListNode(0, head);
+    var prev = dummy;
+
+    // Move prev to the node just before position left
+    for (var i = 0; i < left - 1; i++) {
+        prev = prev.next;
+    }
+
+    var curr = prev.next; // First node in the reversal range
+
+    // Reverse by moving each next node to the front of the reversed section
+    for (var i = 0; i < right - left; i++) {
+        var nextNode = curr.next;
+        curr.next = nextNode.next;
+        nextNode.next = prev.next;
+        prev.next = nextNode;
+    }
+
+    return dummy.next;
+};`,
+};
+
+// Distinct source code for Reverse Nodes in k-Group approaches.
+export const reverseKGroupSources: Record<string, string> = {
+  array: `var reverseKGroup = function(head, k) {
+    // Collect values into array
+    var values = [];
+    var curr = head;
+    while (curr) {
+        values.push(curr.val);
+        curr = curr.next;
+    }
+
+    var n = values.length;
+
+    // Reverse each complete group of k
+    for (var start = 0; start + k <= n; start += k) {
+        var left = start;
+        var right = start + k - 1;
+        while (left < right) {
+            var temp = values[left];
+            values[left] = values[right];
+            values[right] = temp;
+            left++;
+            right--;
+        }
+    }
+
+    // Write values back to linked list
+    curr = head;
+    for (var i = 0; i < values.length; i++) {
+        curr.val = values[i];
+        curr = curr.next;
+    }
+
+    return head;
+};`,
+  inplace: `var reverseKGroup = function(head, k) {
+    var dummy = new ListNode(0);
+    dummy.next = head;
+    var groupPrev = dummy;
+
+    while (true) {
+        // Check if k nodes remain
+        var kthNode = getKthNode(groupPrev, k);
+        if (!kthNode) break;
+
+        var groupNext = kthNode.next;
+
+        // Reverse k nodes starting from groupPrev.next
+        var prev = groupNext;
+        var curr = groupPrev.next;
+        for (var i = 0; i < k; i++) {
+            var next = curr.next;
+            curr.next = prev;
+            prev = curr;
+            curr = next;
+        }
+
+        // Reconnect
+        var groupHead = groupPrev.next;
+        groupPrev.next = kthNode;
+        groupPrev = groupHead;
+    }
+
+    return dummy.next;
+};
+
+function getKthNode(node, k) {
+    while (node && k > 0) {
+        node = node.next;
+        k--;
+    }
+    return node;
+}`,
+};
+
+// Distinct source code for Middle of the Linked List approaches.
+export const middleNodeSources: Record<string, string> = {
+  array: `var middleNode = function(head) {
+    var nodes = [];
+    var current = head;
+
+    // Collect all nodes into an array
+    while (current) {
+        nodes.push(current);
+        current = current.next;
+    }
+
+    // Return the middle node
+    return nodes[Math.floor(nodes.length / 2)];
+};`,
+  twopass: `var middleNode = function(head) {
+    // First pass: count the nodes
+    var count = 0;
+    var current = head;
+    while (current) {
+        count++;
+        current = current.next;
+    }
+
+    // Second pass: walk to the middle
+    current = head;
+    for (var i = 0; i < Math.floor(count / 2); i++) {
+        current = current.next;
+    }
+
+    return current;
+};`,
+};
+
+// Distinct source code for Happy Number approaches.
+export const happyNumberSources: Record<string, string> = {
+  set: `var isHappy = function(n) {
+    var seen = new Set();
+
+    while (n !== 1 && !seen.has(n)) {
+        seen.add(n);
+        n = getNext(n);
+    }
+
+    return n === 1;
+};
+
+function getNext(n) {
+    var sum = 0;
+    while (n > 0) {
+        var digit = n % 10;
+        sum += digit * digit;
+        n = Math.floor(n / 10);
+    }
+    return sum;
+}`,
+  floyd: `var isHappy = function(n) {
+    var slow = n;
+    var fast = getNext(n);
+
+    // Fast moves two steps, slow moves one step
+    while (fast !== 1 && slow !== fast) {
+        slow = getNext(slow);
+        fast = getNext(getNext(fast));
+    }
+
+    return fast === 1;
+};
+
+function getNext(n) {
+    var sum = 0;
+    while (n > 0) {
+        var digit = n % 10;
+        sum += digit * digit;
+        n = Math.floor(n / 10);
+    }
+    return sum;
+}`,
+};
+
+// Distinct source code for Linked List Cycle II approaches.
+export const detectCycleSources: Record<string, string> = {
+  set: `var detectCycle = function(head) {
+    var seen = new Set();
+
+    var current = head;
+    while (current !== null) {
+        // If we've seen this node before, it's the cycle start
+        if (seen.has(current)) {
+            return current;
+        }
+        seen.add(current);
+        current = current.next;
+    }
+
+    // No cycle found
+    return null;
+};`,
+  floyd: `var detectCycle = function(head) {
+    var slow = head;
+    var fast = head;
+
+    // Phase 1: Detect if a cycle exists
+    while (fast !== null && fast.next !== null) {
+        slow = slow.next;
+        fast = fast.next.next;
+
+        if (slow === fast) {
+            // Phase 2: Find the cycle start
+            slow = head;
+            while (slow !== fast) {
+                slow = slow.next;
+                fast = fast.next;
+            }
+            return slow;
+        }
+    }
+
+    // No cycle
+    return null;
+};`,
 };

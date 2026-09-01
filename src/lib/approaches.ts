@@ -1448,6 +1448,946 @@ export const APPROACH_INFO: Record<string, Record<string, ApproachInfo>> = {
       accent: "from-amber-500 to-orange-500",
     },
   },
+  "running-sum-of-1d-array": {
+    brute: {
+      id: "brute",
+      name: "Brute Force",
+      description:
+        "For each index i, recompute the sum from index 0 to i using an inner loop, then store it in result[i]. Simple but repeats work, giving O(n^2) time.",
+      time: "O(n^2)",
+      space: "O(n)",
+      accent: "from-rose-500 to-pink-500",
+    },
+    prefix: {
+      id: "prefix",
+      name: "Prefix Sum (Optimal)",
+      description:
+        "Each running sum builds on the previous one: result[i] = result[i-1] + nums[i]. A single pass computes all running sums in O(n) time.",
+      time: "O(n)",
+      space: "O(n)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+  },
+  "range-sum-query-immutable": {
+    brute: {
+      id: "brute",
+      name: "Brute Force",
+      description:
+        "For each sumRange(left, right) query, loop from left to right and add up the elements. Simple but each query costs O(n) time.",
+      time: "O(n) per query",
+      space: "O(1)",
+      accent: "from-rose-500 to-pink-500",
+    },
+    prefix: {
+      id: "prefix",
+      name: "Prefix Sum",
+      description:
+        "Precompute a prefix array where prefix[i] = sum of nums[0..i-1]. Then any range sum is prefix[right+1] - prefix[left] in O(1) time.",
+      time: "O(1) per query",
+      space: "O(n)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+  },
+  "find-pivot-index": {
+    brute: {
+      id: "brute",
+      name: "Brute Force",
+      description:
+        "For each index i, compute the sum of everything to its left and right with two inner loops, then check if they are equal. O(n^2) time.",
+      time: "O(n^2)",
+      space: "O(1)",
+      accent: "from-rose-500 to-pink-500",
+    },
+    prefix: {
+      id: "prefix",
+      name: "Prefix Sum (Optimal)",
+      description:
+        "Compute the total sum once. Then walk left to right, tracking leftSum; rightSum = totalSum - leftSum - nums[i]. Return the first index where they match. O(n) time.",
+      time: "O(n)",
+      space: "O(1)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+  },
+  "maximum-population-year": {
+    brute: {
+      id: "brute",
+      name: "Brute Force (Check Every Year)",
+      description:
+        "For each year from 1950 to 2050, count how many people are alive (birth <= year < death). Track the year with the maximum count. O(101 * n) time.",
+      time: "O(101n)",
+      space: "O(1)",
+      accent: "from-rose-500 to-pink-500",
+    },
+    sweep: {
+      id: "sweep",
+      name: "Line Sweep (Difference Array)",
+      description:
+        "Record +1 at each birth year and -1 at each death year in a difference array. Sweep across years accumulating the running sum to find the peak population. O(n + 101) time.",
+      time: "O(n)",
+      space: "O(101)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+  },
+  "subarray-sum-equals-k": {
+    brute: {
+      id: "brute",
+      name: "Brute Force",
+      description:
+        "For every starting index i, extend the subarray to the right with j, accumulating the sum. Count how many subarrays sum to exactly k. O(n^2) time.",
+      time: "O(n^2)",
+      space: "O(1)",
+      accent: "from-rose-500 to-pink-500",
+    },
+    map: {
+      id: "map",
+      name: "Prefix Sum + Hash Map",
+      description:
+        "Track how many times each prefix sum has appeared. A subarray ending at i sums to k when an earlier prefix sum equals prefixSum - k. O(n) time.",
+      time: "O(n)",
+      space: "O(n)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+  },
+  "subarray-sums-divisible-by-k": {
+    brute: {
+      id: "brute",
+      name: "Brute Force",
+      description:
+        "For every subarray, compute its sum and check if it is divisible by k. Count the divisible ones. O(n^2) time.",
+      time: "O(n^2)",
+      space: "O(1)",
+      accent: "from-rose-500 to-pink-500",
+    },
+    map: {
+      id: "map",
+      name: "Prefix Sum + Hash Map (Optimal)",
+      description:
+        "Two subarrays have sums divisible by k when their prefix sums share the same remainder mod k. Count prefix-sum remainders in a map. O(n) time.",
+      time: "O(n)",
+      space: "O(n)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+  },
+  "continuous-subarray-sum": {
+    brute: {
+      id: "brute",
+      name: "Brute Force",
+      description:
+        "For every subarray of length at least 2, compute its sum and check if it is a multiple of k. Return true on the first match. O(n^2) time.",
+      time: "O(n^2)",
+      space: "O(1)",
+      accent: "from-rose-500 to-pink-500",
+    },
+    map: {
+      id: "map",
+      name: "Prefix Sum + Hash Map (Optimal)",
+      description:
+        "Store the earliest index where each prefix-sum remainder was seen. If the same remainder recurs at distance >= 2, a valid subarray exists. O(n) time.",
+      time: "O(n)",
+      space: "O(n)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+  },
+  "contiguous-array": {
+    brute: {
+      id: "brute",
+      name: "Brute Force",
+      description:
+        "For every subarray, count the zeros and ones. If they are equal, update the maximum length. O(n^2) time.",
+      time: "O(n^2)",
+      space: "O(1)",
+      accent: "from-rose-500 to-pink-500",
+    },
+    map: {
+      id: "map",
+      name: "Prefix Sum + Hash Map",
+      description:
+        "Treat 0 as -1 and 1 as +1. A subarray has equal 0s and 1s when its prefix sums match. Store the first occurrence of each prefix sum. O(n) time.",
+      time: "O(n)",
+      space: "O(n)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+  },
+  "maximum-average-subarray-i": {
+    brute: {
+      id: "brute",
+      name: "Brute Force",
+      description:
+        "For every starting index i, sum the k elements that follow with an inner loop, then track the maximum. Recomputes each window from scratch, giving O(n*k) time.",
+      time: "O(n·k)",
+      space: "O(1)",
+      accent: "from-rose-500 to-pink-500",
+    },
+    sliding: {
+      id: "sliding",
+      name: "Sliding Window (Optimal)",
+      description:
+        "Compute the first window's sum once, then slide: add the new element and subtract the one leaving. Each window is updated in O(1), giving O(n) time.",
+      time: "O(n)",
+      space: "O(1)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+  },
+  "find-all-anagrams-in-a-string": {
+    brute: {
+      id: "brute",
+      name: "Brute Force (Sorting)",
+      description:
+        "For each window of length p, sort its characters and compare to the sorted p. Simple but each window costs O(p log p) to sort.",
+      time: "O((n-p)·p log p)",
+      space: "O(p)",
+      accent: "from-rose-500 to-pink-500",
+    },
+    freq: {
+      id: "freq",
+      name: "Frequency Map Comparison",
+      description:
+        "Maintain a 26-slot frequency array for p and the current window. Slide the window, updating counts in O(1), and compare arrays to find anagrams. O(n) time.",
+      time: "O(n)",
+      space: "O(1)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+  },
+  "permutation-in-string": {
+    brute: {
+      id: "brute",
+      name: "Brute Force (Generate All Permutations)",
+      description:
+        "Generate every permutation of s1 and check whether any is a substring of s2. Correct but factorial in the length of s1.",
+      time: "O(n!·m)",
+      space: "O(n!)",
+      accent: "from-rose-500 to-pink-500",
+    },
+    sliding: {
+      id: "sliding",
+      name: "Sliding Window with Frequency Comparison",
+      description:
+        "Compare the 26-slot frequency array of s1 against a sliding window of s2. Slide the window in O(1) per step, giving O(n) time.",
+      time: "O(n)",
+      space: "O(1)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+  },
+  "maximum-sum-of-distinct-subarrays-with-length-k": {
+    brute: {
+      id: "brute",
+      name: "Brute Force",
+      description:
+        "For each window of length k, use a set to check for duplicates while summing. Only update maxSum for windows with all distinct elements. O(n*k) time.",
+      time: "O(n·k)",
+      space: "O(k)",
+      accent: "from-rose-500 to-pink-500",
+    },
+    sliding: {
+      id: "sliding",
+      name: "Sliding Window with Hash Map",
+      description:
+        "Track element frequencies in a map and the window sum. Slide the window, adding/removing one element each step; the window is valid when the map has exactly k distinct keys. O(n) time.",
+      time: "O(n)",
+      space: "O(k)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+  },
+  "substring-with-concatenation-of-all-words": {
+    brute: {
+      id: "brute",
+      name: "Brute Force",
+      description:
+        "For each starting index, split the window into word-length chunks and count them against the target frequency map. O(n·m·w) time.",
+      time: "O(n·m·w)",
+      space: "O(m)",
+      accent: "from-rose-500 to-pink-500",
+    },
+    sliding: {
+      id: "sliding",
+      name: "Sliding Window (Optimal)",
+      description:
+        "Slide a window word-by-word across each starting offset, tracking how many distinct words match the target. O(n·w) time.",
+      time: "O(n·w)",
+      space: "O(m)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+  },
+  "longest-substring-without-repeating-characters": {
+    brute: {
+      id: "brute",
+      name: "Brute Force",
+      description:
+        "For every starting index i, extend a substring to the right with j while all characters are unique (tracked in a set). Track the longest length. O(n²) time.",
+      time: "O(n²)",
+      space: "O(n)",
+      accent: "from-rose-500 to-pink-500",
+    },
+    sliding: {
+      id: "sliding",
+      name: "Sliding Window + Hash Set",
+      description:
+        "Move a right pointer, adding characters to a set. When a duplicate appears, shrink from the left until it's gone. Each character is visited at most twice, giving O(n) time.",
+      time: "O(n)",
+      space: "O(min(n, alphabet))",
+      accent: "from-emerald-500 to-teal-500",
+    },
+  },
+  "longest-repeating-character-replacement": {
+    brute: {
+      id: "brute",
+      name: "Brute Force",
+      description:
+        "For every starting index, expand a window tracking character frequencies and the max frequency. A window is valid when windowLen - maxFreq ≤ k. O(n²) time.",
+      time: "O(n²)",
+      space: "O(1)",
+      accent: "from-rose-500 to-pink-500",
+    },
+    sliding: {
+      id: "sliding",
+      name: "Sliding Window",
+      description:
+        "Maintain a frequency array and slide a window. Shrink from the left whenever windowLen - maxFreq > k. Each character moves at most twice, giving O(n) time.",
+      time: "O(n)",
+      space: "O(1)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+  },
+  "minimum-size-subarray-sum": {
+    brute: {
+      id: "brute",
+      name: "Brute Force",
+      description:
+        "For every starting index i, accumulate a sum moving right. As soon as sum ≥ target, record the length and stop that start. O(n²) time.",
+      time: "O(n²)",
+      space: "O(1)",
+      accent: "from-rose-500 to-pink-500",
+    },
+    sliding: {
+      id: "sliding",
+      name: "Sliding Window",
+      description:
+        "Move a right pointer accumulating a sum. While the sum ≥ target, shrink from the left, recording the shortest window. Each element is visited at most twice, giving O(n) time.",
+      time: "O(n)",
+      space: "O(1)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+  },
+  "max-consecutive-ones-iii": {
+    brute: {
+      id: "brute",
+      name: "Brute Force",
+      description:
+        "For every starting index i, extend a window counting zeros. A window is valid while zeroCount ≤ k. Track the longest valid window. O(n²) time.",
+      time: "O(n²)",
+      space: "O(1)",
+      accent: "from-rose-500 to-pink-500",
+    },
+    sliding: {
+      id: "sliding",
+      name: "Sliding Window",
+      description:
+        "Move a right pointer counting zeros. While zeroCount > k, shrink from the left. Each element is visited at most twice, giving O(n) time.",
+      time: "O(n)",
+      space: "O(1)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+  },
+  "minimum-window-substring": {
+    brute: {
+      id: "brute",
+      name: "Brute Force",
+      description:
+        "For every starting index i, extend a window to the right and check if it covers all of t using frequency arrays. Track the shortest covering window. O(n²·m) time.",
+      time: "O(n²·m)",
+      space: "O(1)",
+      accent: "from-rose-500 to-pink-500",
+    },
+    sliding: {
+      id: "sliding",
+      name: "Sliding Window",
+      description:
+        "Expand a window with a right pointer, tracking how many distinct characters of t are satisfied. When all are met, shrink from the left to find the shortest. O(n) time.",
+      time: "O(n)",
+      space: "O(m)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+  },
+  "maximum-subarray": {
+    brute: {
+      id: "brute",
+      name: "Brute Force",
+      description:
+        "For every starting index i, extend a subarray to the right, accumulating the sum and tracking the maximum. Checks every subarray, giving O(n²) time.",
+      time: "O(n²)",
+      space: "O(1)",
+      accent: "from-rose-500 to-pink-500",
+    },
+    kadane: {
+      id: "kadane",
+      name: "Kadane's Algorithm",
+      description:
+        "Maintain the best subarray sum ending at each position. Either extend the previous subarray or start a new one at the current element. O(n) time.",
+      time: "O(n)",
+      space: "O(1)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+  },
+  "maximum-sum-circular-subarray": {
+    brute: {
+      id: "brute",
+      name: "Brute Force",
+      description:
+        "For every starting index i, walk around the circular array with j, accumulating a running sum and tracking the maximum. O(n²) time.",
+      time: "O(n²)",
+      space: "O(1)",
+      accent: "from-rose-500 to-pink-500",
+    },
+    kadane: {
+      id: "kadane",
+      name: "Kadane's with Min Subarray (Optimal)",
+      description:
+        "Compute the max non-wrapping subarray with Kadane's and the min subarray too. The best wrapping subarray is totalSum - minSum. O(n) time.",
+      time: "O(n)",
+      space: "O(1)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+  },
+  "maximum-product-subarray": {
+    brute: {
+      id: "brute",
+      name: "Brute Force",
+      description:
+        "For every starting index i, extend a subarray to the right, accumulating the product and tracking the maximum. O(n²) time.",
+      time: "O(n²)",
+      space: "O(1)",
+      accent: "from-rose-500 to-pink-500",
+    },
+    dp: {
+      id: "dp",
+      name: "Dynamic Programming (Track Min and Max)",
+      description:
+        "Track both the max and min product ending at each position, since a negative times a negative can become large. O(n) time.",
+      time: "O(n)",
+      space: "O(1)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+  },
+  "best-sightseeing-pair": {
+    brute: {
+      id: "brute",
+      name: "Brute Force",
+      description:
+        "For every pair (i, j) with i < j, compute values[i] + values[j] + i - j and track the maximum. O(n²) time.",
+      time: "O(n²)",
+      space: "O(1)",
+      accent: "from-rose-500 to-pink-500",
+    },
+    running: {
+      id: "running",
+      name: "Decomposition with Running Maximum",
+      description:
+        "Rewrite the score as (values[i] + i) + (values[j] - j). Keep the best values[i] + i seen so far as j advances, giving O(n) time.",
+      time: "O(n)",
+      space: "O(1)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+  },
+  "transpose-matrix": {
+    direct: {
+      id: "direct",
+      name: "Direct Construction",
+      description:
+        "Create a result with swapped dimensions, then iterate over the original matrix placing matrix[i][j] into result[j][i]. Straightforward and easy to follow.",
+      time: "O(m·n)",
+      space: "O(m·n)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+    column: {
+      id: "column",
+      name: "Column-Based Construction",
+      description:
+        "Iterate over the result matrix instead: each column of the original becomes a row of the result by reading matrix[i][j] down each column j.",
+      time: "O(m·n)",
+      space: "O(m·n)",
+      accent: "from-sky-500 to-blue-500",
+    },
+  },
+  "spiral-matrix": {
+    simulate: {
+      id: "simulate",
+      name: "Simulation with Direction Arrays",
+      description:
+        "Walk through the matrix using direction vectors (right, down, left, up). Track visited cells and turn right whenever the next step is out of bounds or already visited.",
+      time: "O(m·n)",
+      space: "O(m·n)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+    layer: {
+      id: "layer",
+      name: "Layer-by-Layer (Boundary Shrinking)",
+      description:
+        "Traverse the outer ring first, then shrink the top/bottom/left/right boundaries inward and repeat. No extra space needed.",
+      time: "O(m·n)",
+      space: "O(1)",
+      accent: "from-sky-500 to-blue-500",
+    },
+  },
+  "rotate-image": {
+    space: {
+      id: "space",
+      name: "Using Extra Space",
+      description:
+        "Copy each element into a rotated array where matrix[i][j] goes to rotated[j][n-1-i], then copy back. Simple but uses O(n²) space.",
+      time: "O(n²)",
+      space: "O(n²)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+    transpose: {
+      id: "transpose",
+      name: "Transpose + Reverse",
+      description:
+        "First transpose the matrix in place (swap across the diagonal), then reverse each row. Rotates 90° clockwise using O(1) extra space.",
+      time: "O(n²)",
+      space: "O(1)",
+      accent: "from-sky-500 to-blue-500",
+    },
+  },
+  "set-matrix-zeroes": {
+    copy: {
+      id: "copy",
+      name: "Brute Force (Copy Matrix)",
+      description:
+        "Copy the matrix, then for each zero in the copy, zero out the corresponding row and column in the original. Simple but uses O(m·n) space.",
+      time: "O(m·n·(m+n))",
+      space: "O(m·n)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+    hash: {
+      id: "hash",
+      name: "Hash Sets",
+      description:
+        "First pass records which rows and columns contain zeroes in sets. Second pass zeroes any cell whose row or column is marked. O(m·n) time, O(m+n) space.",
+      time: "O(m·n)",
+      space: "O(m+n)",
+      accent: "from-sky-500 to-blue-500",
+    },
+  },
+  "candy-crush": {
+    bool: {
+      id: "bool",
+      name: "Simulation with Boolean Marking",
+      description:
+        "Repeatedly mark horizontal and vertical runs of 3+ with a boolean grid, crush marked cells to 0, then apply gravity. Uses a separate marking grid.",
+      time: "O((m·n)²)",
+      space: "O(m·n)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+    neg: {
+      id: "neg",
+      name: "In-Place Simulation with Negation",
+      description:
+        "Mark runs in place by negating their values, then crush and apply gravity in one pass. Uses O(1) extra space.",
+      time: "O((m·n)²)",
+      space: "O(1)",
+      accent: "from-sky-500 to-blue-500",
+    },
+  },
+  "valid-sudoku": {
+    threepass: {
+      id: "threepass",
+      name: "Three Separate Passes",
+      description:
+        "Check each row, then each column, then each 3×3 sub-box for duplicates using a set. Clear and straightforward.",
+      time: "O(81)",
+      space: "O(9)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+    singlepass: {
+      id: "singlepass",
+      name: "Single Pass with Hash Sets",
+      description:
+        "Maintain a set per row, column, and box. As you scan each cell, check all three constraints at once and add to each set.",
+      time: "O(81)",
+      space: "O(81)",
+      accent: "from-sky-500 to-blue-500",
+    },
+  },
+  "game-of-life": {
+    copy: {
+      id: "copy",
+      name: "Brute Force (Copy Board)",
+      description:
+        "Copy the board to read original states, then count live neighbors for each cell and apply the four rules. Uses O(m·n) space.",
+      time: "O(m·n)",
+      space: "O(m·n)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+    encode: {
+      id: "encode",
+      name: "In-Place with State Encoding",
+      description:
+        "Encode transitions in place: 2 for dead→alive and 3 for alive→dead. Original state is read via % 2. Final pass decodes to 0/1. O(1) space.",
+      time: "O(m·n)",
+      space: "O(1)",
+      accent: "from-sky-500 to-blue-500",
+    },
+  },
+  "intersection-of-two-linked-lists": {
+    hashset: {
+      id: "hashset",
+      name: "Hash Set",
+      description:
+        "Store every node of list A in a set, then walk list B and return the first node that is already in the set. O(m+n) time, O(m) space.",
+      time: "O(m+n)",
+      space: "O(m)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+    twopointer: {
+      id: "twopointer",
+      name: "Two Pointers",
+      description:
+        "Each pointer traverses both lists; when one reaches the end it switches to the other list's head. They meet at the intersection or null. O(m+n) time, O(1) space.",
+      time: "O(m+n)",
+      space: "O(1)",
+      accent: "from-sky-500 to-blue-500",
+    },
+  },
+  "remove-duplicates-from-sorted-list": {
+    set: {
+      id: "set",
+      name: "Using a Hash Set",
+      description:
+        "Track seen values in a set and skip any node whose value is already present. Simple but uses O(n) extra space.",
+      time: "O(n)",
+      space: "O(n)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+    inplace: {
+      id: "inplace",
+      name: "Single Pass In-Place (Optimal)",
+      description:
+        "Since the list is sorted, duplicates are adjacent. Compare each node with its next and skip duplicates in place. O(n) time, O(1) space.",
+      time: "O(n)",
+      space: "O(1)",
+      accent: "from-sky-500 to-blue-500",
+    },
+  },
+  "design-linked-list": {
+    singly: {
+      id: "singly",
+      name: "Singly Linked List",
+      description:
+        "Implement the list with a single sentinel node and a size counter. Each operation walks from the sentinel to the target index.",
+      time: "O(n) per op",
+      space: "O(n)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+    doubly: {
+      id: "doubly",
+      name: "Doubly Linked List",
+      description:
+        "Use head and tail sentinels with prev/next pointers. Access from whichever end is closer, halving the average walk distance.",
+      time: "O(n) per op",
+      space: "O(n)",
+      accent: "from-sky-500 to-blue-500",
+    },
+  },
+  "remove-nth-node-from-end-of-list": {
+    twopass: {
+      id: "twopass",
+      name: "Two Pass (Count then Remove)",
+      description:
+        "First pass counts the total length. Second pass advances (length - n) steps from a dummy node to reach the predecessor, then removes the target.",
+      time: "O(n)",
+      space: "O(1)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+    onepass: {
+      id: "onepass",
+      name: "One Pass (Two Pointers)",
+      description:
+        "Advance a fast pointer n+1 steps ahead, then move slow and fast together. When fast reaches the end, slow is before the target. O(n) time, O(1) space.",
+      time: "O(n)",
+      space: "O(1)",
+      accent: "from-sky-500 to-blue-500",
+    },
+  },
+  "remove-duplicates-from-sorted-list-ii": {
+    map: {
+      id: "map",
+      name: "Hash Map (Two Pass)",
+      description:
+        "First pass counts each value's frequency. Second pass removes every node whose value appears more than once. O(n) time, O(n) space.",
+      time: "O(n)",
+      space: "O(n)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+    single: {
+      id: "single",
+      name: "Single Pass with Dummy Node (Optimal)",
+      description:
+        "Walk the list once; when a run of equal values is found, skip the entire run. Uses a dummy node to handle head removal. O(n) time, O(1) space.",
+      time: "O(n)",
+      space: "O(1)",
+      accent: "from-sky-500 to-blue-500",
+    },
+  },
+  "swap-nodes-in-pairs": {
+    recursive: {
+      id: "recursive",
+      name: "Recursive",
+      description:
+        "Swap the first two nodes, then recursively swap the rest of the list. Clean and elegant, but uses O(n) call-stack space.",
+      time: "O(n)",
+      space: "O(n)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+    iterative: {
+      id: "iterative",
+      name: "Iterative with Dummy Node",
+      description:
+        "Use a dummy node and rewire three pointers per pair in a loop. O(n) time, O(1) space.",
+      time: "O(n)",
+      space: "O(1)",
+      accent: "from-sky-500 to-blue-500",
+    },
+  },
+  "copy-list-with-random-pointer": {
+    map: {
+      id: "map",
+      name: "Hash Map (Two Pass)",
+      description:
+        "First pass creates a copy node for each original and maps original→copy. Second pass wires up next and random pointers using the map. O(n) time, O(n) space.",
+      time: "O(n)",
+      space: "O(n)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+    interleave: {
+      id: "interleave",
+      name: "Interleaving Nodes (O(1) Space)",
+      description:
+        "Interleave copy nodes after each original, set random pointers, then separate the two lists. O(n) time, O(1) space.",
+      time: "O(n)",
+      space: "O(1)",
+      accent: "from-sky-500 to-blue-500",
+    },
+  },
+  "partition-list": {
+    array: {
+      id: "array",
+      name: "Collect into Array and Rebuild",
+      description:
+        "Collect values into less and greater arrays, concatenate, and rebuild a new list. Simple but uses O(n) extra space.",
+      time: "O(n)",
+      space: "O(n)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+    twodummy: {
+      id: "twodummy",
+      name: "Two Dummy Lists (Optimal)",
+      description:
+        "Distribute nodes into two chains (less and greater) using dummy heads, then connect them. O(n) time, O(1) space.",
+      time: "O(n)",
+      space: "O(1)",
+      accent: "from-sky-500 to-blue-500",
+    },
+  },
+  "rotate-list": {
+    brute: {
+      id: "brute",
+      name: "Brute Force (Rotate One at a Time)",
+      description:
+        "Rotate the list right by one position k times, each time moving the last node to the front. O(n·k) time.",
+      time: "O(n·k)",
+      space: "O(1)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+    split: {
+      id: "split",
+      name: "Find Split Point (Optimal)",
+      description:
+        "Find the length and tail, form a circular list, then break it at the new tail after (n - k) steps. O(n) time, O(1) space.",
+      time: "O(n)",
+      space: "O(1)",
+      accent: "from-sky-500 to-blue-500",
+    },
+  },
+  "add-two-numbers": {
+    iterative: {
+      id: "iterative",
+      name: "Iterative with Carry",
+      description:
+        "Walk both lists together, adding digits and carrying. Handles unequal lengths and a final carry. O(max(m,n)) time, O(max(m,n)) space.",
+      time: "O(m+n)",
+      space: "O(m+n)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+    recursive: {
+      id: "recursive",
+      name: "Recursive",
+      description:
+        "Recursively add digits with a carry, building the result list from the tail. Clean but uses O(max(m,n)) call-stack space.",
+      time: "O(m+n)",
+      space: "O(m+n)",
+      accent: "from-sky-500 to-blue-500",
+    },
+  },
+  "flatten-a-multilevel-doubly-linked-list": {
+    dfs: {
+      id: "dfs",
+      name: "DFS with Stack",
+      description:
+        "Use a stack to simulate a depth-first traversal, linking each node to the previous one and pushing next then child. O(n) time, O(n) space.",
+      time: "O(n)",
+      space: "O(n)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+    iterative: {
+      id: "iterative",
+      name: "Iterative In-Place (Optimal)",
+      description:
+        "Walk the list; when a child exists, splice the entire child chain between the current node and its next. O(n) time, O(1) space.",
+      time: "O(n)",
+      space: "O(1)",
+      accent: "from-sky-500 to-blue-500",
+    },
+  },
+  "palindrome-linked-list": {
+    array: {
+      id: "array",
+      name: "Copy to Array",
+      description:
+        "Copy all values into an array, then use two pointers to check if it reads the same forward and backward. O(n) time, O(n) space.",
+      time: "O(n)",
+      space: "O(n)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+    reversehalf: {
+      id: "reversehalf",
+      name: "Reverse Second Half (Optimal)",
+      description:
+        "Find the middle with slow/fast pointers, reverse the second half in place, then compare both halves. O(n) time, O(1) space.",
+      time: "O(n)",
+      space: "O(1)",
+      accent: "from-sky-500 to-blue-500",
+    },
+  },
+  "reverse-linked-list": {
+    iterative: {
+      id: "iterative",
+      name: "Iterative (Three Pointers)",
+      description:
+        "Walk the list with prev, curr, and next pointers, reversing each link as you go. O(n) time, O(1) space.",
+      time: "O(n)",
+      space: "O(1)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+    recursive: {
+      id: "recursive",
+      name: "Recursive",
+      description:
+        "Recursively reverse the rest of the list, then fix the pointers so the next node points back to the current. O(n) time, O(n) space.",
+      time: "O(n)",
+      space: "O(n)",
+      accent: "from-sky-500 to-blue-500",
+    },
+  },
+  "reverse-linked-list-ii": {
+    extract: {
+      id: "extract",
+      name: "Extract, Reverse, and Reinsert",
+      description:
+        "Collect the values in the range, reverse them, and write them back. Simple but uses O(n) extra space.",
+      time: "O(n)",
+      space: "O(n)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+    inplace: {
+      id: "inplace",
+      name: "In-Place Reversal with Pointer Manipulation",
+      description:
+        "Use a dummy node and repeatedly move each next node to the front of the reversed section. O(n) time, O(1) space.",
+      time: "O(n)",
+      space: "O(1)",
+      accent: "from-sky-500 to-blue-500",
+    },
+  },
+  "reverse-nodes-in-k-group": {
+    array: {
+      id: "array",
+      name: "Extract to Array and Rebuild",
+      description:
+        "Collect values into an array, reverse each complete group of k, then write them back. Simple but uses O(n) extra space.",
+      time: "O(n)",
+      space: "O(n)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+    inplace: {
+      id: "inplace",
+      name: "Iterative In-Place Reversal",
+      description:
+        "Use a dummy node and reverse each group of k nodes in place, reconnecting after each group. O(n) time, O(1) space.",
+      time: "O(n)",
+      space: "O(1)",
+      accent: "from-sky-500 to-blue-500",
+    },
+  },
+  "middle-of-the-linked-list": {
+    array: {
+      id: "array",
+      name: "Convert to Array",
+      description:
+        "Collect all nodes into an array, then return the node at index floor(n/2). O(n) time, O(n) space.",
+      time: "O(n)",
+      space: "O(n)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+    twopass: {
+      id: "twopass",
+      name: "Two-Pass (Count then Traverse)",
+      description:
+        "First pass counts the nodes, second pass walks to the middle. O(n) time, O(1) space.",
+      time: "O(n)",
+      space: "O(1)",
+      accent: "from-sky-500 to-blue-500",
+    },
+  },
+  "happy-number": {
+    set: {
+      id: "set",
+      name: "Hash Set",
+      description:
+        "Repeatedly replace n with the sum of the squares of its digits, tracking seen values in a set. If we reach 1 it's happy; if we see a repeat, it's a cycle. O(log n) time, O(log n) space.",
+      time: "O(log n)",
+      space: "O(log n)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+    floyd: {
+      id: "floyd",
+      name: "Floyd's Cycle Detection (Two Pointers)",
+      description:
+        "Use slow and fast pointers. If fast reaches 1 it's happy; if slow meets fast, a cycle exists. O(log n) time, O(1) space.",
+      time: "O(log n)",
+      space: "O(1)",
+      accent: "from-sky-500 to-blue-500",
+    },
+  },
+  "linked-list-cycle-ii": {
+    set: {
+      id: "set",
+      name: "Hash Set",
+      description:
+        "Walk the list storing each node in a set. The first node already in the set is the cycle start. O(n) time, O(n) space.",
+      time: "O(n)",
+      space: "O(n)",
+      accent: "from-emerald-500 to-teal-500",
+    },
+    floyd: {
+      id: "floyd",
+      name: "Floyd's Tortoise and Hare (Optimal)",
+      description:
+        "Phase 1 detects the cycle with slow/fast pointers. Phase 2 resets slow to head and advances both one step to find the cycle start. O(n) time, O(1) space.",
+      time: "O(n)",
+      space: "O(1)",
+      accent: "from-sky-500 to-blue-500",
+    },
+  },
 };
 
 export function getApproachInfos(slug: string): ApproachInfo[] {

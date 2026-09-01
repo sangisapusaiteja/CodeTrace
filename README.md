@@ -35,7 +35,7 @@ Each problem ships **two distinct approaches** — a baseline brute-force and an
 | **Categorized library** | Arrays, Strings, Bit Manipulation, Hash Table, and Two Pointers — with per-problem default inputs. |
 | **Auth** | Google OAuth (with CSRF state protection) and email/password with session cookies. |
 | **Supabase-backed** | Problems, approach source code, and categories are seeded in Supabase and served via a typed REST client. |
-| **Progress tracking** | Per-user completion and last-opened timestamps stored in `viz_user_progress`. |
+| **Progress tracking** | Per-user completion and last-opened timestamps stored in `ct_user_progress`. |
 
 **Coverage:** 70+ problems across 5 categories, each with 2 approaches.
 
@@ -127,7 +127,7 @@ flowchart TD
 3. **Problem page** — `/problem/[slug]` loads the problem metadata, its default input, and both approach cards.
 4. **ApproachPlayer** — Each approach is a self-contained card: an explanation, the source code with the active line highlighted, and a visualizer driven by a precomputed `Trace`.
 5. **Playback** — The user plays, pauses, steps forward/back, resets, or changes speed (0.5×/1×/2×). Every step updates the visualizer, variable chips, result badge, and explanation.
-6. **Progress** — Completion state is persisted to `viz_user_progress`.
+6. **Progress** — Completion state is persisted to `ct_user_progress`.
 
 ---
 
@@ -193,7 +193,7 @@ sequenceDiagram
 
     Page->>Hook: useProblems()
     Hook->>API: GET /api/problems
-    API->>REST: GET viz_problems + versions
+    API->>REST: GET ct_problems + versions
     REST-->>API: rows
     API-->>Hook: Problem[] (slug, versions, source)
     Hook-->>Page: problems
@@ -218,12 +218,12 @@ sequenceDiagram
 
 ```mermaid
 erDiagram
-    viz_categories ||--o{ viz_problems : "categorizes"
-    viz_problems ||--o{ viz_problem_versions : "has"
-    viz_problems ||--o{ viz_user_progress : "tracked in"
-    users ||--o{ viz_user_progress : "completes"
+    ct_categories ||--o{ ct_problems : "categorizes"
+    ct_problems ||--o{ ct_problem_versions : "has"
+    ct_problems ||--o{ ct_user_progress : "tracked in"
+    users ||--o{ ct_user_progress : "completes"
 
-    viz_categories {
+    ct_categories {
         text id PK
         text title
         text description
@@ -232,7 +232,7 @@ erDiagram
         int sort_order
     }
 
-    viz_problems {
+    ct_problems {
         uuid id PK
         text slug UK
         text title
@@ -244,7 +244,7 @@ erDiagram
         timestamptz created_at
     }
 
-    viz_problem_versions {
+    ct_problem_versions {
         uuid id PK
         uuid problem_id FK
         text version_id
@@ -253,7 +253,7 @@ erDiagram
         int sort_order
     }
 
-    viz_user_progress {
+    ct_user_progress {
         uuid user_id FK
         uuid problem_id FK
         boolean completed
@@ -273,16 +273,16 @@ erDiagram
 
 | Table | Purpose | Key columns |
 |---|---|---|
-| `viz_categories` | Category metadata shown on the dashboard (Arrays, Strings, ...) | `id`, `title`, `icon`, `color`, `sort_order` |
-| `viz_problems` | One row per problem | `slug` (unique), `category_id`, `difficulty`, `description`, `constraints`, `sort_order` |
-| `viz_problem_versions` | Each approach's source code for a problem | `problem_id`, `version_id`, `name`, `source` |
-| `viz_user_progress` | Per-user completion state | `user_id`, `problem_id`, `completed`, `completed_at` |
+| `ct_categories` | Category metadata shown on the dashboard (Arrays, Strings, ...) | `id`, `title`, `icon`, `color`, `sort_order` |
+| `ct_problems` | One row per problem | `slug` (unique), `category_id`, `difficulty`, `description`, `constraints`, `sort_order` |
+| `ct_problem_versions` | Each approach's source code for a problem | `problem_id`, `version_id`, `name`, `source` |
+| `ct_user_progress` | Per-user completion state | `user_id`, `problem_id`, `completed`, `completed_at` |
 | `users` | Shared auth table (sibling apps) | `google_id`, `auth_provider`, `password_hash` |
 
 ### Row-Level Security
 
-- `viz_categories`, `viz_problems`, `viz_problem_versions` — readable by all (`anon`).
-- `viz_user_progress` — readable, insertable, and updatable by all (writes happen server-side via the service role).
+- `ct_categories`, `ct_problems`, `ct_problem_versions` — readable by all (`anon`).
+- `ct_user_progress` — readable, insertable, and updatable by all (writes happen server-side via the service role).
 
 ---
 

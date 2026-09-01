@@ -142,6 +142,100 @@ import { FourSumBruteVisualizer } from "./FourSumBruteVisualizer";
 import { FourSumTwoPointerVisualizer } from "./FourSumTwoPointerVisualizer";
 import { TrapBruteVisualizer } from "./TrapBruteVisualizer";
 import { TrapPrefixMaxVisualizer } from "./TrapPrefixMaxVisualizer";
+import { RunningSumBruteVisualizer } from "./RunningSumBruteVisualizer";
+import { RunningSumPrefixVisualizer } from "./RunningSumPrefixVisualizer";
+import { RangeSumBruteVisualizer } from "./RangeSumBruteVisualizer";
+import { RangeSumPrefixVisualizer } from "./RangeSumPrefixVisualizer";
+import { PivotIndexBruteVisualizer } from "./PivotIndexBruteVisualizer";
+import { PivotIndexPrefixVisualizer } from "./PivotIndexPrefixVisualizer";
+import { MaxPopBruteVisualizer } from "./MaxPopBruteVisualizer";
+import { MaxPopSweepVisualizer } from "./MaxPopSweepVisualizer";
+import { SubarraySumBruteVisualizer } from "./SubarraySumBruteVisualizer";
+import { SubarraySumMapVisualizer } from "./SubarraySumMapVisualizer";
+import { SubarraysDivByKBruteVisualizer } from "./SubarraysDivByKBruteVisualizer";
+import { SubarraysDivByKMapVisualizer } from "./SubarraysDivByKMapVisualizer";
+import { CheckSubarraySumBruteVisualizer } from "./CheckSubarraySumBruteVisualizer";
+import { CheckSubarraySumMapVisualizer } from "./CheckSubarraySumMapVisualizer";
+import { FindMaxLengthBruteVisualizer } from "./FindMaxLengthBruteVisualizer";
+import { FindMaxLengthMapVisualizer } from "./FindMaxLengthMapVisualizer";
+import { MaxAvgBruteVisualizer } from "./MaxAvgBruteVisualizer";
+import { MaxAvgSlidingVisualizer } from "./MaxAvgSlidingVisualizer";
+import { FindAnagramsBruteVisualizer } from "./FindAnagramsBruteVisualizer";
+import { FindAnagramsFreqVisualizer } from "./FindAnagramsFreqVisualizer";
+import { CheckInclusionBruteVisualizer } from "./CheckInclusionBruteVisualizer";
+import { CheckInclusionSlidingVisualizer } from "./CheckInclusionSlidingVisualizer";
+import { MaxDistinctBruteVisualizer } from "./MaxDistinctBruteVisualizer";
+import { MaxDistinctSlidingVisualizer } from "./MaxDistinctSlidingVisualizer";
+import { FindSubstringBruteVisualizer } from "./FindSubstringBruteVisualizer";
+import { FindSubstringSlidingVisualizer } from "./FindSubstringSlidingVisualizer";
+import { LongSubNoRepeatBruteVisualizer } from "./LongSubNoRepeatBruteVisualizer";
+import { LongSubNoRepeatSlidingVisualizer } from "./LongSubNoRepeatSlidingVisualizer";
+import { CharReplacementBruteVisualizer } from "./CharReplacementBruteVisualizer";
+import { CharReplacementSlidingVisualizer } from "./CharReplacementSlidingVisualizer";
+import { MinSubArrayLenBruteVisualizer } from "./MinSubArrayLenBruteVisualizer";
+import { MinSubArrayLenSlidingVisualizer } from "./MinSubArrayLenSlidingVisualizer";
+import { LongestOnesBruteVisualizer } from "./LongestOnesBruteVisualizer";
+import { LongestOnesSlidingVisualizer } from "./LongestOnesSlidingVisualizer";
+import { MinWindowBruteVisualizer } from "./MinWindowBruteVisualizer";
+import { MinWindowSlidingVisualizer } from "./MinWindowSlidingVisualizer";
+import { MaxSubArrayBruteVisualizer } from "./MaxSubArrayBruteVisualizer";
+import { MaxSubArrayKadaneVisualizer } from "./MaxSubArrayKadaneVisualizer";
+import { MaxCircularBruteVisualizer } from "./MaxCircularBruteVisualizer";
+import { MaxCircularKadaneVisualizer } from "./MaxCircularKadaneVisualizer";
+import { MaxProductBruteVisualizer } from "./MaxProductBruteVisualizer";
+import { MaxProductDPVisualizer } from "./MaxProductDPVisualizer";
+import { SightseeingBruteVisualizer } from "./SightseeingBruteVisualizer";
+import { SightseeingRunningVisualizer } from "./SightseeingRunningVisualizer";
+import { TransposeDirectVisualizer } from "./TransposeDirectVisualizer";
+import { TransposeColumnVisualizer } from "./TransposeColumnVisualizer";
+import { SpiralSimulateVisualizer } from "./SpiralSimulateVisualizer";
+import { SpiralLayerVisualizer } from "./SpiralLayerVisualizer";
+import { RotateImageSpaceVisualizer } from "./RotateImageSpaceVisualizer";
+import { RotateImageTransposeVisualizer } from "./RotateImageTransposeVisualizer";
+import { SetZeroesCopyVisualizer } from "./SetZeroesCopyVisualizer";
+import { SetZeroesHashVisualizer } from "./SetZeroesHashVisualizer";
+import { CandyCrushBoolVisualizer } from "./CandyCrushBoolVisualizer";
+import { CandyCrushNegVisualizer } from "./CandyCrushNegVisualizer";
+import { SudokuThreePassVisualizer } from "./SudokuThreePassVisualizer";
+import { SudokuSinglePassVisualizer } from "./SudokuSinglePassVisualizer";
+import { GameOfLifeCopyVisualizer } from "./GameOfLifeCopyVisualizer";
+import { GameOfLifeEncodeVisualizer } from "./GameOfLifeEncodeVisualizer";
+import { IntersectionHashSetVisualizer } from "./IntersectionHashSetVisualizer";
+import { IntersectionTwoPointerVisualizer } from "./IntersectionTwoPointerVisualizer";
+import { DeleteDuplicatesSetVisualizer } from "./DeleteDuplicatesSetVisualizer";
+import { DeleteDuplicatesInPlaceVisualizer } from "./DeleteDuplicatesInPlaceVisualizer";
+import { DesignLinkedListSinglyVisualizer } from "./DesignLinkedListSinglyVisualizer";
+import { DesignLinkedListDoublyVisualizer } from "./DesignLinkedListDoublyVisualizer";
+import { RemoveNthTwoPassVisualizer } from "./RemoveNthTwoPassVisualizer";
+import { RemoveNthOnePassVisualizer } from "./RemoveNthOnePassVisualizer";
+import { DeleteDuplicatesIIMapVisualizer } from "./DeleteDuplicatesIIMapVisualizer";
+import { DeleteDuplicatesIISingleVisualizer } from "./DeleteDuplicatesIISingleVisualizer";
+import { SwapPairsRecursiveVisualizer } from "./SwapPairsRecursiveVisualizer";
+import { SwapPairsIterativeVisualizer } from "./SwapPairsIterativeVisualizer";
+import { CopyRandomListMapVisualizer } from "./CopyRandomListMapVisualizer";
+import { CopyRandomListInterleaveVisualizer } from "./CopyRandomListInterleaveVisualizer";
+import { PartitionArrayVisualizer } from "./PartitionArrayVisualizer";
+import { PartitionTwoDummyVisualizer } from "./PartitionTwoDummyVisualizer";
+import { RotateListBruteVisualizer } from "./RotateListBruteVisualizer";
+import { RotateListSplitVisualizer } from "./RotateListSplitVisualizer";
+import { AddTwoNumbersIterativeVisualizer } from "./AddTwoNumbersIterativeVisualizer";
+import { AddTwoNumbersRecursiveVisualizer } from "./AddTwoNumbersRecursiveVisualizer";
+import { FlattenDFSStackVisualizer } from "./FlattenDFSStackVisualizer";
+import { FlattenIterativeVisualizer } from "./FlattenIterativeVisualizer";
+import { PalindromeArrayVisualizer } from "./PalindromeArrayVisualizer";
+import { PalindromeReverseHalfVisualizer } from "./PalindromeReverseHalfVisualizer";
+import { ReverseListIterativeVisualizer } from "./ReverseListIterativeVisualizer";
+import { ReverseListRecursiveVisualizer } from "./ReverseListRecursiveVisualizer";
+import { ReverseBetweenExtractVisualizer } from "./ReverseBetweenExtractVisualizer";
+import { ReverseBetweenInPlaceVisualizer } from "./ReverseBetweenInPlaceVisualizer";
+import { ReverseKGroupArrayVisualizer } from "./ReverseKGroupArrayVisualizer";
+import { ReverseKGroupInPlaceVisualizer } from "./ReverseKGroupInPlaceVisualizer";
+import { MiddleNodeArrayVisualizer } from "./MiddleNodeArrayVisualizer";
+import { MiddleNodeTwoPassVisualizer } from "./MiddleNodeTwoPassVisualizer";
+import { HappyNumberSetVisualizer } from "./HappyNumberSetVisualizer";
+import { HappyNumberFloydVisualizer } from "./HappyNumberFloydVisualizer";
+import { DetectCycleSetVisualizer } from "./DetectCycleSetVisualizer";
+import { DetectCycleFloydVisualizer } from "./DetectCycleFloydVisualizer";
 import type { VisualizerComponent } from "./types";
 
 export const VISUALIZERS: Record<string, Record<string, VisualizerComponent>> = {
@@ -432,6 +526,194 @@ export const VISUALIZERS: Record<string, Record<string, VisualizerComponent>> = 
   "trapping-rain-water": {
     brute: TrapBruteVisualizer,
     prefixmax: TrapPrefixMaxVisualizer,
+  },
+  "running-sum-of-1d-array": {
+    brute: RunningSumBruteVisualizer,
+    prefix: RunningSumPrefixVisualizer,
+  },
+  "range-sum-query-immutable": {
+    brute: RangeSumBruteVisualizer,
+    prefix: RangeSumPrefixVisualizer,
+  },
+  "find-pivot-index": {
+    brute: PivotIndexBruteVisualizer,
+    prefix: PivotIndexPrefixVisualizer,
+  },
+  "maximum-population-year": {
+    brute: MaxPopBruteVisualizer,
+    sweep: MaxPopSweepVisualizer,
+  },
+  "subarray-sum-equals-k": {
+    brute: SubarraySumBruteVisualizer,
+    map: SubarraySumMapVisualizer,
+  },
+  "subarray-sums-divisible-by-k": {
+    brute: SubarraysDivByKBruteVisualizer,
+    map: SubarraysDivByKMapVisualizer,
+  },
+  "continuous-subarray-sum": {
+    brute: CheckSubarraySumBruteVisualizer,
+    map: CheckSubarraySumMapVisualizer,
+  },
+  "contiguous-array": {
+    brute: FindMaxLengthBruteVisualizer,
+    map: FindMaxLengthMapVisualizer,
+  },
+  "maximum-average-subarray-i": {
+    brute: MaxAvgBruteVisualizer,
+    sliding: MaxAvgSlidingVisualizer,
+  },
+  "find-all-anagrams-in-a-string": {
+    brute: FindAnagramsBruteVisualizer,
+    freq: FindAnagramsFreqVisualizer,
+  },
+  "permutation-in-string": {
+    brute: CheckInclusionBruteVisualizer,
+    sliding: CheckInclusionSlidingVisualizer,
+  },
+  "maximum-sum-of-distinct-subarrays-with-length-k": {
+    brute: MaxDistinctBruteVisualizer,
+    sliding: MaxDistinctSlidingVisualizer,
+  },
+  "substring-with-concatenation-of-all-words": {
+    brute: FindSubstringBruteVisualizer,
+    sliding: FindSubstringSlidingVisualizer,
+  },
+  "longest-substring-without-repeating-characters": {
+    brute: LongSubNoRepeatBruteVisualizer,
+    sliding: LongSubNoRepeatSlidingVisualizer,
+  },
+  "longest-repeating-character-replacement": {
+    brute: CharReplacementBruteVisualizer,
+    sliding: CharReplacementSlidingVisualizer,
+  },
+  "minimum-size-subarray-sum": {
+    brute: MinSubArrayLenBruteVisualizer,
+    sliding: MinSubArrayLenSlidingVisualizer,
+  },
+  "max-consecutive-ones-iii": {
+    brute: LongestOnesBruteVisualizer,
+    sliding: LongestOnesSlidingVisualizer,
+  },
+  "minimum-window-substring": {
+    brute: MinWindowBruteVisualizer,
+    sliding: MinWindowSlidingVisualizer,
+  },
+  "maximum-subarray": {
+    brute: MaxSubArrayBruteVisualizer,
+    kadane: MaxSubArrayKadaneVisualizer,
+  },
+  "maximum-sum-circular-subarray": {
+    brute: MaxCircularBruteVisualizer,
+    kadane: MaxCircularKadaneVisualizer,
+  },
+  "maximum-product-subarray": {
+    brute: MaxProductBruteVisualizer,
+    dp: MaxProductDPVisualizer,
+  },
+  "best-sightseeing-pair": {
+    brute: SightseeingBruteVisualizer,
+    running: SightseeingRunningVisualizer,
+  },
+  "transpose-matrix": {
+    direct: TransposeDirectVisualizer,
+    column: TransposeColumnVisualizer,
+  },
+  "spiral-matrix": {
+    simulate: SpiralSimulateVisualizer,
+    layer: SpiralLayerVisualizer,
+  },
+  "rotate-image": {
+    space: RotateImageSpaceVisualizer,
+    transpose: RotateImageTransposeVisualizer,
+  },
+  "set-matrix-zeroes": {
+    copy: SetZeroesCopyVisualizer,
+    hash: SetZeroesHashVisualizer,
+  },
+  "candy-crush": {
+    bool: CandyCrushBoolVisualizer,
+    neg: CandyCrushNegVisualizer,
+  },
+  "valid-sudoku": {
+    threepass: SudokuThreePassVisualizer,
+    singlepass: SudokuSinglePassVisualizer,
+  },
+  "game-of-life": {
+    copy: GameOfLifeCopyVisualizer,
+    encode: GameOfLifeEncodeVisualizer,
+  },
+  "intersection-of-two-linked-lists": {
+    hashset: IntersectionHashSetVisualizer,
+    twopointer: IntersectionTwoPointerVisualizer,
+  },
+  "remove-duplicates-from-sorted-list": {
+    set: DeleteDuplicatesSetVisualizer,
+    inplace: DeleteDuplicatesInPlaceVisualizer,
+  },
+  "design-linked-list": {
+    singly: DesignLinkedListSinglyVisualizer,
+    doubly: DesignLinkedListDoublyVisualizer,
+  },
+  "remove-nth-node-from-end-of-list": {
+    twopass: RemoveNthTwoPassVisualizer,
+    onepass: RemoveNthOnePassVisualizer,
+  },
+  "remove-duplicates-from-sorted-list-ii": {
+    map: DeleteDuplicatesIIMapVisualizer,
+    single: DeleteDuplicatesIISingleVisualizer,
+  },
+  "swap-nodes-in-pairs": {
+    recursive: SwapPairsRecursiveVisualizer,
+    iterative: SwapPairsIterativeVisualizer,
+  },
+  "copy-list-with-random-pointer": {
+    map: CopyRandomListMapVisualizer,
+    interleave: CopyRandomListInterleaveVisualizer,
+  },
+  "partition-list": {
+    array: PartitionArrayVisualizer,
+    twodummy: PartitionTwoDummyVisualizer,
+  },
+  "rotate-list": {
+    brute: RotateListBruteVisualizer,
+    split: RotateListSplitVisualizer,
+  },
+  "add-two-numbers": {
+    iterative: AddTwoNumbersIterativeVisualizer,
+    recursive: AddTwoNumbersRecursiveVisualizer,
+  },
+  "flatten-a-multilevel-doubly-linked-list": {
+    dfs: FlattenDFSStackVisualizer,
+    iterative: FlattenIterativeVisualizer,
+  },
+  "palindrome-linked-list": {
+    array: PalindromeArrayVisualizer,
+    reversehalf: PalindromeReverseHalfVisualizer,
+  },
+  "reverse-linked-list": {
+    iterative: ReverseListIterativeVisualizer,
+    recursive: ReverseListRecursiveVisualizer,
+  },
+  "reverse-linked-list-ii": {
+    extract: ReverseBetweenExtractVisualizer,
+    inplace: ReverseBetweenInPlaceVisualizer,
+  },
+  "reverse-nodes-in-k-group": {
+    array: ReverseKGroupArrayVisualizer,
+    inplace: ReverseKGroupInPlaceVisualizer,
+  },
+  "middle-of-the-linked-list": {
+    array: MiddleNodeArrayVisualizer,
+    twopass: MiddleNodeTwoPassVisualizer,
+  },
+  "happy-number": {
+    set: HappyNumberSetVisualizer,
+    floyd: HappyNumberFloydVisualizer,
+  },
+  "linked-list-cycle-ii": {
+    set: DetectCycleSetVisualizer,
+    floyd: DetectCycleFloydVisualizer,
   },
 };
 

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Columns3, ArrowRight, Code, Type, Binary, Hash, MoveRight } from "lucide-react";
+import { Columns3, ArrowRight, Code, Type, Binary, Hash, MoveRight, Sigma, PanelRight, Maximize2, TrendingUp, Grid3x3, ListTree, Undo2, Rabbit } from "lucide-react";
 import { loadProblems, databaseProblemsEnabled } from "@/lib/api/problems";
 import { EmptyState } from "@/components/EmptyState";
 import { LogoutButton } from "@/components/LogoutButton";
@@ -11,10 +11,18 @@ const CATEGORY_META: Record<string, { title: string; icon: string; color: string
   "bit-manipulation": { title: "Bit Manipulation", icon: "Binary", color: "from-violet-500 to-purple-400" },
   "hash-table": { title: "Hash Table", icon: "Hash", color: "from-fuchsia-500 to-pink-400" },
   "two-pointers": { title: "Two Pointers", icon: "MoveRight", color: "from-teal-500 to-cyan-400" },
+  "prefix-sum": { title: "Prefix Sum", icon: "Sigma", color: "from-indigo-500 to-blue-400" },
+  "sliding-window-fixed": { title: "Sliding Window - Fixed Size", icon: "PanelRight", color: "from-cyan-500 to-sky-400" },
+  "sliding-window-dynamic": { title: "Sliding Window - Dynamic Size", icon: "Maximize2", color: "from-teal-500 to-emerald-400" },
+  "kadanes": { title: "Kadane's Algorithm", icon: "TrendingUp", color: "from-orange-500 to-amber-400" },
+  "matrix": { title: "Matrix (2D Array)", icon: "Grid3x3", color: "from-purple-500 to-fuchsia-400" },
+  "linked-list": { title: "Linked List", icon: "ListTree", color: "from-amber-500 to-orange-400" },
+  "linked-list-reversal": { title: "LinkedList In-place Reversal", icon: "Undo2", color: "from-rose-500 to-red-400" },
+  "fast-slow-pointers": { title: "Fast and Slow Pointers", icon: "Rabbit", color: "from-lime-500 to-green-400" },
 };
 
 const DEFAULT_CATEGORY_META = { title: "Problems", icon: "Code", color: "from-neutral-500 to-neutral-400" };
-const iconMap: Record<string, React.ComponentType<{ className?: string }>> = { Columns3, Code, Type, Binary, Hash, MoveRight };
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = { Columns3, Code, Type, Binary, Hash, MoveRight, Sigma, PanelRight, Maximize2, TrendingUp, Grid3x3, ListTree, Undo2, Rabbit };
 
 function DifficultyBadge({ d }: { d: string }) {
   const cls =

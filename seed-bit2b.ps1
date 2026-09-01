@@ -3,13 +3,13 @@ $env:SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIs
 $headers = @{ "apikey" = $env:SUPABASE_KEY; "Authorization" = "Bearer $env:SUPABASE_KEY"; "Content-Type" = "application/json"; "Prefer" = "return=minimal" }
 
 function Get-ProblemId($slug) {
-    $resp = Invoke-RestMethod -Uri "$env:SUPABASE_URL/rest/v1/viz_problems?select=id&slug=eq.$slug" -Headers @{ "apikey" = $env:SUPABASE_KEY; "Authorization" = "Bearer $env:SUPABASE_KEY" }
+    $resp = Invoke-RestMethod -Uri "$env:SUPABASE_URL/rest/v1/ct_problems?select=id&slug=eq.$slug" -Headers @{ "apikey" = $env:SUPABASE_KEY; "Authorization" = "Bearer $env:SUPABASE_KEY" }
     return $resp[0].id
 }
 
 function Add-Version($problemId, $vid, $name, $src, $sort) {
     $body = @{ problem_id=$problemId; version_id=$vid; name=$name; source=$src; sort_order=$sort } | ConvertTo-Json -Compress
-    Invoke-RestMethod -Uri "$env:SUPABASE_URL/rest/v1/viz_problem_versions" -Method POST -Headers $headers -Body $body
+    Invoke-RestMethod -Uri "$env:SUPABASE_URL/rest/v1/ct_problem_versions" -Method POST -Headers $headers -Body $body
     Write-Host "  version $vid"
 }
 

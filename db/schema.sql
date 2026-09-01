@@ -1,13 +1,14 @@
 -- ============================================================
--- VIZ ARENA — database schema
+-- CODETRACE — database schema
 -- Separate project. Shares the unified `users` table with
 -- InterviewHandbook and Code Battle. All other tables are new.
+-- Tables are prefixed `ct_` to avoid collisions in the shared DB.
 -- ============================================================
 
 -- ------------------------------------------------------------------
--- viz_categories — category metadata for the dashboard
+-- ct_categories — category metadata for the dashboard
 -- ------------------------------------------------------------------
-create table if not exists public.viz_categories (
+create table if not exists public.ct_categories (
   id          text primary key,
   title       text not null,
   description text not null,
@@ -17,13 +18,13 @@ create table if not exists public.viz_categories (
 );
 
 -- ------------------------------------------------------------------
--- viz_problems — one row per problem
+-- ct_problems — one row per problem
 -- ------------------------------------------------------------------
-create table if not exists public.viz_problems (
+create table if not exists public.ct_problems (
   id          uuid primary key default gen_random_uuid(),
   slug        text unique not null,
   title       text not null,
-  category_id text not null references public.viz_categories (id) on delete cascade,
+  category_id text not null references public.ct_categories (id) on delete cascade,
   difficulty  text not null check (difficulty in ('easy','medium','hard')),
   description text not null,
   constraints text,
@@ -31,14 +32,14 @@ create table if not exists public.viz_problems (
   created_at  timestamptz not null default now()
 );
 
-create index if not exists viz_problems_category_idx on public.viz_problems (category_id);
+create index if not exists ct_problems_category_idx on public.ct_problems (category_id);
 
 -- ------------------------------------------------------------------
--- viz_problem_versions — each solution source for a problem
+-- ct_problem_versions — each solution source for a problem
 -- ------------------------------------------------------------------
-create table if not exists public.viz_problem_versions (
+create table if not exists public.ct_problem_versions (
   id         uuid primary key default gen_random_uuid(),
-  problem_id uuid not null references public.viz_problems (id) on delete cascade,
+  problem_id uuid not null references public.ct_problems (id) on delete cascade,
   version_id text not null,          -- e.g. 'brute', 'single'
   name       text not null,          -- e.g. 'Brute Force', 'Single Pass'
   source     text not null,
@@ -46,15 +47,15 @@ create table if not exists public.viz_problem_versions (
   unique (problem_id, version_id)
 );
 
-create index if not exists viz_problem_versions_problem_idx
-  on public.viz_problem_versions (problem_id);
+create index if not exists ct_problem_versions_problem_idx
+  on public.ct_problem_versions (problem_id);
 
 -- ------------------------------------------------------------------
--- viz_user_progress — which problems a user has completed
+-- ct_user_progress — which problems a user has completed
 -- ------------------------------------------------------------------
-create table if not exists public.viz_user_progress (
+create table if not exists public.ct_user_progress (
   user_id     uuid not null references public.users (id) on delete cascade,
-  problem_id  uuid not null references public.viz_problems (id) on delete cascade,
+  problem_id  uuid not null references public.ct_problems (id) on delete cascade,
   completed   boolean not null default false,
   last_opened_at timestamptz,
   completed_at   timestamptz,
@@ -65,25 +66,25 @@ create table if not exists public.viz_user_progress (
 -- ROW LEVEL SECURITY (anon, matching the other apps' pattern)
 -- ============================================================
 
-alter table public.viz_categories         enable row level security;
-alter table public.viz_problems           enable row level security;
-alter table public.viz_problem_versions   enable row level security;
-alter table public.viz_user_progress      enable row level security;
+alter table public.ct_categories         enable row level security;
+alter table public.ct_problems           enable row level security;
+alter table public.ct_problem_versions   enable row level security;
+alter table public.ct_user_progress      enable row level security;
 
-create policy "viz categories readable by all"
-  on public.viz_categories for select to anon using (true);
-create policy "viz problems readable by all"
-  on public.viz_problems for select to anon using (true);
-create policy "viz problem versions readable by all"
-  on public.viz_problem_versions for select to anon using (true);
+create policy "ct categories readable by all"
+  on public.ct_categories for select to anon using (true);
+create policy "ct problems readable by all"
+  on public.ct_problems for select to anon using (true);
+create policy "ct problem versions readable by all"
+  on public.ct_problem_versions for select to anon using (true);
 
 -- progress: readable by all, anyone may upsert (server-side via anon key).
-create policy "viz progress readable by all"
-  on public.viz_user_progress for select to anon using (true);
-create policy "viz progress insertable by all"
-  on public.viz_user_progress for insert to anon with check (true);
-create policy "viz progress updatable by all"
-  on public.viz_user_progress for update to anon using (true);
+create policy "ct progress readable by all"
+  on public.ct_user_progress for select to anon using (true);
+create policy "ct progress insertable by all"
+  on public.ct_user_progress for insert to anon with check (true);
+create policy "ct progress updatable by all"
+  on public.ct_user_progress for update to anon using (true);
 
 -- ============================================================
 -- GOOGLE OAUTH — link Google identities to the shared users table.

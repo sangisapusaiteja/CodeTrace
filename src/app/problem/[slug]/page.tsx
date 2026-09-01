@@ -9,7 +9,7 @@ import { EmptyState } from "@/components/EmptyState";
 import LogoMark from "@/components/LogoMark";
 import { useProblems } from "@/hooks/useProblems";
 import { getApproachInfos } from "@/lib/approaches";
-import { mcoSources, thirdMaxSources, moveZeroesSources, shuffleSources, majoritySources, removeDuplicatesSources, removeElementSources, maxProfitSources, missingRangesSources, majority2Sources, rotateSources, productSources, removeDuplicates2Sources, maxProfit2Sources, zeroFilledSources, increasingTripletSources, nextPermutationSources, firstMissingPositiveSources, reverseStringSources, lengthOfLastWordSources, isSubsequenceSources, validPalindromeSources, validPalindromeIISources, validAnagramSources, rotateStringSources, longestCommonPrefixSources, longestPalindromeSources, strStrSources, zigzagSources, reverseWordsSources, singleNumberSources, missingNumberSources, setMismatchSources, powerOfTwoSources, hammingWeightSources, countingBitsSources, hammingDistanceSources, reverseBitsSources, rangeBitwiseAndSources, singleNumberIISources, singleNumberIIISources, getSumSources, designHashMapSources, containsDuplicateSources, wordPatternSources, firstUniqCharSources, findDisappearedSources, maxBalloonsSources, numIdenticalPairsSources, isIsomorphicSources, canConstructSources, containsNearbyDuplicateSources, intersectSources, groupAnagramsSources, tinyURLSources, reorganizeStringSources, longestConsecutiveSources, isPossibleSources, numMatchingSubseqSources, numSplitsSources, mergeSortedArraySources, mergeAlternatelySources, sortedSquaresSources, twoSumSources, backspaceCompareSources, validWordAbbrSources, countBinarySubstringsSources, twoSumIISortedSources, maxAreaSources, threeSumSources, fourSumSources, trapSources } from "@/lib/traces";
+import { mcoSources, thirdMaxSources, moveZeroesSources, shuffleSources, majoritySources, removeDuplicatesSources, removeElementSources, maxProfitSources, missingRangesSources, majority2Sources, rotateSources, productSources, removeDuplicates2Sources, maxProfit2Sources, zeroFilledSources, increasingTripletSources, nextPermutationSources, firstMissingPositiveSources, reverseStringSources, lengthOfLastWordSources, isSubsequenceSources, validPalindromeSources, validPalindromeIISources, validAnagramSources, rotateStringSources, longestCommonPrefixSources, longestPalindromeSources, strStrSources, zigzagSources, reverseWordsSources, singleNumberSources, missingNumberSources, setMismatchSources, powerOfTwoSources, hammingWeightSources, countingBitsSources, hammingDistanceSources, reverseBitsSources, rangeBitwiseAndSources, singleNumberIISources, singleNumberIIISources, getSumSources, designHashMapSources, containsDuplicateSources, wordPatternSources, firstUniqCharSources, findDisappearedSources, maxBalloonsSources, numIdenticalPairsSources, isIsomorphicSources, canConstructSources, containsNearbyDuplicateSources, intersectSources, groupAnagramsSources, tinyURLSources, reorganizeStringSources, longestConsecutiveSources, isPossibleSources, numMatchingSubseqSources, numSplitsSources, mergeSortedArraySources, mergeAlternatelySources, sortedSquaresSources, twoSumSources, backspaceCompareSources, validWordAbbrSources, countBinarySubstringsSources, twoSumIISortedSources, maxAreaSources, threeSumSources, fourSumSources, trapSources, runningSumSources, rangeSumSources, pivotIndexSources, maxPopSources, subarraySumSources, subarraysDivByKSources, checkSubarraySumSources, findMaxLengthSources, maxAvgSources, findAnagramsSources, checkInclusionSources, maxDistinctSources, findSubstringSources, longSubNoRepeatSources, charReplacementSources, minSubArrayLenSources, longestOnesSources, minWindowSources, maxSubArraySources, maxCircularSources, maxProductSources, sightseeingSources, transposeSources, spiralSources, rotateImageSources, setZeroesSources, candyCrushSources, sudokuSources, gameOfLifeSources, intersectionSources, deleteDuplicatesSources, designLinkedListSources, removeNthSources, deleteDuplicatesIISources, swapPairsSources, copyRandomListSources, partitionSources, rotateListSources, addTwoNumbersSources, flattenSources, palindromeSources, reverseListSources, reverseBetweenSources, reverseKGroupSources, middleNodeSources, happyNumberSources, detectCycleSources } from "@/lib/traces";
 
 function DifficultyBadge({ d }: { d: string }) {
   const cls =
@@ -24,8 +24,8 @@ function DifficultyBadge({ d }: { d: string }) {
 export default function ProblemPage() {
   const params = useParams<{ slug: string }>();
   const { problems, loaded } = useProblems();
-  const isStringInput = params.slug === "reverse-string" || params.slug === "length-of-last-word" || params.slug === "valid-palindrome" || params.slug === "valid-palindrome-ii" || params.slug === "longest-common-prefix" || params.slug === "longest-palindrome" || params.slug === "zigzag-conversion" || params.slug === "reverse-words-in-a-string" || params.slug === "first-unique-character-in-a-string" || params.slug === "maximum-number-of-balloons" || params.slug === "group-anagrams" || params.slug === "reorganize-string" || params.slug === "number-of-good-ways-to-split-a-string" || params.slug === "count-binary-substrings";
-  const isTwoStringInput = params.slug === "is-subsequence" || params.slug === "valid-anagram" || params.slug === "rotate-string" || params.slug === "find-the-index-of-the-first-occurrence-in-a-string" || params.slug === "word-pattern" || params.slug === "isomorphic-strings" || params.slug === "ransom-note" || params.slug === "number-of-matching-subsequences" || params.slug === "merge-strings-alternately" || params.slug === "backspace-string-compare" || params.slug === "valid-word-abbreviation";
+  const isStringInput = params.slug === "reverse-string" || params.slug === "length-of-last-word" || params.slug === "valid-palindrome" || params.slug === "valid-palindrome-ii" || params.slug === "longest-common-prefix" || params.slug === "longest-palindrome" || params.slug === "zigzag-conversion" || params.slug === "reverse-words-in-a-string" || params.slug === "first-unique-character-in-a-string" || params.slug === "maximum-number-of-balloons" || params.slug === "group-anagrams" || params.slug === "reorganize-string" || params.slug === "number-of-good-ways-to-split-a-string" || params.slug === "count-binary-substrings" || params.slug === "longest-substring-without-repeating-characters" || params.slug === "longest-repeating-character-replacement";
+  const isTwoStringInput = params.slug === "is-subsequence" || params.slug === "valid-anagram" || params.slug === "rotate-string" || params.slug === "find-the-index-of-the-first-occurrence-in-a-string" || params.slug === "word-pattern" || params.slug === "isomorphic-strings" || params.slug === "ransom-note" || params.slug === "number-of-matching-subsequences" || params.slug === "merge-strings-alternately" || params.slug === "backspace-string-compare" || params.slug === "valid-word-abbreviation" || params.slug === "find-all-anagrams-in-a-string" || params.slug === "permutation-in-string" || params.slug === "substring-with-concatenation-of-all-words" || params.slug === "minimum-window-substring";
 
   // Per-problem default input (string for string problems, number array otherwise).
   const DEFAULT_INPUT: Record<string, number[] | string> = {
@@ -101,6 +101,53 @@ export default function ProblemPage() {
     "3sum": [-1, 0, 1, 2, -1, -4],
     "4sum": [1, 0, -1, 0, -2, 2],
     "trapping-rain-water": [0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1],
+    "running-sum-of-1d-array": [1, 2, 3, 4],
+    "range-sum-query-immutable": [-2, 0, 3, -5, 2, -1],
+    "find-pivot-index": [1, 7, 3, 6, 5, 6],
+    "maximum-population-year": [1993, 1999, 2000, 2010],
+    "subarray-sum-equals-k": [1, 1, 1],
+    "subarray-sums-divisible-by-k": [4, 5, 0, -2, -3, 1],
+    "continuous-subarray-sum": [23, 2, 4, 6, 7],
+    "contiguous-array": [0, 1, 0],
+    "maximum-average-subarray-i": [1, 12, -5, -6, 50, 3],
+    "find-all-anagrams-in-a-string": "cbaebabacd",
+    "permutation-in-string": "ab",
+    "maximum-sum-of-distinct-subarrays-with-length-k": [1, 5, 4, 2, 9, 9, 9],
+    "substring-with-concatenation-of-all-words": "barfoothefoobarman",
+    "longest-substring-without-repeating-characters": "abcabcbb",
+    "longest-repeating-character-replacement": "ABAB",
+    "minimum-size-subarray-sum": [2, 3, 1, 2, 4, 3],
+    "max-consecutive-ones-iii": [1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0],
+    "minimum-window-substring": "ADOBECODEBANC",
+    "maximum-subarray": [-2, 1, -3, 4, -1, 2, 1, -5, 4],
+    "maximum-sum-circular-subarray": [1, -2, 3, -2],
+    "maximum-product-subarray": [2, 3, -2, 4],
+    "best-sightseeing-pair": [8, 1, 5, 2, 6],
+    "transpose-matrix": [1, 2, 3, 4, 5, 6],
+    "spiral-matrix": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    "rotate-image": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    "set-matrix-zeroes": [1, 1, 1, 1, 0, 1, 1, 1, 1],
+    "candy-crush": [110, 5, 112, 113, 114, 210, 5, 112, 113, 114, 110, 5, 112, 113, 114, 110, 5, 112, 113, 114, 110, 5, 112, 113, 114, 110, 5, 112, 113, 114],
+    "valid-sudoku": [5,3,0,0,7,0,0,0,0, 6,0,0,1,9,5,0,0,0, 0,9,8,0,0,0,0,6,0, 8,0,0,0,6,0,0,0,3, 4,0,0,8,0,3,0,0,1, 7,0,0,0,2,0,0,0,6, 0,6,0,0,0,0,2,8,0, 0,0,0,4,1,9,0,0,5, 0,0,0,0,8,0,0,7,9],
+    "game-of-life": [0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+    "intersection-of-two-linked-lists": [4, 1, 8, 4, 5],
+    "remove-duplicates-from-sorted-list": [1, 1, 2],
+    "design-linked-list": [1, 2, 3],
+    "remove-nth-node-from-end-of-list": [1, 2, 3, 4, 5],
+    "remove-duplicates-from-sorted-list-ii": [1, 2, 3, 3, 4, 4, 5],
+    "swap-nodes-in-pairs": [1, 2, 3, 4],
+    "copy-list-with-random-pointer": [7, 13, 11, 10, 1],
+    "partition-list": [1, 4, 3, 2, 5, 2],
+    "rotate-list": [1, 2, 3, 4, 5],
+    "add-two-numbers": [2, 4, 3],
+    "flatten-a-multilevel-doubly-linked-list": [1, 2, 3, 4, 5, 6],
+    "palindrome-linked-list": [1, 2, 2, 1],
+    "reverse-linked-list": [1, 2, 3, 4, 5],
+    "reverse-linked-list-ii": [1, 2, 3, 4, 5],
+    "reverse-nodes-in-k-group": [1, 2, 3, 4, 5],
+    "middle-of-the-linked-list": [1, 2, 3, 4, 5],
+    "happy-number": [19],
+    "linked-list-cycle-ii": [3, 2, 0, -4],
   };
 
   const DEFAULT_INPUT2: Record<string, string> = {
@@ -115,14 +162,26 @@ export default function ProblemPage() {
     "merge-strings-alternately": "pqr",
     "backspace-string-compare": "ad#c",
     "valid-word-abbreviation": "i12iz4n",
+    "find-all-anagrams-in-a-string": "abc",
+    "permutation-in-string": "eidbaooo",
+    "substring-with-concatenation-of-all-words": "foo bar",
+    "minimum-window-substring": "ABC",
+  };
+
+  const DEFAULT_LIST2: Record<string, number[]> = {
+    "intersection-of-two-linked-lists": [5, 6, 1, 8, 4, 5],
+    "add-two-numbers": [5, 6, 4],
+    "copy-list-with-random-pointer": [0, 1, 2, 3, 4],
   };
 
   const defaultInput = DEFAULT_INPUT[params.slug] ?? [1, 1, 0, 1, 1, 1];
   const defaultStr = typeof defaultInput === "string" ? defaultInput : "hello";
   const defaultStr2 = DEFAULT_INPUT2[params.slug] ?? "";
+  const defaultList2 = DEFAULT_LIST2[params.slug] ?? [];
   const [nums, setNums] = useState<number[]>(isStringInput || isTwoStringInput ? defaultStr.split("").map((c) => c.charCodeAt(0)) : (defaultInput as number[]));
   const [str, setStr] = useState<string>(defaultStr);
   const [str2, setStr2] = useState<string>(defaultStr2);
+  const [list2, setList2] = useState<number[]>(defaultList2);
   const [n, setN] = useState<number>(3);
   const [val, setVal] = useState<number>(0);
   const [lower, setLower] = useState<number>(0);
@@ -132,6 +191,13 @@ export default function ProblemPage() {
   const [k2, setK2] = useState<number>(3);
   const [mergeM, setMergeM] = useState<number>(3);
   const [target, setTarget] = useState<number>(9);
+  const [left, setLeft] = useState<number>(0);
+  const [right, setRight] = useState<number>(2);
+  const [kVal, setKVal] = useState<number>(2);
+  const [winK, setWinK] = useState<number>(4);
+  const [mRows, setMRows] = useState<number>(3);
+  const [mCols, setMCols] = useState<number>(3);
+  const [cycleStart, setCycleStart] = useState<number>(1);
 
   const problem = problems.find((p) => p.slug === params.slug) ?? null;
 
@@ -292,6 +358,100 @@ export default function ProblemPage() {
       ? (fourSumSources as Record<string, string>)
       : problem.slug === "trapping-rain-water"
       ? (trapSources as Record<string, string>)
+      : problem.slug === "running-sum-of-1d-array"
+      ? (runningSumSources as Record<string, string>)
+      : problem.slug === "range-sum-query-immutable"
+      ? (rangeSumSources as Record<string, string>)
+      : problem.slug === "find-pivot-index"
+      ? (pivotIndexSources as Record<string, string>)
+      : problem.slug === "maximum-population-year"
+      ? (maxPopSources as Record<string, string>)
+      : problem.slug === "subarray-sum-equals-k"
+      ? (subarraySumSources as Record<string, string>)
+      : problem.slug === "subarray-sums-divisible-by-k"
+      ? (subarraysDivByKSources as Record<string, string>)
+      : problem.slug === "continuous-subarray-sum"
+      ? (checkSubarraySumSources as Record<string, string>)
+      : problem.slug === "contiguous-array"
+      ? (findMaxLengthSources as Record<string, string>)
+      : problem.slug === "maximum-average-subarray-i"
+      ? (maxAvgSources as Record<string, string>)
+      : problem.slug === "find-all-anagrams-in-a-string"
+      ? (findAnagramsSources as Record<string, string>)
+      : problem.slug === "permutation-in-string"
+      ? (checkInclusionSources as Record<string, string>)
+      : problem.slug === "maximum-sum-of-distinct-subarrays-with-length-k"
+      ? (maxDistinctSources as Record<string, string>)
+      : problem.slug === "substring-with-concatenation-of-all-words"
+      ? (findSubstringSources as Record<string, string>)
+      : problem.slug === "longest-substring-without-repeating-characters"
+      ? (longSubNoRepeatSources as Record<string, string>)
+      : problem.slug === "longest-repeating-character-replacement"
+      ? (charReplacementSources as Record<string, string>)
+      : problem.slug === "minimum-size-subarray-sum"
+      ? (minSubArrayLenSources as Record<string, string>)
+      : problem.slug === "max-consecutive-ones-iii"
+      ? (longestOnesSources as Record<string, string>)
+      : problem.slug === "minimum-window-substring"
+      ? (minWindowSources as Record<string, string>)
+      : problem.slug === "maximum-subarray"
+      ? (maxSubArraySources as Record<string, string>)
+      : problem.slug === "maximum-sum-circular-subarray"
+      ? (maxCircularSources as Record<string, string>)
+      : problem.slug === "maximum-product-subarray"
+      ? (maxProductSources as Record<string, string>)
+      : problem.slug === "best-sightseeing-pair"
+      ? (sightseeingSources as Record<string, string>)
+      : problem.slug === "transpose-matrix"
+      ? (transposeSources as Record<string, string>)
+      : problem.slug === "spiral-matrix"
+      ? (spiralSources as Record<string, string>)
+      : problem.slug === "rotate-image"
+      ? (rotateImageSources as Record<string, string>)
+      : problem.slug === "set-matrix-zeroes"
+      ? (setZeroesSources as Record<string, string>)
+      : problem.slug === "candy-crush"
+      ? (candyCrushSources as Record<string, string>)
+      : problem.slug === "valid-sudoku"
+      ? (sudokuSources as Record<string, string>)
+      : problem.slug === "game-of-life"
+      ? (gameOfLifeSources as Record<string, string>)
+      : problem.slug === "intersection-of-two-linked-lists"
+      ? (intersectionSources as Record<string, string>)
+      : problem.slug === "remove-duplicates-from-sorted-list"
+      ? (deleteDuplicatesSources as Record<string, string>)
+      : problem.slug === "design-linked-list"
+      ? (designLinkedListSources as Record<string, string>)
+      : problem.slug === "remove-nth-node-from-end-of-list"
+      ? (removeNthSources as Record<string, string>)
+      : problem.slug === "remove-duplicates-from-sorted-list-ii"
+      ? (deleteDuplicatesIISources as Record<string, string>)
+      : problem.slug === "swap-nodes-in-pairs"
+      ? (swapPairsSources as Record<string, string>)
+      : problem.slug === "copy-list-with-random-pointer"
+      ? (copyRandomListSources as Record<string, string>)
+      : problem.slug === "partition-list"
+      ? (partitionSources as Record<string, string>)
+      : problem.slug === "rotate-list"
+      ? (rotateListSources as Record<string, string>)
+      : problem.slug === "add-two-numbers"
+      ? (addTwoNumbersSources as Record<string, string>)
+      : problem.slug === "flatten-a-multilevel-doubly-linked-list"
+      ? (flattenSources as Record<string, string>)
+      : problem.slug === "palindrome-linked-list"
+      ? (palindromeSources as Record<string, string>)
+      : problem.slug === "reverse-linked-list"
+      ? (reverseListSources as Record<string, string>)
+      : problem.slug === "reverse-linked-list-ii"
+      ? (reverseBetweenSources as Record<string, string>)
+      : problem.slug === "reverse-nodes-in-k-group"
+      ? (reverseKGroupSources as Record<string, string>)
+      : problem.slug === "middle-of-the-linked-list"
+      ? (middleNodeSources as Record<string, string>)
+      : problem.slug === "happy-number"
+      ? (happyNumberSources as Record<string, string>)
+      : problem.slug === "linked-list-cycle-ii"
+      ? (detectCycleSources as Record<string, string>)
       : (mcoSources as Record<string, string>);
 
   return (
@@ -360,6 +520,20 @@ export default function ProblemPage() {
                   onChange={(e) => setStr2(e.target.value)}
                   className="rounded-lg border border-border bg-surface-raised px-3 py-2 font-mono text-sm text-text focus:outline-none focus:border-accent/40"
                   placeholder="second string"
+                />
+              </label>
+            )}
+            {(problem.slug === "intersection-of-two-linked-lists" || problem.slug === "add-two-numbers" || problem.slug === "copy-list-with-random-pointer") && (
+              <label className="flex items-center gap-2">
+                <span className="text-xs font-semibold uppercase tracking-wider text-text-dim">list2</span>
+                <input
+                  value={list2.join(", ")}
+                  onChange={(e) => {
+                    const raw = e.target.value.split(",").map((s) => Number(s.trim()));
+                    setList2(raw.filter((n) => !isNaN(n)));
+                  }}
+                  className="rounded-lg border border-border bg-surface-raised px-3 py-2 font-mono text-sm text-text focus:outline-none focus:border-accent/40"
+                  placeholder="second list"
                 />
               </label>
             )}
@@ -462,6 +636,127 @@ export default function ProblemPage() {
                 />
               </label>
             )}
+            {problem.slug === "range-sum-query-immutable" && (
+              <>
+                <label className="flex items-center gap-2">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-text-dim">left</span>
+                  <input
+                    type="number"
+                    value={left}
+                    onChange={(e) => setLeft(Number(e.target.value) || 0)}
+                    className="w-20 rounded-lg border border-border bg-surface-raised px-3 py-2 font-mono text-sm text-text focus:outline-none focus:border-accent/40"
+                  />
+                </label>
+                <label className="flex items-center gap-2">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-text-dim">right</span>
+                  <input
+                    type="number"
+                    value={right}
+                    onChange={(e) => setRight(Number(e.target.value) || 0)}
+                    className="w-20 rounded-lg border border-border bg-surface-raised px-3 py-2 font-mono text-sm text-text focus:outline-none focus:border-accent/40"
+                  />
+                </label>
+              </>
+            )}
+            {problem.slug === "reverse-linked-list-ii" && (
+              <>
+                <label className="flex items-center gap-2">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-text-dim">left</span>
+                  <input
+                    type="number"
+                    value={left}
+                    onChange={(e) => setLeft(Number(e.target.value) || 1)}
+                    className="w-20 rounded-lg border border-border bg-surface-raised px-3 py-2 font-mono text-sm text-text focus:outline-none focus:border-accent/40"
+                  />
+                </label>
+                <label className="flex items-center gap-2">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-text-dim">right</span>
+                  <input
+                    type="number"
+                    value={right}
+                    onChange={(e) => setRight(Number(e.target.value) || 1)}
+                    className="w-20 rounded-lg border border-border bg-surface-raised px-3 py-2 font-mono text-sm text-text focus:outline-none focus:border-accent/40"
+                  />
+                </label>
+              </>
+            )}
+            {problem.slug === "reverse-nodes-in-k-group" && (
+              <label className="flex items-center gap-2">
+                <span className="text-xs font-semibold uppercase tracking-wider text-text-dim">k</span>
+                <input
+                  type="number"
+                  value={kVal}
+                  onChange={(e) => setKVal(Number(e.target.value) || 1)}
+                  className="w-20 rounded-lg border border-border bg-surface-raised px-3 py-2 font-mono text-sm text-text focus:outline-none focus:border-accent/40"
+                />
+              </label>
+            )}
+            {problem.slug === "linked-list-cycle-ii" && (
+              <label className="flex items-center gap-2">
+                <span className="text-xs font-semibold uppercase tracking-wider text-text-dim">cycleStart</span>
+                <input
+                  type="number"
+                  value={cycleStart}
+                  onChange={(e) => setCycleStart(Number(e.target.value) || -1)}
+                  className="w-20 rounded-lg border border-border bg-surface-raised px-3 py-2 font-mono text-sm text-text focus:outline-none focus:border-accent/40"
+                />
+              </label>
+            )}
+            {(problem.slug === "subarray-sum-equals-k" || problem.slug === "subarray-sums-divisible-by-k" || problem.slug === "continuous-subarray-sum") && (
+              <label className="flex items-center gap-2">
+                <span className="text-xs font-semibold uppercase tracking-wider text-text-dim">k</span>
+                <input
+                  type="number"
+                  value={kVal}
+                  onChange={(e) => setKVal(Number(e.target.value) || 0)}
+                  className="w-20 rounded-lg border border-border bg-surface-raised px-3 py-2 font-mono text-sm text-text focus:outline-none focus:border-accent/40"
+                />
+              </label>
+            )}
+            {(problem.slug === "maximum-average-subarray-i" || problem.slug === "maximum-sum-of-distinct-subarrays-with-length-k") && (
+              <label className="flex items-center gap-2">
+                <span className="text-xs font-semibold uppercase tracking-wider text-text-dim">k</span>
+                <input
+                  type="number"
+                  value={winK}
+                  onChange={(e) => setWinK(Number(e.target.value) || 0)}
+                  className="w-20 rounded-lg border border-border bg-surface-raised px-3 py-2 font-mono text-sm text-text focus:outline-none focus:border-accent/40"
+                />
+              </label>
+            )}
+            {(problem.slug === "transpose-matrix" || problem.slug === "spiral-matrix" || problem.slug === "set-matrix-zeroes" || problem.slug === "candy-crush" || problem.slug === "game-of-life") && (
+              <>
+                <label className="flex items-center gap-2">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-text-dim">rows</span>
+                  <input
+                    type="number"
+                    value={mRows}
+                    onChange={(e) => setMRows(Number(e.target.value) || 1)}
+                    className="w-20 rounded-lg border border-border bg-surface-raised px-3 py-2 font-mono text-sm text-text focus:outline-none focus:border-accent/40"
+                  />
+                </label>
+                <label className="flex items-center gap-2">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-text-dim">cols</span>
+                  <input
+                    type="number"
+                    value={mCols}
+                    onChange={(e) => setMCols(Number(e.target.value) || 1)}
+                    className="w-20 rounded-lg border border-border bg-surface-raised px-3 py-2 font-mono text-sm text-text focus:outline-none focus:border-accent/40"
+                  />
+                </label>
+              </>
+            )}
+            {problem.slug === "rotate-image" && (
+              <label className="flex items-center gap-2">
+                <span className="text-xs font-semibold uppercase tracking-wider text-text-dim">n</span>
+                <input
+                  type="number"
+                  value={mRows}
+                  onChange={(e) => setMRows(Number(e.target.value) || 1)}
+                  className="w-20 rounded-lg border border-border bg-surface-raised px-3 py-2 font-mono text-sm text-text focus:outline-none focus:border-accent/40"
+                />
+              </label>
+            )}
             {problem.constraints && (
               <p className="text-xs text-text-dim">Constraints: {problem.constraints.replace(/\n/g, " · ")}</p>
             )}
@@ -505,6 +800,36 @@ export default function ProblemPage() {
                 ? [target]
                 : problem.slug === "two-sum-ii-input-array-is-sorted" || problem.slug === "4sum"
                 ? [target]
+                : problem.slug === "range-sum-query-immutable"
+                ? [left, right]
+                : problem.slug === "subarray-sum-equals-k" || problem.slug === "subarray-sums-divisible-by-k" || problem.slug === "continuous-subarray-sum"
+                ? [kVal]
+                : problem.slug === "maximum-average-subarray-i" || problem.slug === "maximum-sum-of-distinct-subarrays-with-length-k"
+                ? [winK]
+                : problem.slug === "longest-repeating-character-replacement" || problem.slug === "max-consecutive-ones-iii"
+                ? [kVal]
+                : problem.slug === "minimum-size-subarray-sum"
+                ? [target]
+                : problem.slug === "transpose-matrix" || problem.slug === "spiral-matrix" || problem.slug === "set-matrix-zeroes" || problem.slug === "candy-crush" || problem.slug === "game-of-life"
+                ? [mRows, mCols]
+                : problem.slug === "rotate-image"
+                ? [mRows]
+                : problem.slug === "valid-sudoku"
+                ? [9, 9]
+                : problem.slug === "remove-nth-node-from-end-of-list"
+                ? [kVal]
+                : problem.slug === "partition-list"
+                ? [val]
+                : problem.slug === "rotate-list"
+                ? [kVal]
+                : problem.slug === "intersection-of-two-linked-lists" || problem.slug === "add-two-numbers" || problem.slug === "copy-list-with-random-pointer"
+                ? [list2]
+                : problem.slug === "reverse-linked-list-ii"
+                ? [left, right]
+                : problem.slug === "reverse-nodes-in-k-group"
+                ? [kVal]
+                : problem.slug === "linked-list-cycle-ii"
+                ? [cycleStart]
                 : isTwoStringInput
                 ? [str2.split("").map((c) => c.charCodeAt(0))]
                 : []
