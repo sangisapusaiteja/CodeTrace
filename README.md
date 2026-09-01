@@ -32,12 +32,12 @@ Each problem ships **two distinct approaches** — a baseline brute-force and an
 | **Per-approach visualizers** | Each of the two approaches per problem has a purpose-built visualizer — pointer scans, bar charts, hash maps, sets, grids. |
 | **Live variable readout** | Tracked variables (`i`, `j`, `count`, `max`, ...) are shown as chips alongside each step with `ok`/`fail`/`info` tone coding. |
 | **Human explanations** | Every step carries a plain-English explanation of what just happened. |
-| **Categorized library** | Arrays, Strings, Bit Manipulation, Hash Table, and Two Pointers — with per-problem default inputs. |
+| **Categorized library** | 13 categories — Arrays, Strings, Bit Manipulation, Hash Table, Two Pointers, Prefix Sum, Sliding Window (Fixed & Dynamic), Kadane's, Matrix, Linked List, In-place Reversal, Fast & Slow Pointers — with per-problem default inputs. |
 | **Auth** | Google OAuth (with CSRF state protection) and email/password with session cookies. |
 | **Supabase-backed** | Problems, approach source code, and categories are seeded in Supabase and served via a typed REST client. |
 | **Progress tracking** | Per-user completion and last-opened timestamps stored in `ct_user_progress`. |
 
-**Coverage:** 70+ problems across 5 categories, each with 2 approaches.
+**Coverage:** 119 problems across 13 categories, each with 2 approaches.
 
 ---
 
@@ -215,6 +215,8 @@ sequenceDiagram
 ---
 
 ## Database Schema
+
+CodeTrace shares a single Supabase database with **Interview Handbook** and **Code Battle**. To avoid table-name collisions, each project prefixes its tables: CodeTrace uses `ct_`, Interview Handbook `ih_`, and Code Battle `cb_`. The `users` table is shared and unprefixed.
 
 ```mermaid
 erDiagram
