@@ -101,7 +101,7 @@ Open [http://localhost:3000](http://localhost:3000).
 ```mermaid
 flowchart TD
     A[Visit /] --> B{Authenticated?}
-    B -- No --> C[/login]
+    B -- No --> C[login]
     C --> D{Sign in method}
     D -- Email/Password --> E[POST /api/auth/signin]
     D -- Google --> F[GET /api/auth/google]
